@@ -133,7 +133,7 @@ To automate execution of your Lambda function:
 Once deployed, you can manually invoke the Lambda function or let EventBridge trigger it:
 
 1. **Manually Run the Function**:
-   Go to the AWS Lambda console, select your deployed function, and click on **Test** to execute it.
+   Go to the AWS Lambda console, select your deployed function, and click on **Test** to execute it
 
 ### Disclaimer
 
