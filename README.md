@@ -51,7 +51,7 @@ The **AWS Security Hub Findings Summarizer** automates the collection and analys
 
 #### AWS Services
 
-1. **SecurityHub**
+1. **AWS SecurityHub**
    - Must be enabled in all monitored regions.
    - Security standards enabled as needed.
 
