@@ -151,7 +151,8 @@ def summarize_findings(findings):
             f"\n\nAnalysis includes all {len(critical_findings)} critical findings"
         )
         if len(high_findings) > max_high_findings:
-            summary_note += f" and {max_high_findings} out of {len(high_findings)} high severity findings"
+            high_count = f"{max_high_findings} out of {len(high_findings)}"
+            summary_note += f" and {high_count} high severity findings"
         else:
             summary_note += f" and all {len(high_findings)} high severity findings"
 
