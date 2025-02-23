@@ -178,102 +178,132 @@ def generate_soc2_csv(findings):
     return output.getvalue()
 
 
-def lambda_handler(event, context):
-    """
-    Main Lambda function handler.
+def get_recipients_config():
+    """Get recipients configuration from SSM Parameter Store"""
+    ssm = boto3.client('ssm')
+    param = ssm.get_parameter(Name='/securityhub/recipients')
+    return json.loads(param['Parameter']['Value'])
 
-    This function:
-    1. Retrieves recent SecurityHub findings
-    2. Generates analysis and workpaper
-    3. Prepares email with attachments
-    4. Sends email using Amazon SES
 
-    Args:
-        event: Lambda event object
-        context: Lambda context object
+def get_findings(hours):
+    """Get SecurityHub findings from the last N hours"""
+    securityhub = boto3.client('securityhub')
+    now = datetime.utcnow()
+    start_time = now - timedelta(hours=hours)
+    
+    filters = {
+        'UpdatedAt': [{'Start': start_time.isoformat(), 'End': now.isoformat()}]
+    }
+    
+    findings = []
+    paginator = securityhub.get_paginator('get_findings')
+    for page in paginator.paginate(Filters=filters):
+        findings.extend(page['Findings'])
+    
+    return findings
 
-    Returns:
-        dict: Response object with status code and message
-    """
-    try:
-        # Get environment variables
-        sender_email = os.environ.get("SENDER_EMAIL")
-        recipient_email = os.environ.get("RECIPIENT_EMAIL")
-        findings_hours = int(os.environ.get("FINDINGS_HOURS", "24"))
 
-        if not sender_email or not recipient_email:
-            raise ValueError(
-                "Missing required environment variables: SENDER_EMAIL and RECIPIENT_EMAIL"
+def analyze_findings_with_bedrock(findings, report_type="detailed"):
+    """Analyze findings using Amazon Bedrock"""
+    bedrock = boto3.client('bedrock-runtime')
+    model_id = os.environ.get('BEDROCK_MODEL_ID', 'anthropic.claude-3-sonnet')
+    
+    # Prepare findings summary based on report type
+    if report_type == "summary":
+        findings_text = f"Summary of {len(findings)} SecurityHub findings:\n"
+        for finding in findings[:5]:  # Only include top 5 findings for summary
+            findings_text += f"- {finding['Title']} (Severity: {finding['Severity']['Label']})\n"
+    else:
+        findings_text = "Detailed analysis of SecurityHub findings:\n"
+        for finding in findings:
+            findings_text += (
+                f"Title: {finding['Title']}\n"
+                f"Severity: {finding['Severity']['Label']}\n"
+                f"Description: {finding['Description']}\n"
+                f"Resource: {finding['Resources'][0]['Type']}\n"
+                f"---\n"
             )
+    
+    prompt = f"""
+    Analyze these AWS SecurityHub findings from a SOC 2 compliance perspective:
+    {findings_text}
+    
+    Please provide:
+    1. Overall risk assessment
+    2. Impact on SOC 2 controls
+    3. Recommended remediation steps
+    4. Compliance status summary
+    """
+    
+    response = bedrock.invoke_model(
+        modelId=model_id,
+        body=json.dumps({
+            "prompt": prompt,
+            "max_tokens": 2048,
+            "temperature": 0.7
+        })
+    )
+    
+    return json.loads(response['body'])['completion']
 
-        security_hub = boto3.client("securityhub")
 
-        # Get findings from the last X hours
-        start_time = datetime.now() - timedelta(hours=findings_hours)
-
-        # Get findings
-        findings_response = security_hub.get_findings(
-            Filters={
-                "CreatedAt": [
-                    {"Start": start_time.isoformat(), "End": datetime.now().isoformat()}
-                ],
-                "SeverityLabel": [
-                    {"Value": "CRITICAL", "Comparison": "EQUALS"},
-                    {"Value": "HIGH", "Comparison": "EQUALS"},
-                ],
-            }
-        )
-
-        findings = findings_response["Findings"]
-
-        if not findings:
-            logger.info("No findings found in the specified time period")
-            return {"statusCode": 200, "body": json.dumps("No findings to analyze")}
-
-        # Generate analysis summary
-        summary = summarize_findings(findings)
-
-        # Generate SOC 2 workpaper CSV
-        csv_content = generate_soc2_csv(findings)
-
-        # Create email
+def send_report(recipients, findings_analysis, frequency):
+    """Send report to specified recipients"""
+    ses = boto3.client('ses')
+    
+    for recipient in recipients:
+        if recipient['frequency'] != frequency:
+            continue
+            
         msg = MIMEMultipart()
-        msg["Subject"] = (
-            f'SecurityHub SOC 2 Compliance Report - {datetime.now().strftime("%Y-%m-%d")}'
-        )
-        msg["From"] = sender_email
-        msg["To"] = recipient_email
-
-        # Attach summary
-        msg.attach(MIMEText(summary or "Error generating analysis", "plain"))
-
-        # Attach CSV
-        csv_attachment = MIMEApplication(csv_content.encode("utf-8"))
-        csv_attachment.add_header(
-            "Content-Disposition",
-            "attachment",
-            filename=f'soc2_findings_{datetime.now().strftime("%Y%m%d")}.csv',
-        )
-        msg.attach(csv_attachment)
-
-        # Send email
-        ses = boto3.client("ses")
+        msg['Subject'] = f'SecurityHub SOC 2 Analysis Report ({frequency.capitalize()})'
+        msg['From'] = recipient['email']  # Sender must be verified in SES
+        msg['To'] = recipient['email']
+        
+        # Create report content based on recipient preferences
+        report_content = ""
+        for report_type in recipient.get('report_type', ['detailed']):
+            analysis = analyze_findings_with_bedrock(findings_analysis, report_type)
+            report_content += f"\n\n{report_type.upper()} REPORT:\n{analysis}"
+        
+        msg.attach(MIMEText(report_content, 'plain'))
+        
         ses.send_raw_email(
-            Source=sender_email,
-            Destinations=[recipient_email],
-            RawMessage={"Data": msg.as_string()},
+            Source=msg['From'],
+            Destinations=[msg['To']],
+            RawMessage={'Data': msg.as_string()}
         )
 
-        logger.info("Successfully sent email with findings analysis")
 
+def lambda_handler(event, context):
+    """Main Lambda handler function"""
+    try:
+        # Get frequency from event or default to weekly
+        frequency = event.get('frequency', 'weekly')
+        
+        # Get configuration
+        config = get_recipients_config()
+        hours = int(os.environ.get('FINDINGS_HOURS', '24'))
+        
+        # Get and analyze findings
+        findings = get_findings(hours)
+        
+        # Send reports to recipients
+        send_report(config['recipients'], findings, frequency)
+        
         return {
-            "statusCode": 200,
-            "body": json.dumps("Successfully analyzed findings and sent report"),
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': f'Successfully sent {frequency} SecurityHub SOC 2 analysis reports',
+                'findingsAnalyzed': len(findings)
+            })
         }
-
+        
     except Exception as e:
-        logger.error(f"Error in lambda_handler: {str(e)}")
+        print(f"Error: {str(e)}")
         return {
-            "statusCode": 500,
-            "body": json.dumps(f"Error processing findings: {str(e)}"),
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': str(e)
+            })
         }

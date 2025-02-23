@@ -3,24 +3,29 @@ Transform: AWS::Serverless-2016-10-31
 Description: AWS SecurityHub SOC 2 Compliance Analyzer
 
 Parameters:
-  SenderEmail:
+  RecipientsConfig:
     Type: String
-    Description: Email address to send reports from (must be verified in SES)
-  RecipientEmail:
-    Type: String
-    Description: Email address to send reports to (must be verified in SES)
+    Description: JSON configuration for report recipients and frequencies
+    Default: |
+      {
+        "recipients": [
+          {
+            "email": "default@example.com",
+            "frequency": "weekly",
+            "report_type": ["detailed", "summary"]
+          }
+        ]
+      }
+
   FindingsHours:
     Type: Number
     Default: 24
     Description: Number of hours to look back for findings
+
   BedrockModelId:
     Type: String
     Default: anthropic.claude-3-sonnet
     Description: Amazon Bedrock model ID to use for analysis
-  Schedule:
-    Type: String
-    Default: cron(30 5 ? * MON-FRI *)
-    Description: Schedule expression for running the analyzer
 
 Globals:
   Function:
@@ -29,10 +34,9 @@ Globals:
     MemorySize: 256
     Environment:
       Variables:
-        SENDER_EMAIL: !Ref SenderEmail
-        RECIPIENT_EMAIL: !Ref RecipientEmail
         FINDINGS_HOURS: !Ref FindingsHours
         BEDROCK_MODEL_ID: !Ref BedrockModelId
+        RECIPIENTS_CONFIG: !Ref RecipientsConfig
 
 Resources:
   SecurityHubAnalyzerFunction:
@@ -49,15 +53,87 @@ Resources:
                 - securityhub:GetFindings
                 - ses:SendRawEmail
                 - bedrock:InvokeModel
+                - ssm:GetParameter
               Resource: '*'
-      Events:
-        ScheduledAnalysis:
-          Type: Schedule
-          Properties:
-            Schedule: !Ref Schedule
-            Name: SecurityHubSOC2Analysis
-            Description: Scheduled SecurityHub SOC 2 analysis
-            Enabled: true
+
+  # Weekly Schedule
+  WeeklyAnalysisSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Weekly SecurityHub SOC 2 analysis
+      ScheduleExpression: cron(30 5 ? * MON *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
+          Id: WeeklyAnalysis
+          Input: !Sub |
+            {
+              "frequency": "weekly"
+            }
+
+  # Bi-Weekly Schedule
+  BiWeeklyAnalysisSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Bi-weekly SecurityHub SOC 2 analysis
+      ScheduleExpression: cron(30 5 ? * MON/2 *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
+          Id: BiWeeklyAnalysis
+          Input: !Sub |
+            {
+              "frequency": "biweekly"
+            }
+
+  # Monthly Schedule
+  MonthlyAnalysisSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Monthly SecurityHub SOC 2 analysis
+      ScheduleExpression: cron(30 5 1 * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
+          Id: MonthlyAnalysis
+          Input: !Sub |
+            {
+              "frequency": "monthly"
+            }
+
+  # EventBridge Permissions
+  WeeklySchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SecurityHubAnalyzerFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WeeklyAnalysisSchedule.Arn
+
+  BiWeeklySchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SecurityHubAnalyzerFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt BiWeeklyAnalysisSchedule.Arn
+
+  MonthlySchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SecurityHubAnalyzerFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt MonthlyAnalysisSchedule.Arn
+
+  # Recipients Configuration Parameter
+  RecipientsParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /securityhub/recipients
+      Type: String
+      Value: !Ref RecipientsConfig
+      Description: Configuration for SecurityHub report recipients and frequencies
 
   SecurityHubAnalyzerLogGroup:
     Type: AWS::Logs::LogGroup
@@ -69,6 +145,11 @@ Outputs:
   SecurityHubAnalyzerFunctionArn:
     Description: ARN of the SecurityHub Analyzer Lambda function
     Value: !GetAtt SecurityHubAnalyzerFunction.Arn
+
+  RecipientsParameterName:
+    Description: SSM Parameter name for recipients configuration
+    Value: !Ref RecipientsParameter
+
   SecurityHubAnalyzerLogGroupName:
     Description: Name of the CloudWatch Log Group for the Lambda function
     Value: !Ref SecurityHubAnalyzerLogGroup 
