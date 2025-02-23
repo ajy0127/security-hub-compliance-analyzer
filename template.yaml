@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SecurityHub SOC 2 Compliance Analyzer
+
+Parameters:
+  SenderEmail:
+    Type: String
+    Description: Email address to send reports from (must be verified in SES)
+  RecipientEmail:
+    Type: String
+    Description: Email address to send reports to (must be verified in SES)
+  FindingsHours:
+    Type: Number
+    Default: 24
+    Description: Number of hours to look back for findings
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-3-sonnet
+    Description: Amazon Bedrock model ID to use for analysis
+  Schedule:
+    Type: String
+    Default: cron(30 5 ? * MON-FRI *)
+    Description: Schedule expression for running the analyzer
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 300
+    MemorySize: 256
+    Environment:
+      Variables:
+        SENDER_EMAIL: !Ref SenderEmail
+        RECIPIENT_EMAIL: !Ref RecipientEmail
+        FINDINGS_HOURS: !Ref FindingsHours
+        BEDROCK_MODEL_ID: !Ref BedrockModelId
+
+Resources:
+  SecurityHubAnalyzerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.securityhub_handler.lambda_handler
+      Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - securityhub:GetFindings
+                - ses:SendRawEmail
+                - bedrock:InvokeModel
+              Resource: '*'
+      Events:
+        ScheduledAnalysis:
+          Type: Schedule
+          Properties:
+            Schedule: !Ref Schedule
+            Name: SecurityHubSOC2Analysis
+            Description: Scheduled SecurityHub SOC 2 analysis
+            Enabled: true
+
+  SecurityHubAnalyzerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${SecurityHubAnalyzerFunction}
+      RetentionInDays: 30
+
+Outputs:
+  SecurityHubAnalyzerFunctionArn:
+    Description: ARN of the SecurityHub Analyzer Lambda function
+    Value: !GetAtt SecurityHubAnalyzerFunction.Arn
+  SecurityHubAnalyzerLogGroupName:
+    Description: Name of the CloudWatch Log Group for the Lambda function
+    Value: !Ref SecurityHubAnalyzerLogGroup 

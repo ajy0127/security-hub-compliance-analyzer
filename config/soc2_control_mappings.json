@@ -1,0 +1,111 @@
+{
+    "finding_type_mappings": {
+        "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices": {
+            "primary_controls": ["CC6.1", "CC6.6", "CC7.1"],
+            "secondary_controls": ["CC8.1"]
+        },
+        "Software and Configuration Checks/Industry and Regulatory Standards/CIS-AWS-Foundations-Benchmark": {
+            "primary_controls": ["CC6.1", "CC6.2", "CC6.6", "CC7.1"],
+            "secondary_controls": ["CC8.1", "CC9.1"]
+        },
+        "Software and Configuration Checks/Vulnerabilities/CVE": {
+            "primary_controls": ["CC7.1", "CC8.1"],
+            "secondary_controls": ["CC6.6"]
+        },
+        "Effects/Data Exposure": {
+            "primary_controls": ["CC6.1", "CC6.7", "C1.1"],
+            "secondary_controls": ["CC7.2", "CC7.3"]
+        },
+        "TTPs/Initial Access/Trusted Relationship": {
+            "primary_controls": ["CC6.1", "CC6.2", "CC6.3"],
+            "secondary_controls": ["CC9.1", "CC9.2"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Network Security": {
+            "primary_controls": ["CC6.1.4", "CC6.6.3"],
+            "secondary_controls": ["CC6.6.2", "CC6.6.4"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Encryption and Key Management": {
+            "primary_controls": ["CC6.1.7", "CC6.1.8", "CC6.1.10"],
+            "secondary_controls": ["CC6.1.6"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Identity and Access Management": {
+            "primary_controls": ["CC6.1.2", "CC6.1.3", "CC6.1.9"],
+            "secondary_controls": ["CC6.2.1"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Logging and Monitoring": {
+            "primary_controls": ["CC6.6.2", "CC6.6.4"],
+            "secondary_controls": ["CC7.1.2", "CC7.1.3"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Container Security": {
+            "primary_controls": ["CC7.1.5", "CC8.1.5"],
+            "secondary_controls": ["CC6.6.1"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/S3": {
+            "primary_controls": ["CC6.1.10", "CC6.1.7"],
+            "secondary_controls": ["CC6.1.4", "CC6.1.8"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/RDS": {
+            "primary_controls": ["CC6.1.7", "CC6.1.8"],
+            "secondary_controls": ["CC6.1.4", "CC6.6.2"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/EC2": {
+            "primary_controls": ["CC6.1.4", "CC6.6.1"],
+            "secondary_controls": ["CC7.1.2", "CC6.6.2"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/IAM": {
+            "primary_controls": ["CC6.1.2", "CC6.1.3"],
+            "secondary_controls": ["CC6.1.9", "CC6.2.1"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/CloudTrail": {
+            "primary_controls": ["CC6.6.2", "CC6.6.4"],
+            "secondary_controls": ["CC7.1", "CC7.2"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/KMS": {
+            "primary_controls": ["CC6.1.8", "CC6.1.7"],
+            "secondary_controls": ["CC6.1.10"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Lambda": {
+            "primary_controls": ["CC6.1.9", "CC8.1.5"],
+            "secondary_controls": ["CC6.6.1", "CC7.1.5"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/EKS": {
+            "primary_controls": ["CC7.1.5", "CC6.6.1"],
+            "secondary_controls": ["CC8.1.5", "CC6.6.2"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/WAF": {
+            "primary_controls": ["CC6.6.3", "CC6.1.4"],
+            "secondary_controls": ["CC6.6.2"]
+        }
+    },
+    "severity_risk_mapping": {
+        "CRITICAL": "High",
+        "HIGH": "High",
+        "MEDIUM": "Medium",
+        "LOW": "Low",
+        "INFORMATIONAL": "Low"
+    },
+    "control_descriptions": {
+        "CC6.1": "The entity implements logical access security software, infrastructure, and architectures over protected information assets to protect them from security events to meet the entity's objectives.",
+        "CC6.1.2": "Multi-factor authentication (MFA) is enforced for all user accounts, including root accounts, IAM users, and federated users. This includes console access and programmatic access where applicable.",
+        "CC6.1.3": "Password policies enforce minimum complexity (length, special characters, numbers), prevent password reuse, and require periodic changes. Account lockout is implemented after defined failed attempts.",
+        "CC6.1.4": "Network access control lists (NACLs) and security groups are configured with least-privilege access, default deny rules, and specific allow rules for required traffic only.",
+        "CC6.1.6": "All public endpoints use TLS 1.2 or higher with strong cipher suites. Certificate validity and expiration are monitored.",
+        "CC6.1.7": "All data at rest is encrypted using AWS KMS or customer-managed keys with AES-256. This includes EBS volumes, RDS instances, S3 buckets, and other storage services.",
+        "CC6.1.8": "AWS KMS is used for key management with automatic key rotation, access logging, and strict IAM policies. Customer-managed keys follow documented key management procedures.",
+        "CC6.1.9": "IAM roles and groups implement least-privilege access with regular reviews. Service roles use specific permission boundaries and SCPs where applicable.",
+        "CC6.1.10": "Customer data encryption uses envelope encryption with unique data keys. Key policies enforce automatic rotation and access logging.",
+        "CC6.6.1": "AWS Config rules monitor and enforce infrastructure compliance. CloudFormation templates and Terraform configurations manage infrastructure as code.",
+        "CC6.6.2": "GuardDuty, SecurityHub, and CloudWatch monitor for security events. Alerts are integrated with incident response workflows.",
+        "CC6.6.3": "AWS WAF and Shield protect against DDoS and application-layer attacks. Network firewall rules block malicious traffic patterns.",
+        "CC6.6.4": "CloudWatch Logs, CloudTrail, and Security Hub integrate with SIEM solutions. Log retention policies meet compliance requirements.",
+        "CC7.1": "Regular vulnerability assessments include AWS Inspector scans, penetration testing, and compliance audits.",
+        "CC7.1.2": "AWS Inspector performs network reachability analysis and vulnerability scans. Results are tracked in SecurityHub.",
+        "CC7.1.3": "Web application security testing includes automated DAST scans integrated with CI/CD pipelines.",
+        "CC7.1.5": "ECR image scanning and EKS security policies enforce container security standards. Failed checks block deployments.",
+        "CC8.1": "Change management processes include security reviews, testing requirements, and rollback procedures.",
+        "CC8.1.5": "CI/CD pipelines include automated security testing, SAST, and compliance checks. Failed security tests block deployments.",
+        "CC8.1.9": "CodePipeline and CodeDeploy provide deployment notifications and metrics. Failed deployments trigger automated rollbacks.",
+        "CC9.1": "Risk assessments incorporate AWS security assessments, compliance reports, and threat intelligence.",
+        "C1.1": "Data classification policies define handling requirements for different data types. AWS services are configured to enforce these requirements."
+    }
+} 

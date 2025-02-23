@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# AWS SAM
+.aws-sam/
+packaged.yaml
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# Data files
+*.csv
+soc2_findings_*.csv
+
+# Misc
+.DS_Store
+.env
+*.log 

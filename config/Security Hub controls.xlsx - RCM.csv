@@ -1,0 +1,144 @@
+"Template Risk Control Matrix (w/ COSO Guidance)
+2017 AICPA SOC 2 Criteria",,,,,,,,, , , , 
+TSC Ref. #,Criteria,Control Ref #,Control Ref Title,Repeat Control?,Control Description,Test Procedures Report,Document Request,Risk,Operational Group,Unique ID,Mapped Controls (for repeat),Sample Selection Requested (Y/N)
+CC3.2,COSO Principle 7: The entity identifies risks to the achievement of its objectives across The Entity and analyzes risks as a basis for determining how the risks should be managed. ,CC3.2.1,Annual Risk Assessment,No,"Management performs a risk assessment on a [insert frequency] basis that includes the identification and assessment of risks to achieving the objectives related to its [security, availability, confidentiality, processing integrity, or privacy] requirements and commitments.  Identified risks are rated and documented within a risk register for managements review. ",Inspected the risk register and evidence of management review to determine whether management performs a risk assessment on a [insert frequency] basis and identified risks are rated and documented within a risk register for managements review. ,"CC3.2.1A - Risk Register
+
+CC3.2.1B - Management Review and Approval of the Risk Register",High,Internal Audit,SOC 2-2 035,,No
+,,CC3.2.2,Risk Mitigation,No,Management selects and/or develops control activities to mitigate risks identified during the risk assessment to an acceptable level.  ,Inspected the risk register and/or mitigation plans to determine whether management selects and/or develops control activities to mitigate risks identified during the risk assessment to an acceptable level.  ,"CC3.2.1A - Risk Register
+
+CC3.2.2A - Risk Mitigation Plans",Low,Internal Audit,SOC 2-2 036,,No
+,,CC3.2.3,Mangement Risk Review,No,The results of the risk assessment along with mitigation plans are presented to management for review on a [insert frequency] basis. ,Inspected management review and approval of the risk register to determine whether the results of the risk assessment along with mitigation plans are presented to management for review on a [insert frequency] basis. ,CC3.2.1B - Management Review and Approval of the Risk Register,Low,Internal Audit,SOC 2-2 037,,No
+Logical and Physical Access Controls,,,,,,,,, , ,,
+CC6.1,"The Entity implements logical access security software, infrastructure, and architectures over protected information assets to protect them from security events to meet the Entity's objectives.",CC6.1.1,Inventory of Assets,No,"An inventory of information technology assets (physical and virtual) is maintained, reviewed, and updated at least annually. ","Inspected the asset inventory listing and evidence of review to determine whether an inventory of information technology assets (physical and virtual) is maintained, reviewed, and updated at least annually. ","CC6.1.1A - Asset Inventory Listing
+
+CC6.1.1B - Annual Asset Inventory Listing Review",Low,Information Technology,SOC 2-2 060,,No
+,,CC6.1.2,Multi-Factor Authentication,No,"The in-scope systems (servers, databases, network domain, and applications) are configured to enforce multi-factor authentication. ","Inspected multifactor authentication configurations to determine whether the in-scope systems (servers, databases, network domain, and applications) are configured to enforce multi-factor authentication. ","CC6.1.2A - Network Domain MFA Authentication Configurations
+
+CC6.1.2B - Production Server MFA Authentication Configurations
+
+CC6.1.2C - Production Database MFA Authentication Configurations
+
+CC6.1.2D - Production Application MFA Authentication Configurations",Low,Information Technology,SOC 2-2 061,,No
+,,CC6.1.3,Password Requirements ,No,The in-scope systems are configured to enforce predefined minimum password requirements and enforce account lock out in accordance with the Company password policy. ,Inspected the authentication configurations to determine whether the in-scope systems are configured to enforce predefined minimum password requirements and enforce account lock out in accordance with the Company password policy. ,"CC6.1.3A - Network Domain Minimum Password and Account Lockout Configurations
+
+CC6.1.3B - Production Server Minimum Password and Account Lockout Configurations
+
+CC6.1.3C - Production Database Minimum Password and Account Lockout Configurations
+
+CC6.1.3D - Production Application Minimum Password and Account Lockout Configurations
+
+CC6.1.3E - Cloud Management Console Minimum Password and Account Lockout Configurations",Low,Information Technology,SOC 2-2 062,,No
+,,CC6.1.4,Firewalls/Security Groups,No,"OPTION 1: Network firewalls are in place and configured to filter unauthorized inbound traffic from the internet.
+
+Option 2: AWS security groups that act as a virtual firewall system are used to filter unauthorized inbound traffic from the internet. ","OPTION 1: Inspected the network firewall ruleset configurations to determine whether network firewalls are in place and configured to filter unauthorized inbound traffic from the internet.
+
+OPTION 2: Inspected the AWS Security Group configurations to determine whether AWS security groups that act as a virtual firewall system are used to filter unauthorized inbound traffic from the internet. ",CC6.1.4A - Network Firewall Ruleset Configurations OR AWS Security Group Configurations,Low,Information Technology,SOC 2-2 063,,No
+,,CC6.1.6,TLS Encryption,No,Web communication sessions are encrypted using TLS encryption protocol.  ,Inspected the web application TLS encryption configurations to determine whether web communication sessions are encrypted using TLS encryption protocol.  ,CC6.1.6A - Web Application TLS Configurations,Low,Information Technology,SOC 2-2 065,,No
+,,CC6.1.7,Database Encryption,No,Production databases are encrypted. ,Inspected the production database encryption configurations to determine whether production databases are encrypted.,CC6.1.7A - Production Database Encryption Configurations,Low,Information Technology,SOC 2-2 066,,No
+,,CC6.1.8,Key Management System ,No,A key management system is used to store and protect encryption keys.  Access to the KMS is restricted to authorized personnel. ,"Inspected the KMS to determine whether a key management system is used to store and protect encryption keys.
+
+Inspected the KMS user listing to determine whether access to the KMS is restricted to authorized personnel. ","CC6.1.8A - Screen-print of the KMS Dashboard
+
+CC6.1.8B -  KMS User Listing",Low,Information Technology,SOC 2-2 067,,No
+,,CC6.1.9,Access Groups,No,Predefined access groups are utilized to assign role based access to the in-scope systems. ,Inspected access group listings to determine whether predefined access groups are utilized to assign role based access to the in-scope systems. ,"CC6.1.9A - Network Domain User Group Listing
+
+CC6.1.9B -Production Server User Group Listing
+
+CC6.1.9C - Production Database User Group Listing
+
+CC6.1.9D - Production Application User Group Listing
+
+CC6.2.1E - Cloud Management Console Administrative User Listing",Low,Information Technology,SOC 2-2 068,,No
+,,CC6.1.10,Data Encryption,No,Customer data is encrypted at rest (stored and backup) using strong encryption technologies.,Inspected encryption configurations to determine whether customer data is encrypted at rest (stored and backup) using strong encryption technologies.,CC6.1.10A - Screen-print Customer Data Encryption configuration,Low,Information Technology,,,No
+CC6.2,"Prior to issuing system credentials and granting system access, Entity registers and authorizes new internal and external users whose access is administered by Entity. For those users whose access is administered by Entity, user system credentials are removed when user access is no longer authorized. ",CC6.2.1,Administrative Access,No,Administrative access to the in-scope systems is restricted to authorized personnel based on job responsibilities. ,Inspected the administrative user access listings to determine whether administrative access to the in-scope systems is restricted to authorized personnel based on job responsibilities. ,"CC6.2.1A - Network Domain Administrative User Listing
+
+CC6.2.1A - Network Domain Administrative User Listing
+
+CC6.2.1A - Network Domain Administrative User Listing
+
+CC6.2.1A - Network Domain Administrative User Listing
+
+CC6.2.1E - Cloud Management Console Administrative User Listing",High,Information Technology,SOC 2-2 069,,No
+CC6.6,Entity implements logical access security measures to protect against threats from sources outside its system boundaries.  ,CC6.6.1,Configuration Management,No,Configuration management software is used to manage infrastructure baseline configurations and is configured to alert engineering personnel of changes to the baseline configurations. ,Inspected the configuration software monitoring and alerting configurations to determine whether configuration management software is used to manage infrastructure baseline configurations and is configured to alert engineering personnel of changes to the baseline configurations. ,CC6.6.1A - Configuration Management Software Monitoring and Alerting Configurations,Low,Information Technology,SOC 2-2 088,,No
+,,CC6.6.2,Security Monitoring Applications,No,Security monitoring applications are in place and used to monitor the in-scope systems for potential or actual security breaches.  The applications are configurated to alert security personnel when predefined events are detected.,Inspected the security monitoring application monitoring and alerting configurations to determine whether security monitoring applications are in place and used to monitor the in-scope systems for potential or actual security breached and are configurated to alert security personnel when predefined events are detected.,CC6.6.2A - Security Monitoring Application Monitoring and Alerting Configurations,Low,Information Technology,SOC 2-2 089,,No
+,,CC6.6.3,Intrustion Detection and Prevention,No,An ID/PS is in place and is configured to block potential or actual incoming malicious network traffic. ,Inspected the ID/PS configurations to determine whether an ID/PS is in place and is configured to block potential or actual incoming malicious network traffic. ,CC6.6.7A - ID/PS Monitoring and Alerting Configurations,Low,Information Technology,SOC 2-2 090,,No
+,,CC6.6.4,SIEM ,No,A SIEM is in place to aggregate and correlate in-scope system logs.  The SIEM is configured to alert security personnel of predefined security events. ,"Inspected the SIEM configurations to determine whether A SIEM is in place to aggregate and correlate in-scope system logs.
+
+Inspected the SIEM monitoring and alerting configurations to determine whether the SIEM is configured to alert security personnel of predefined security event.","CC6.6.8A - SIEM Log Aggregation Configurations
+
+CC6.6.8B - SIEM Monitoring and Alerting Configurations",Low,Information Technology,SOC 2-2 091,,No
+,,CC6.1.4,,Yes,"OPTION 1: Network firewalls are in place and configured to filter unauthorized inbound traffic from the internet.
+
+Option 2: AWS security groups that act as a virtual firewall system are used to filter unauthorized inbound traffic from the internet. ",Duplicate control - refer to CC6.1.4,,, ,SOC 2-2 092,,
+,,CC6.1.5,,Yes,An encrypted VPN is in place to ensure remote communication sessions are protected. ,Duplicate control - refer to CC6.1.5,,, ,SOC 2-2 093,,
+,,CC6.1.6,,Yes,Web communication sessions are encrypted using TLS encryption protocol.  ,Duplicate control - refer to CC6.1.6,,, ,SOC 2-2 094,,
+,,CC6.1.7,,Yes,Production databases are encrypted. ,Duplicate control - refer to CC6.1.7,,, ,SOC 2-2 095,,
+System Operations,,,,,,,,, , ,,
+CC7.1,"To meet its objectives, Entity uses detection and monitoring procedures to identify (1) changes to configurations that result in the introduction of new vulnerabilities, and (2) susceptibilities to newly discovered vulnerabilities. ",CC7.1.2,Network Vulnerability Scanning,No,Network vulnerability scanning is performed on a [insert frequency] basis.  Identified vulnerabilities are documented within the ticketing system and tracked through resolution.,"Inspected the vulnerability scanning reports for a selection of [insert frequency] to determine whether network vulnerability scanning is performed on a [insert frequency] basis.
+
+Inspected remediation tickets for a selection of vulnerabilities identified to determine whether identified vulnerabilities are documented within the ticketing system and tracked through resolution.","CC7.1.2A - Network Vulnerability Scanning Reports
+
+CC7.1.2A - Vulnerability Scanning Remediation Tickets",Low,IT Security,SOC 2-2 105,,Yes
+,,CC7.1.3,DAST Scanning,No,DAST scanning is performed [insert frequency]. Identified vulnerabilities are documented within the ticketing system and tracked through resolution. ,"Inspected the DAST scanning reports for a selection of [insert frequency] to determine whether DAST scanning is performed [insert frequency].
+
+Inspected remediation tickets for a selection of vulnerabilities identified to determine whether identified vulnerabilities are documented within the ticketing system and tracked through resolution.","CC7.1.3A - DAST Scanning Configurations
+
+CC7.1.3A - DAST Scanning Reports
+
+CC7.1.3C -  DAST Scanning Remediation Tickets",Low,IT Security,SOC 2-2 106,,Yes
+,,CC7.1.5,Container Vulnerability Scanning,No,Application container vulnerability scanning is performed in real time.  Identified vulnerabilities are documented within the ticketing system and tracked through resolution. ,"Inspected the application container vulnerability scanning configurations to determine whether application container vulnerability scanning is performed in real time.
+
+Inspected remediation tickets for a selection of findings identified to determine whether identified issues are documented within the ticketing system and tracked through resolution.",CC7.1.5A - Application Container Scanning Configurations,Low,IT Security,SOC 2-2 108,,No
+,,CC6.6.1,,Yes,Configuration management software is used to manage infrastructure baseline configurations and is configured to alert engineering personnel of changes to the baseline configurations. ,Duplicate control - refer to CC6.6.1,,, ,SOC 2-2 110,,
+,,CC6.6.2,,Yes,Security monitoring applications are in place and used to monitor the in-scope systems for potential or actual security breaches.  The applications are configurated to alert security personnel when predefined events are detected.,Duplicate control - refer to CC6.6.2,,, ,SOC 2-2 111,,
+Change Management ,,,,,,,,, , ,,
+CC8.1  ,"The entity authorizes, designs, develops or acquires, configures, documents, tests, approves, and implements changes to infrastructure, data, software, and procedures to meet its objectives.  ",CC8.1.1,Change Management Policies,No,"Change management policies and procedures are in place to guide personnel during the authorization, testing, and approval of production system and application changes. ","Inspected the change management policies and procedures to determine whether policies and procedures are in place to guide personnel during the authorization, testing, and approval of production system and application changes. ","CC8.1.1A - Change Management Policies and Procedures
+
+CC8.1.1B - SDLC Policies and Procedures
+",Low,Information Technology,SOC 2-2 127,,No
+,,CC8.1.2,Logical Segmentation,No,The production environment is logically segmented from the development and testing environments. ,"Inspected the testing, development, and production environment configurations to determine whether the production environment is logically segmented from the development and testing environments. ","CC8.1.2A - Screen Print of Separate Development, Test, and Production Environment
+",Low,DevOps,SOC 2-2 128,,No
+,,CC8.1.3,Version Control Software,No,Version control software is used to restrict access to application and infrastructure source code and provides the ability to rollback code to previous versions. ,Inspected the version control software rollback configurations to determine whether version control software is used to restrict access to application and infrastructure source code and provides the ability to rollback code to previous versions.,CC8.1.3A - Code Rollback Configurations,Low,DevOps,SOC 2-2 129,,No
+,,CC8.1.4,Change Management Ticketing,No,A ticketing system is used to manage and track application and infrastructure changes throughout the change management process. ,"Inspected the change tickets for a selection of application changes to determine whether a ticketing system is used to manage and track application changes throughout the change management process. 
+
+Inspected the change tickets for a selection of infrastructure changes to determine whether a ticketing system is used to manage and track infrastructure changes throughout the change management process. ","CC8.1.4A - Infrastructure Change Tickets
+
+CC8.1.4B - Application Change Tickets and Pull Requests",High,Information Technology,SOC 2-2 130,,Yes
+,,CC8.1.5,Automated Code Scanning,No,Automated software is used to scan application code for common coding issues and security vulnerabilities as component of the development process.  Issues and vulnerabilities are required to be corrected prior to merging code with the master branch.  ,Inspected automated software scanning configurations to determine whether automated software is used to scan application code for common coding issues and security vulnerabilities and issues and vulnerabilities are required to be corrected prior to merging code with the master branch.  ,CC8.1.5A - Code Security Scanning Configurations,Low,IT Security,SOC 2-2 131,,No
+,,CC8.1.6,Independent Code Reviews,No,Development and engineering personnel perform independent code reviews prior to merging code with the master branch. ,Inspected the change tickets and pull requests for a selection of code changes to determine whether development and engineering personnel perform independent code reviews prior to merging code with the master branch.,CC8.1.6A - Independent Code Review,Low,DevOps,SOC 2-2 132,,Yes
+,,CC8.1.7,"Change Authorization, Testing and Approval",No,"Changes to the in-scope systems are authorized, tested, and approved prior to implementation. ","Inspected the change tickets for a selection of application changes to determine whether changes to the in-scope systems are authorized, tested, and approved prior to implementation. 
+
+Inspected the change tickets for a selection of infrastructure changes to determine whether a ticketing system is used to manage and track infrastructure changes throughout the change management process.","CC8.1.4A - Infrastructure Change Tickets
+
+CC8.1.4B - Application Change Tickets and Pull Requests",High,Information Technology,SOC 2-2 133,,Yes
+,,CC8.1.8,Change Management Access Control,No,Access to promote changes to the production environment is restricted to authorized personnel who are independent of the development process. ,Inspected the listing of users with write access to source code and the listing of users with the ability to deploy code changes to determine whether access to promote changes to the production environment is restricted to authorized personnel who are independent of the development process. ,"CC8.1.8A - Listing of Users with the Ability to Promote Changes
+
+CC8.1.8B - Listing of Users with Write Access to Source Code",High,Information Technology,SOC 2-2 134,,No
+,,CC8.1.9,Automated Deployment Tool,No,The automated deployment tool is configured to alert management of  successful and unsuccessful deployments. ,Inspected the automated deployment tool monitoring and alerting configurations to determine whether the automated deployment tool is configured to alert management of  successful and unsuccessful deployments. ,CC8.1.9A - Build Deployment Notification Configurations,Low,Information Technology,SOC 2-2 135,,No
+,,CC6.6.1,,Yes,Configuration management software is used to manage infrastructure baseline configurations and is configured to alert engineering personnel of changes to the baseline configurations. ,Duplicate control - refer to CC6.5.5,,, ,SOC 2-2 136,,
+Risk Mitigation,,,,,,,,, , ,,
+CC9.1  ,"The entity identifies, selects, and develops risk mitigation activities for risks arising from potential business disruptions. ",CC9.1.1,Disaster Recovery Plan,No,A disaster recovery plan is in place that outlines the steps to be followed in the event of system outages and business disruptions. The disaster recovery plan is reviewed and updated at least annually.  ,"Inspected the disaster recovery plan to determine whether a disaster recovery plan is in place that outlines the steps to be followed in the event of system outages and business disruptions and is reviewed and updated at least annually.
+
+",CC9.1.1A - Disaster Recovery Plan,High,Information Technology,SOC 2-2 137,,No
+,,CC9.1.2,Disaster Recovery Testing,No,The disaster recovery plan is tested on an annual basis to ensure the continued effectiveness of the plan.  The results of the testing are reviewed and the plan is updated as necessary.  ,Inspected the disaster recovery plan test results to determine whether ,CC9.1.2A - Disaster Recovery Plan Testing Results,High,Information Technology,SOC 2-2 138,,No
+,,CC9.1.3,Separate Availability Zones,No,Production databases are backed up to a separate availability zone on a daily basis. ,Inspected the database backup configurations to determine whether production databases are backed up to a separate availability zone on a daily basis. ,CC9.1.3A - Production Database Backup Configurations,Low,Information Technology,SOC 2-2 139,,No
+,ADDITIONAL CRITERIA FOR AVAILABILITY,,,,,,,, , ,,
+A1.1,"The Entity maintains, monitors, and evaluates current processing capacity and use of system components (infrastructure, data, and software) to manage capacity demand and to enable the implementation of additional capacity to help meet its objectives. ",A1.1.1,Application Monitoring,No,Availability monitoring applications are in place and utilized to monitor the in-scope systems for capacity and processing issues.  The applications are configured to alert engineering personnel when predefined events are detected.,"Inspected availability application monitoring and alerting configurations to determine whether monitoring applications are in place and utilized to monitor the in-scope systems for capacity and processing issues, and are configured to alert engineering personnel when predefined events are detected.",A1.1.1A - Availability Monitoring Application Monitoring and Alerting Configurations,Low,Information Technology,SOC 2-2 145,,No
+,,A1.1.2,Autoscaling,No,Autoscaling is enabled within the production environment to ensure processing capacity does not exceed demand. ,Inspected autoscaling configurations to determine whether autoscaling is enabled within the production environment to ensure processing capacity does not exceed demand. ,A1.1.2A - Autoscaling Configurations,Low,Information Technology,SOC 2-2 146,,No
+A1.2,"The Entity authorizes, designs, develops or acquires, implements, operates, approves, maintains, and monitors environmental protections, software, data back-up processes, and recovery infrastructure to meet its objectives.  ",A1.2.1,Backup Jobs,No,"Backup jobs are monitored for failures by management personnel, and failures are investigated and resolved in a timely manner.","Inspected the backup system monitoring and alerting configurations to determine whether backup jobs are monitored for failures by management personnel.
+
+Inspected incident tickets for a selection of failed backups to determine whether backup failures are investigated and resolved in a timely manner.","A1.2.1A - Failed Backup Monitoring and Alerting Configurations
+
+A1.2.1B - Failed Backup Incident Tickets",Low,Information Technology,SOC 2-2 147,,No
+,,A1.2.3,Multiple Availability Zones,No,Multiple availability zones are leveraged within the production environment to ensure continuation of services in the event of an outage. ,Inspected the availability zone configurations to determine whether multiple availability zones are leveraged within the production environment to ensure continuation of services in the event of an outage. ,A1.2.3A - Availability Zone Configurations,Low,Information Technology,SOC 2-2 148,,No
+ADDITIONAL CONTROLS RELATED TO CONFIDENTIALITY,,,,,,,,, , ,,
+C1.1 ,The entity identifies and maintains confidential information to meet the entity’s objectives related to confidentiality. ,C1.1.1,Data Classification,No,Data classification and retention policies and procedures are in place to guide personnel in the procedures for data retention. ,Inspected the data classification and retention policies to determine whether data classification and retention policies and procedures are in place to guide personnel in the procedures for data retention. ,C1.1.1A - Data Classification and Retention Policies and Procedures,Low,Information Technology,SOC 2-2 158,,No
+,,C1.1.2,Confidentiality Agreements,No,Employees and vendors are required to sign confidentiality agreements upon hire or contracting agreeing not to disclose confidential information to unauthorized parties.,"Inspected signed non disclosure agreements for a selection of new hires to determine whether employees are required to sign confidentiality agreements upon hire or contracting agreeing not to disclose confidential information to unauthorized parties.
+
+Inspected signed non disclosure agreements for a selection of vendors to determine whether vendors are required to sign confidentiality agreements upon hire or contracting agreeing not to disclose confidential information to unauthorized parties.","C1.1.2A - Signed NDAs (New Hires)
+
+CC1.1.2B - Signed NDAs (Vendors)",Low,Human Resources,SOC 2-2 159,,Yes
+,,C1.1.3,Data Inventory Analysis,No,A data inventory analysis is performed [insert frequency] to ensure that confidential data is retained in accordance with the data classification and retention policies and procedures.,Inspected the data inventory analysis results to determine whether a data inventory analysis is performed [insert frequency] to ensure that confidential data is retained in accordance with the data classification and retention policies and procedures.,C1.1.3A - Data Inventory Analysis,Low,Information Technology,SOC 2-2 160,,No
+,,CC6.1.6,,Yes,Web communication sessions are encrypted using TLS encryption protocol.  ,Duplicate control - refer to CC6.1.6,,, ,SOC 2-2 161,,
+,,CC6.1.7,,Yes,Production databases are encrypted. ,Duplicate control - refer to CC6.1.7,,, ,SOC 2-2 162,,
+,,CC6.7.1,,Yes,Data loss and prevention software is utilized to restrict the transmission of sensitive information. ,Duplicate control - refer to CC6.7.1,,, ,SOC 2-2 163,,
