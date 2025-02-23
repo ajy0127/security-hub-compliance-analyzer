@@ -15,7 +15,6 @@ The mapping logic is based on the configurations in soc2_control_mappings.json, 
 
 import json
 import logging
-import os
 from pathlib import Path
 from datetime import datetime
 

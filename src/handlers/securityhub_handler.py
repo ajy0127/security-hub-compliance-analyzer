@@ -72,42 +72,44 @@ def summarize_findings(findings):
     for f in selected_findings:
         mapped_controls = soc2_mapper.map_finding_to_controls(f)
         finding_summary = {
-            "AccountId": f.get("AccountId", "N/A"),
-            "Title": f.get("Title", "N/A"),
-            "Severity": f.get("Severity", "N/A"),
-            "ResourceType": f.get("ResourceType", "N/A"),
-            "ResourceId": f.get("ResourceId", "N/A"),
-            "ResourceArn": f.get("ResourceArn", "N/A"),
-            "Description": (
-                f.get("Description", "N/A")[:200] + "..."
-                if len(f.get("Description", "")) > 200
-                else f.get("Description", "N/A")
+            'AccountId': f.get('AccountId', 'N/A'),
+            'Title': f.get('Title', 'N/A'),
+            'Severity': f.get('Severity', 'N/A'),
+            'ResourceType': f.get('ResourceType', 'N/A'),
+            'ResourceId': f.get('ResourceId', 'N/A'),
+            'ResourceArn': f.get('ResourceArn', 'N/A'),
+            'Description': (
+                f.get('Description', 'N/A')[:200] + '...'
+                if len(f.get('Description', '')) > 200
+                else f.get('Description', 'N/A')
             ),
-            "SOC2_Controls": {
-                "Primary": mapped_controls["primary_controls"],
-                "Secondary": mapped_controls["secondary_controls"],
-            },
+            'SOC2_Controls': {
+                'Primary': mapped_controls['primary_controls'],
+                'Secondary': mapped_controls['secondary_controls']
+            }
         }
         summary_findings.append(finding_summary)
 
     # Prepare prompt for AI analysis
-    bedrock = boto3.client("bedrock-runtime")
-    prompt = f"""Human: Analyze the following security findings with SOC 2 context: {json.dumps(summary_findings, indent=2)} 
-Please provide a comprehensive security and compliance analysis with the following structure:
-1. Critical Findings Overview:
-   - List each critical finding with Account ID, affected resource, and impacted SOC 2 controls
-   - Explain the potential impact on SOC 2 compliance
-2. High Severity Issues:
-   - Summarize key high severity findings and their SOC 2 control implications
-   - Identify patterns in control failures
-3. SOC 2 Control Impact Analysis:
-   - Group findings by SOC 2 control categories
-   - Highlight which controls are most at risk
-4. Recommended Actions:
-   - Prioritized list of remediation steps with control-specific context
-   - Timeline recommendations based on SOC 2 impact
-
-Please ensure the summary is clear and actionable, with specific references to SOC 2 controls. A:"""
+    bedrock = boto3.client('bedrock-runtime')
+    prompt = (
+        f"Human: Analyze the following security findings with SOC 2 context: "
+        f"{json.dumps(summary_findings, indent=2)} \n"
+        "Please provide a comprehensive security and compliance analysis with the following structure:\n"
+        "1. Critical Findings Overview:\n"
+        "   - List each critical finding with Account ID, affected resource, and impacted SOC 2 controls\n"
+        "   - Explain the potential impact on SOC 2 compliance\n"
+        "2. High Severity Issues:\n"
+        "   - Summarize key high severity findings and their SOC 2 control implications\n"
+        "   - Identify patterns in control failures\n"
+        "3. SOC 2 Control Impact Analysis:\n"
+        "   - Group findings by SOC 2 control categories\n"
+        "   - Highlight which controls are most at risk\n"
+        "4. Recommended Actions:\n"
+        "   - Prioritized list of remediation steps with control-specific context\n"
+        "   - Timeline recommendations based on SOC 2 impact\n\n"
+        "Please ensure the summary is clear and actionable, with specific references to SOC 2 controls. A:"
+    )
 
     try:
         response = bedrock.invoke_model(
@@ -235,7 +237,7 @@ def lambda_handler(event, context):
 
         # Send email
         ses = boto3.client("ses")
-        response = ses.send_raw_email(
+        ses.send_raw_email(
             Source=sender_email,
             Destinations=[recipient_email],
             RawMessage={"Data": msg.as_string()},
