@@ -63,8 +63,7 @@ def summarize_findings(findings):
 
     logger.info(
         "Analyzing {} critical and {} high severity findings".format(
-            len(critical_findings),
-            min(len(high_findings), max_high_findings)
+            len(critical_findings), min(len(high_findings), max_high_findings)
         )
     )
 
@@ -75,33 +74,36 @@ def summarize_findings(findings):
     for f in selected_findings:
         mapped_controls = soc2_mapper.map_finding_to_controls(f)
         finding_summary = {
-            'AccountId': f.get('AccountId', 'N/A'),
-            'Title': f.get('Title', 'N/A'),
-            'Severity': f.get('Severity', 'N/A'),
-            'ResourceType': f.get('ResourceType', 'N/A'),
-            'ResourceId': f.get('ResourceId', 'N/A'),
-            'ResourceArn': f.get('ResourceArn', 'N/A'),
-            'Description': (
-                f.get('Description', 'N/A')[:200] + '...'
-                if len(f.get('Description', '')) > 200
-                else f.get('Description', 'N/A')
+            "AccountId": f.get("AccountId", "N/A"),
+            "Title": f.get("Title", "N/A"),
+            "Severity": f.get("Severity", "N/A"),
+            "ResourceType": f.get("ResourceType", "N/A"),
+            "ResourceId": f.get("ResourceId", "N/A"),
+            "ResourceArn": f.get("ResourceArn", "N/A"),
+            "Description": (
+                f.get("Description", "N/A")[:200] + "..."
+                if len(f.get("Description", "")) > 200
+                else f.get("Description", "N/A")
             ),
-            'SOC2_Controls': {
-                'Primary': mapped_controls['primary_controls'],
-                'Secondary': mapped_controls['secondary_controls']
-            }
+            "SOC2_Controls": {
+                "Primary": mapped_controls["primary_controls"],
+                "Secondary": mapped_controls["secondary_controls"],
+            },
         }
         summary_findings.append(finding_summary)
 
     # Prepare prompt for AI analysis
-    bedrock = boto3.client('bedrock-runtime')
+    bedrock = boto3.client("bedrock-runtime")
 
     # Define prompt sections
     findings_data = json.dumps(summary_findings, indent=2)
-    overview_items = ["List findings with ID and resources", "Explain compliance impact"]
+    overview_items = [
+        "List findings with ID and resources",
+        "Explain compliance impact",
+    ]
     severity_items = [
         "Summarize findings and control implications",
-        "Identify control failure patterns"
+        "Identify control failure patterns",
     ]
     impact_items = ["Group by control categories", "Highlight high-risk controls"]
     action_items = ["List remediation steps", "Timeline recommendations"]
@@ -145,11 +147,11 @@ def summarize_findings(findings):
         summary = json.loads(response["body"].read())["content"][0]["text"]
 
         # Add a note about the findings breakdown
-        summary_note = f"\n\nAnalysis includes all {len(critical_findings)} critical findings"
+        summary_note = (
+            f"\n\nAnalysis includes all {len(critical_findings)} critical findings"
+        )
         if len(high_findings) > max_high_findings:
-            summary_note += (
-                f" and {max_high_findings} out of {len(high_findings)} high severity findings"
-            )
+            summary_note += f" and {max_high_findings} out of {len(high_findings)} high severity findings"
         else:
             summary_note += f" and all {len(high_findings)} high severity findings"
 

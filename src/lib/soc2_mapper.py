@@ -160,7 +160,9 @@ class SOC2Mapper:
                 "Finding_Description": finding.get("Description", "N/A"),
                 "Risk_Level": risk_level,
                 "Resource_Affected": finding.get("Resources", [{}])[0].get("Id", "N/A"),
-                "Control_Status": "Fail" if risk_level in ["High", "Medium"] else "Pass",
+                "Control_Status": (
+                    "Fail" if risk_level in ["High", "Medium"] else "Pass"
+                ),
                 "Remediation_Steps": finding.get("Remediation", {})
                 .get("Recommendation", {})
                 .get("Text", "No remediation steps provided"),
@@ -178,7 +180,9 @@ class SOC2Mapper:
                 ),
                 "Test_Procedures": "Review SecurityHub finding and verify remediation",
                 "Compensating_Controls": "None identified",
-                "Finding_Created_At": finding.get("CreatedAt", datetime.now().isoformat()),
+                "Finding_Created_At": finding.get(
+                    "CreatedAt", datetime.now().isoformat()
+                ),
                 "Last_Updated": finding.get("UpdatedAt", datetime.now().isoformat()),
             }
             soc2_findings.append(soc2_finding)
