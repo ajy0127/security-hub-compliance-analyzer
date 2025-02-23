@@ -46,4 +46,4 @@ soc2_findings_*.csv
 # Misc
 .DS_Store
 .env
-*.log 
+*.log .DS_Store
