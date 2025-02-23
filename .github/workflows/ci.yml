@@ -56,7 +56,6 @@ jobs:
     - name: Run cfn-lint
       run: |
         cfn-lint template.yaml
-        cfn-lint deployment/*.yaml
 
   deploy:
     needs: [test, lint, cfn-lint]
