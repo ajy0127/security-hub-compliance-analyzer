@@ -9,7 +9,9 @@ It performs the following main tasks:
 4. Creates a SOC 2 workpaper in CSV format
 5. Sends the analysis and workpaper via email
 
-The function runs on a schedule and focuses on CRITICAL and HIGH severity findings.
+The function can be triggered:
+- On a schedule (weekly, bi-weekly, monthly)
+- Immediately for testing and verification
 """
 
 import boto3
@@ -275,20 +277,94 @@ def send_report(recipients, findings_analysis, frequency):
         )
 
 
+def send_test_email(recipient_email):
+    """
+    Send an immediate test email to verify the setup.
+    
+    Args:
+        recipient_email (str): Email address to send the test to
+        
+    Returns:
+        dict: Response containing success/failure status and message ID
+    """
+    try:
+        ses = boto3.client('ses')
+        
+        # Create the email message
+        msg = MIMEMultipart()
+        msg['Subject'] = 'SecurityHub SOC 2 Analyzer - Test Email'
+        msg['From'] = recipient_email  # Must be verified in SES
+        msg['To'] = recipient_email
+        
+        # Create the email body
+        body = """
+        SecurityHub SOC 2 Analyzer Test Email
+        
+        This email confirms that your SecurityHub SOC 2 Analyzer is properly configured.
+        
+        Configuration Details:
+        - Email Delivery: Working
+        - Recipient Address: {email}
+        - Current Time: {timestamp}
+        
+        Next Steps:
+        1. Regular reports will be delivered based on your configured schedule
+        2. Check the user guide for customizing report frequencies and recipients
+        3. Monitor the first automated report for full functionality verification
+        
+        If you received this email, your basic email configuration is working correctly.
+        
+        For more information, please consult the documentation.
+        """.format(
+            email=recipient_email,
+            timestamp=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
+        )
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        # Send the email
+        response = ses.send_raw_email(
+            Source=msg['From'],
+            Destinations=[msg['To']],
+            RawMessage={'Data': msg.as_string()}
+        )
+        
+        logger.info(f"Test email sent successfully to {recipient_email}")
+        return {
+            'success': True,
+            'message_id': response['MessageId']
+        }
+        
+    except Exception as e:
+        logger.error(f"Error sending test email: {str(e)}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+
 def lambda_handler(event, context):
     """Main Lambda handler function"""
     try:
-        # Get frequency from event or default to weekly
-        frequency = event.get('frequency', 'weekly')
+        # Check if this is a test email request
+        if event.get('test_email'):
+            recipient_email = event.get('recipient_email')
+            if not recipient_email:
+                raise ValueError("recipient_email is required for test emails")
+                
+            # Send test email
+            result = send_test_email(recipient_email)
+            return {
+                'statusCode': 200 if result['success'] else 500,
+                'body': json.dumps(result)
+            }
         
-        # Get configuration
+        # Regular report processing
+        frequency = event.get('frequency', 'weekly')
         config = get_recipients_config()
         hours = int(os.environ.get('FINDINGS_HOURS', '24'))
         
-        # Get and analyze findings
         findings = get_findings(hours)
-        
-        # Send reports to recipients
         send_report(config['recipients'], findings, frequency)
         
         return {
@@ -300,7 +376,7 @@ def lambda_handler(event, context):
         }
         
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
         return {
             'statusCode': 500,
             'body': json.dumps({

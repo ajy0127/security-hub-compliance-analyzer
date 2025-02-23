@@ -119,6 +119,68 @@ This guide provides detailed instructions for setting up, configuring, and using
    - Update cron expression
    - Adjust timezone
 
+### Report Frequency and Recipients
+
+The analyzer supports multiple report frequencies and recipient configurations to accommodate different stakeholder needs:
+
+1. **Frequency Options**
+   - Weekly (Every Monday at 11 AM IST)
+   - Bi-weekly (Every other Monday at 11 AM IST)
+   - Monthly (First Monday of each month at 11 AM IST)
+
+2. **Recipient Configuration**
+   ```json
+   {
+     "recipients": [
+       {
+         "email": "security-team@company.com",
+         "frequency": "weekly",
+         "report_type": ["detailed", "summary"]
+       },
+       {
+         "email": "compliance@company.com",
+         "frequency": "monthly",
+         "report_type": ["summary"]
+       },
+       {
+         "email": "auditors@firm.com",
+         "frequency": "weekly",
+         "report_type": ["detailed"],
+         "active_period": {
+           "start": "2024-03-01",
+           "end": "2024-03-31"
+         }
+       }
+     ]
+   }
+   ```
+
+### Use Cases
+
+1. **Security Team Monitoring**
+   - Weekly detailed reports
+   - Full finding details
+   - Remediation tracking
+   - Immediate notifications
+
+2. **Compliance Team Review**
+   - Monthly summary reports
+   - Control status overview
+   - Compliance metrics
+   - Trend analysis
+
+3. **Audit Support**
+   - Temporary weekly reports
+   - Detailed evidence collection
+   - Custom date ranges
+   - Audit-ready format
+
+4. **Executive Updates**
+   - Monthly executive summaries
+   - Risk overview
+   - Key metrics
+   - Strategic insights
+
 ## Usage
 
 ### Manual Execution
@@ -263,4 +325,56 @@ This guide provides detailed instructions for setting up, configuring, and using
 - [AWS SecurityHub Documentation](https://docs.aws.amazon.com/securityhub/)
 - [SOC 2 Compliance Guide](https://www.aicpa.org/soc2)
 - [AWS Security Best Practices](https://aws.amazon.com/architecture/security-identity-compliance/)
-- [Claude Documentation](https://docs.anthropic.com/claude/) 
+- [Claude Documentation](https://docs.anthropic.com/claude/)
+
+## Initial Setup Verification
+
+### Sending a Test Email
+
+After deploying the analyzer, you can send an immediate test email to verify your setup:
+
+1. **Using AWS Console**:
+   - Navigate to the Lambda function
+   - Click "Test" button
+   - Create a new test event with the following JSON:
+     ```json
+     {
+       "test_email": true,
+       "recipient_email": "your.email@domain.com"
+     }
+     ```
+   - Click "Test" to send the verification email
+
+2. **Using AWS CLI**:
+   ```bash
+   aws lambda invoke \
+     --function-name SecurityHubAnalyzer \
+     --payload '{"test_email":true,"recipient_email":"your.email@domain.com"}' \
+     response.json
+   ```
+
+3. **Verification Steps**:
+   - Check your email for the test message
+   - Verify the sender and recipient addresses
+   - Confirm the timestamp in the email
+   - Review the next steps provided in the email
+
+### What to Check
+
+1. **Email Delivery**:
+   - Test email arrives promptly
+   - Formatting is correct
+   - Links are working
+   - Attachments (if any) are readable
+
+2. **Configuration**:
+   - Sender email is verified in SES
+   - Recipient email is verified in SES
+   - Lambda has proper permissions
+   - SES is out of sandbox mode
+
+3. **Troubleshooting**:
+   - Check CloudWatch Logs for errors
+   - Verify SES configuration
+   - Confirm IAM permissions
+   - Review email addresses 
