@@ -6,6 +6,8 @@
 
 The **AWS Security Hub Findings Summarizer** automates the collection and analysis of AWS Security Hub findings using Amazon Bedrock's Claude 3 Sonnet model. This solution provides daily email reports with AI-generated insights, helping security teams quickly understand their security posture across AWS accounts.
 
+This project is adapted from [AWS's Security Hub Findings Analyzer](https://github.com/aws-samples/analyze-securityhub-findings-with-bedrock), enhanced with SOC 2 compliance mapping and reporting capabilities.
+
 ### Key Features
 
 - **Automated Daily Reports**: Runs Monday-Friday at 11 AM IST (5:30 AM UTC). This is configurable.
@@ -17,7 +19,8 @@ The **AWS Security Hub Findings Summarizer** automates the collection and analys
 
 ### Architecture Details
 
-![Architecture Diagram](Architecture.png)
+![Architecture Diagram](docs/architecture/Architecture.png)
+*Architecture diagram adapted from [AWS Samples](https://github.com/aws-samples/analyze-securityhub-findings-with-bedrock)*
 
 #### Components
 
