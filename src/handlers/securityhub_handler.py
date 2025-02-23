@@ -93,7 +93,7 @@ def summarize_findings(findings):
     # Prepare prompt for AI analysis
     bedrock = boto3.client('bedrock-runtime')
     prompt = (
-        f"Human: Analyze the following security findings with SOC 2 context: "
+        "Human: Analyze the following security findings with SOC 2 context: "
         f"{json.dumps(summary_findings, indent=2)} \n"
         "Please provide a comprehensive security and compliance analysis with the following structure:\n"
         "1. Critical Findings Overview:\n"

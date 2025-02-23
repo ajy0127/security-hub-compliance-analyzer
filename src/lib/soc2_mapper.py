@@ -29,9 +29,7 @@ class SOC2Mapper:
         The configuration file contains mappings between SecurityHub finding types and SOC 2 controls.
         """
         config_path = (
-            Path(__file__).parent.parent.parent
-            / "config"
-            / "soc2_control_mappings.json"
+            Path(__file__).parent.parent.parent / "config" / "soc2_control_mappings.json"
         )
         try:
             with open(config_path, "r") as f:
@@ -144,9 +142,7 @@ class SOC2Mapper:
                 "Finding_Description": finding.get("Description", "N/A"),
                 "Risk_Level": risk_level,
                 "Resource_Affected": finding.get("Resources", [{}])[0].get("Id", "N/A"),
-                "Control_Status": (
-                    "Fail" if risk_level in ["High", "Medium"] else "Pass"
-                ),
+                "Control_Status": "Fail" if risk_level in ["High", "Medium"] else "Pass",
                 "Remediation_Steps": finding.get("Remediation", {})
                 .get("Recommendation", {})
                 .get("Text", "No remediation steps provided"),
@@ -157,15 +153,14 @@ class SOC2Mapper:
                 ),
                 "Evidence_Reference": finding.get("ProductArn", "N/A"),
                 "Audit_Impact": (
-                    f"This finding affects compliance with {control} and requires immediate attention"
+                    f"This finding affects compliance with {control} and requires "
+                    "immediate attention"
                     if risk_level == "High"
                     else f"This finding affects compliance with {control}"
                 ),
                 "Test_Procedures": "Review SecurityHub finding and verify remediation",
                 "Compensating_Controls": "None identified",
-                "Finding_Created_At": finding.get(
-                    "CreatedAt", datetime.now().isoformat()
-                ),
+                "Finding_Created_At": finding.get("CreatedAt", datetime.now().isoformat()),
                 "Last_Updated": finding.get("UpdatedAt", datetime.now().isoformat()),
             }
             soc2_findings.append(soc2_finding)
