@@ -26,19 +26,24 @@ class SOC2Mapper:
     def __init__(self):
         """
         Initialize the SOC2Mapper by loading control mappings from JSON configuration.
-        The configuration file contains mappings between SecurityHub finding types and SOC 2 controls.
+        Maps SecurityHub finding types to SOC 2 controls.
         """
-        config_path = (
-            Path(__file__).parent.parent.parent / "config" / "soc2_control_mappings.json"
-        )
+        # Build config path
+        root = Path(__file__).parent
+        base_path = root.parent.parent
+        config_dir = base_path / "config"
+        config_path = config_dir / "soc2_control_mappings.json"
+
         try:
             with open(config_path, "r") as f:
                 self.mappings = json.load(f)
         except FileNotFoundError:
-            logger.error(f"Could not find configuration file at {config_path}")
+            msg = f"Could not find configuration file at {config_path}"
+            logger.error(msg)
             raise
         except json.JSONDecodeError:
-            logger.error(f"Invalid JSON in configuration file at {config_path}")
+            msg = f"Invalid JSON in configuration file at {config_path}"
+            logger.error(msg)
             raise
 
     def map_finding_to_controls(self, finding):
@@ -49,8 +54,9 @@ class SOC2Mapper:
             finding (dict): SecurityHub finding object
 
         Returns:
-            dict: Dictionary containing lists of primary and secondary controls that map to the finding
-                 Format: {
+            dict: Dictionary containing lists of primary and secondary controls
+                 that map to the finding. Format:
+                 {
                      'primary_controls': ['CC6.1', 'CC7.1', ...],
                      'secondary_controls': ['CC8.1', ...]
                  }
@@ -67,26 +73,39 @@ class SOC2Mapper:
             return mapped_controls
 
         # First try exact match
-        if finding_type in self.mappings["finding_type_mappings"]:
-            mapping = self.mappings["finding_type_mappings"][finding_type]
-            mapped_controls["primary_controls"].extend(mapping["primary_controls"])
-            mapped_controls["secondary_controls"].extend(mapping["secondary_controls"])
+        ftm = self.mappings["finding_type_mappings"]
+        if finding_type in ftm:
+            mapping = ftm[finding_type]
+            # Extract controls from mapping
+            primary = mapping["primary_controls"]
+            secondary = mapping["secondary_controls"]
+            # Add controls to result
+            mapped_controls["primary_controls"].extend(primary)
+            mapped_controls["secondary_controls"].extend(secondary)
 
         # Look for partial matches in the finding type path
         finding_parts = finding_type.split("/")
-        for mapping_type, mapping in self.mappings["finding_type_mappings"].items():
+        for mapping_type, mapping in ftm.items():
             mapping_parts = mapping_type.split("/")
 
             # Check if any part of the finding type matches the mapping
             for part in finding_parts:
-                if part and part in mapping_parts:  # Skip empty parts
+                if not part:  # Skip empty parts
+                    continue
+                if part in mapping_parts:
                     # Add controls if not already present
-                    for control in mapping["primary_controls"]:
-                        if control not in mapped_controls["primary_controls"]:
-                            mapped_controls["primary_controls"].append(control)
-                    for control in mapping["secondary_controls"]:
-                        if control not in mapped_controls["secondary_controls"]:
-                            mapped_controls["secondary_controls"].append(control)
+                    primary = mapping["primary_controls"]
+                    secondary = mapping["secondary_controls"]
+                    # Add primary controls
+                    for control in primary:
+                        primary_list = mapped_controls["primary_controls"]
+                        if control not in primary_list:
+                            primary_list.append(control)
+                    # Add secondary controls
+                    for control in secondary:
+                        secondary_list = mapped_controls["secondary_controls"]
+                        if control not in secondary_list:
+                            secondary_list.append(control)
                     break
 
         return mapped_controls
@@ -101,9 +120,8 @@ class SOC2Mapper:
         Returns:
             str: Description of the control or default message if not found
         """
-        return self.mappings["control_descriptions"].get(
-            control_id, "Description not available"
-        )
+        descriptions = self.mappings["control_descriptions"]
+        return descriptions.get(control_id, "Description not available")
 
     def map_severity_to_risk(self, severity):
         """

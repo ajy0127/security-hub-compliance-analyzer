@@ -62,7 +62,10 @@ def summarize_findings(findings):
     selected_findings = critical_findings + high_findings_truncated
 
     logger.info(
-        f"Analyzing {len(critical_findings)} critical and {min(len(high_findings), max_high_findings)} high severity findings"
+        "Analyzing {} critical and {} high severity findings".format(
+            len(critical_findings),
+            min(len(high_findings), max_high_findings)
+        )
     )
 
     # Map findings to SOC 2 controls and prepare for analysis
@@ -92,23 +95,38 @@ def summarize_findings(findings):
 
     # Prepare prompt for AI analysis
     bedrock = boto3.client('bedrock-runtime')
+
+    # Define prompt sections
+    findings_data = json.dumps(summary_findings, indent=2)
+    overview_items = ["List findings with ID and resources", "Explain compliance impact"]
+    severity_items = [
+        "Summarize findings and control implications",
+        "Identify control failure patterns"
+    ]
+    impact_items = ["Group by control categories", "Highlight high-risk controls"]
+    action_items = ["List remediation steps", "Timeline recommendations"]
+
+    # Build sections with proper indentation
+    overview = "1. Critical Findings Overview:\n" + "\n".join(
+        f"   - {item}" for item in overview_items
+    )
+    severity = "2. High Severity Issues:\n" + "\n".join(
+        f"   - {item}" for item in severity_items
+    )
+    impact = "3. SOC 2 Control Impact Analysis:\n" + "\n".join(
+        f"   - {item}" for item in impact_items
+    )
+    actions = "4. Recommended Actions:\n" + "\n".join(
+        f"   - {item}" for item in action_items
+    )
+
+    # Combine prompt sections
     prompt = (
-        "Human: Analyze the following security findings with SOC 2 context: "
-        f"{json.dumps(summary_findings, indent=2)} \n"
-        "Please provide a comprehensive security and compliance analysis with the following structure:\n"
-        "1. Critical Findings Overview:\n"
-        "   - List each critical finding with Account ID, affected resource, and impacted SOC 2 controls\n"
-        "   - Explain the potential impact on SOC 2 compliance\n"
-        "2. High Severity Issues:\n"
-        "   - Summarize key high severity findings and their SOC 2 control implications\n"
-        "   - Identify patterns in control failures\n"
-        "3. SOC 2 Control Impact Analysis:\n"
-        "   - Group findings by SOC 2 control categories\n"
-        "   - Highlight which controls are most at risk\n"
-        "4. Recommended Actions:\n"
-        "   - Prioritized list of remediation steps with control-specific context\n"
-        "   - Timeline recommendations based on SOC 2 impact\n\n"
-        "Please ensure the summary is clear and actionable, with specific references to SOC 2 controls. A:"
+        "Human: Analyze the following security findings with SOC 2 context:\n"
+        f"{findings_data}\n\n"
+        "Please provide a comprehensive security and compliance analysis:\n"
+        f"{overview}\n{severity}\n{impact}\n{actions}\n\n"
+        "Please ensure the summary is clear and actionable with control references. A:"
     )
 
     try:
@@ -127,11 +145,11 @@ def summarize_findings(findings):
         summary = json.loads(response["body"].read())["content"][0]["text"]
 
         # Add a note about the findings breakdown
-        summary_note = (
-            f"\n\nAnalysis includes all {len(critical_findings)} critical findings"
-        )
+        summary_note = f"\n\nAnalysis includes all {len(critical_findings)} critical findings"
         if len(high_findings) > max_high_findings:
-            summary_note += f" and {max_high_findings} out of {len(high_findings)} high severity findings"
+            summary_note += (
+                f" and {max_high_findings} out of {len(high_findings)} high severity findings"
+            )
         else:
             summary_note += f" and all {len(high_findings)} high severity findings"
 
