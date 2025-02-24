@@ -3,7 +3,7 @@ import io
 import json
 import logging
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -51,6 +51,7 @@ def summarize_findings(findings):
     logger.info(
         "Analyzing {} critical and {} high severity findings".format(
             len(critical_findings), min(len(high_findings), max_high_findings)
+        )
     )
 
     # Map findings to SOC 2 controls and prepare for analysis
@@ -175,7 +176,7 @@ def get_recipients_config():
 def get_findings(hours):
     """Get SecurityHub findings from the last N hours"""
     securityhub = boto3.client("securityhub")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     start_time = now - timedelta(hours=hours)
 
     filters = {"UpdatedAt": [{"Start": start_time.isoformat(), "End": now.isoformat()}]}
@@ -335,7 +336,7 @@ def send_test_email(recipient_email):
         For more information, please consult the documentation.
         """.format(
             email=recipient_email,
-            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+            timestamp=datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
         )
 
         msg.attach(MIMEText(body, "plain"))
@@ -385,17 +386,20 @@ def lambda_handler(event, context):
             }
             return {
                 "statusCode": 200,
-                "body": json.dumps(response_body),
+                "body": json.dumps(response_body)
             }
         else:
             return {
                 "statusCode": 500,
                 "body": json.dumps({
                     "error": "Failed to send reports",
-                    "findingsAnalyzed": len(findings),
-                }),
+                    "findingsAnalyzed": len(findings)
+                })
             }
 
     except Exception as e:
         logger.error(f"Error: {str(e)}")
-        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }

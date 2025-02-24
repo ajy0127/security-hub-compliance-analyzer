@@ -22,10 +22,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install --upgrade -r requirements.txt
+        pip install -r requirements.txt
     - name: Run tests
       run: |
-        pytest tests/ --cov=src/ --cov-report=xml
+        python -m pytest tests/ --cov=src/ --cov-report=xml
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4
       env:
@@ -43,11 +43,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install --upgrade -r requirements.txt
+        pip install -r requirements.txt
     - name: Run linters
       run: |
-        flake8 src/
-        black --check src/
+        python -m flake8 src/
+        python -m black --check src/
+        python -m mypy src/
         
   cfn-lint:
     runs-on: ubuntu-latest
@@ -58,10 +59,10 @@ jobs:
       with:
         python-version: '3.12'
         cache: 'pip'
-    - name: Install cfn-lint
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install --upgrade cfn-lint
+        pip install -r requirements.txt
     - name: Run cfn-lint
       run: |
-        cfn-lint template.yaml 
+        python -m cfn_lint template.yaml 

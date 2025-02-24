@@ -2,16 +2,18 @@
 import json
 import os
 import sys
-from unittest.mock import MagicMock, patch
+from pathlib import Path
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 import pytest
+from unittest.mock import MagicMock, patch
 
 from src.handlers.securityhub_handler import (generate_soc2_csv,
                                               lambda_handler,
                                               summarize_findings)
-
-# Add parent directory to Python path for imports
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
 @pytest.fixture
