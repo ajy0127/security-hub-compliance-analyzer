@@ -75,9 +75,25 @@ This guide provides detailed instructions for setting up, configuring, and using
    ```
 
 4. **Deploy with SAM**
+
+   You can deploy to either staging or production environment:
+
+   **For staging environment:**
    ```bash
    sam build
-   sam deploy --guided
+   sam deploy --template-file deployment/environments/staging.yaml --stack-name soc2-analyzer-staging --guided
+   ```
+
+   **For production environment:**
+   ```bash
+   sam build
+   sam deploy --template-file deployment/environments/production.yaml --stack-name soc2-analyzer-prod --guided
+   ```
+
+   **For a simple deployment:**
+   ```bash
+   sam build
+   sam deploy --template-file template.yaml --stack-name soc2-analyzer --guided
    ```
 
 ## Configuration
@@ -97,7 +113,7 @@ This guide provides detailed instructions for setting up, configuring, and using
 
 ### SOC 2 Control Mappings
 
-1. **Mapping Configuration**
+1. **Base Mapping Configuration**
    - Located in `config/soc2_control_mappings.json`
    - Customize finding type mappings
    - Adjust control assignments
@@ -107,6 +123,18 @@ This guide provides detailed instructions for setting up, configuring, and using
    - Edit control descriptions
    - Add new controls
    - Modify existing mappings
+
+3. **Custom Organizational Controls**
+   - Located in `config/custom_controls.json`
+   - Define organization-specific controls
+   - Customize regex-based mappings
+   - Add resource-specific control mappings
+
+4. **Control Mapping Features**
+   - Exact finding type matching
+   - Partial/substring finding type matching
+   - Regex-based content matching
+   - Resource type-based mapping
 
 ### Schedule Configuration
 
@@ -250,6 +278,26 @@ The analyzer supports multiple report frequencies and recipient configurations t
    - Risk evaluation
    - Evidence collection
 
+### Remediation Tracking
+
+1. **Finding History**
+   - First identified date
+   - Last observed date
+   - Days open
+   - Remediation status
+
+2. **Trend Analysis**
+   - New findings count
+   - Remediated findings count
+   - Average remediation time
+   - Remediation progress
+
+3. **Finding Deduplication**
+   - Reduction of alert fatigue
+   - Clearer problem identification
+   - Tracking duplicates
+   - Critical issue preservation
+
 ## Troubleshooting
 
 ### Common Issues
@@ -320,12 +368,45 @@ The analyzer supports multiple report frequencies and recipient configurations t
    - Use least privilege
    - Monitor access
 
+## Advanced Features
+
+### Production Monitoring Dashboard
+
+The production environment includes a CloudWatch dashboard for monitoring the analyzer's performance:
+
+1. **Dashboard Access**
+   - After deployment to production, access the dashboard URL from the CloudFormation outputs
+   - Navigate to CloudWatch dashboards in the AWS Console
+   - Find the "SecurityHubSOC2Analyzer-Dashboard"
+
+2. **Dashboard Metrics**
+   - Lambda execution stats (invocations, errors, duration)
+   - Finding trend analysis
+   - Error rate monitoring
+   - Resource usage tracking
+
+### Staging vs Production Environments
+
+1. **Staging Environment**
+   - Used for testing configuration changes
+   - Smaller finding window (default 24 hours)
+   - Test email deliveries
+   - Limited resources and permissions
+
+2. **Production Environment**
+   - Full monitoring capabilities
+   - Complete dashboard and alerts
+   - Longer finding window (default 48 hours)
+   - Multiple email recipients and report types
+
 ## Additional Resources
 
 - [AWS SecurityHub Documentation](https://docs.aws.amazon.com/securityhub/)
 - [SOC 2 Compliance Guide](https://www.aicpa.org/soc2)
 - [AWS Security Best Practices](https://aws.amazon.com/architecture/security-identity-compliance/)
 - [Claude Documentation](https://docs.anthropic.com/claude/)
+- [DynamoDB Documentation](https://docs.aws.amazon.com/amazondynamodb/)
+- [CloudWatch Dashboards](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Dashboards.html)
 
 ## Initial Setup Verification
 
