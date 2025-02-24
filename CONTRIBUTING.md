@@ -1,66 +1,78 @@
-# Contributing to SecurityHub SOC 2 Analyzer
+# Contributing to SecurityHub SOC 2 Compliance Analyzer
 
-We love your input! We want to make contributing to SecurityHub SOC 2 Analyzer as easy and transparent as possible, whether it's:
+First off, thank you for considering contributing to the SecurityHub SOC 2 Compliance Analyzer! This is a specialized fork focused on SOC 2 compliance capabilities.
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
-- Becoming a maintainer
+## Focus Areas for Contributions
 
-## We Develop with Github
-We use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
+We especially welcome contributions in these areas:
+- SOC 2 control mapping improvements
+- Additional Trust Service Criteria coverage
+- Audit report enhancements
+- Compliance documentation improvements
+- SOC 2 evidence collection features
 
-## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html)
-Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:
-
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes.
-5. Make sure your code lints.
-6. Issue that pull request!
-
-## Any contributions you make will be under the MIT Software License
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
-
-## Report bugs using Github's [issue tracker](https://github.com/yourusername/analyze-securityhub-findings-with-bedrock/issues)
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/yourusername/analyze-securityhub-findings-with-bedrock/issues/new); it's that easy!
-
-## Write bug reports with detail, background, and sample code
-
-**Great Bug Reports** tend to have:
-
-- A quick summary and/or background
-- Steps to reproduce
-  - Be specific!
-  - Give sample code if you can.
-- What you expected would happen
-- What actually happens
-- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+For general SecurityHub or non-SOC 2 improvements, please consider contributing to the [original project](https://github.com/aws-samples/analyze-securityhub-findings-with-bedrock).
 
 ## Development Process
 
-1. Clone the repository
-2. Create a virtual environment:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-soc2-feature`)
+3. Set up development environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-3. Install dependencies:
-   ```bash
    pip install -r requirements.txt
+   pip install pre-commit
+   pre-commit install
    ```
 4. Make your changes
-5. Run tests:
+5. Run all tests and checks:
    ```bash
    pytest tests/
-   ```
-6. Run linters:
-   ```bash
    flake8 src/
    black src/
+   cfn-lint template.yaml
    ```
+6. Update documentation as needed
+7. Commit your changes (`git commit -m 'Add amazing SOC 2 feature'`)
+8. Push to your fork (`git push origin feature/amazing-soc2-feature`)
+9. Create a Pull Request
 
-## License
-By contributing, you agree that your contributions will be licensed under its MIT License. 
+## Pull Request Guidelines
+
+1. Focus on SOC 2 compliance enhancements
+2. Include test coverage for new features
+3. Update relevant documentation
+4. Ensure CI/CD pipeline passes
+5. Add clear description of changes and benefits
+
+## SOC 2 Compliance Considerations
+
+When contributing, please ensure:
+1. Control mappings align with SOC 2 Trust Service Criteria
+2. Evidence collection meets audit requirements
+3. Report formats follow SOC 2 documentation standards
+4. Security controls maintain SOC 2 compliance
+
+## Code of Conduct
+
+### Our Pledge
+
+We pledge to make participation in our project a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
+
+### Our Standards
+
+Examples of behavior that contributes to creating a positive environment include:
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints and experiences
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
+- Showing empathy towards other community members
+
+### Our Responsibilities
+
+Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
+
+## Questions or Concerns?
+
+Feel free to open an issue or contact the maintainers directly. 
