@@ -1,4 +1,4 @@
-# README.md
+[![CI/CD Pipeline](https://github.com/ajy0127/securityhub_soc2analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/securityhub_soc2analysis/actions/workflows/ci.yml)
 
 # SecurityHub SOC 2 Compliance Analyzer
 
