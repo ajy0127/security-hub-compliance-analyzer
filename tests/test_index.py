@@ -86,67 +86,157 @@ def test_lambda_handler_success(sample_findings, mock_bedrock_response, mock_env
     with patch('boto3.client') as mock_boto3:
         # Mock SecurityHub response
         mock_securityhub = MagicMock()
-        mock_securityhub.get_findings.return_value = {'Findings': sample_findings}
-        
+        paginator = MagicMock()
+        paginator.paginate.return_value = [{'Findings': sample_findings}]
+        mock_securityhub.get_paginator.return_value = paginator
+
         # Mock Bedrock response
         mock_bedrock = MagicMock()
         mock_bedrock.invoke_model.return_value = mock_bedrock_response
-        
+
+        # Mock SSM response
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameter.return_value = {
+            'Parameter': {
+                'Value': json.dumps({
+                    'recipients': [{
+                        'email': 'recipient@example.com',
+                        'frequency': 'weekly',
+                        'report_type': ['detailed']
+                    }]
+                })
+            }
+        }
+
         # Mock SES response
         mock_ses = MagicMock()
         mock_ses.send_raw_email.return_value = {'MessageId': 'test-message-id'}
-        
+
         def mock_client(service_name):
             if service_name == 'securityhub':
                 return mock_securityhub
             elif service_name == 'bedrock-runtime':
                 return mock_bedrock
+            elif service_name == 'ssm':
+                return mock_ssm
             elif service_name == 'ses':
                 return mock_ses
-        
+            return MagicMock()
+
         mock_boto3.side_effect = mock_client
-        
-        response = lambda_handler({}, {})
+
+        response = lambda_handler({'frequency': 'weekly'}, {})
         assert response['statusCode'] == 200
-        assert 'Successfully analyzed findings' in response['body']
+        assert 'Successfully sent weekly SecurityHub SOC 2 analysis reports' in response['body']
+        assert 'findingsAnalyzed' in response['body']
 
 def test_lambda_handler_no_findings(mock_env):
     with patch('boto3.client') as mock_boto3:
-        mock_boto3.return_value.get_findings.return_value = {'Findings': []}
-        response = lambda_handler({}, {})
+        # Mock SecurityHub response
+        mock_securityhub = MagicMock()
+        paginator = MagicMock()
+        paginator.paginate.return_value = [{'Findings': []}]
+        mock_securityhub.get_paginator.return_value = paginator
+
+        # Mock SSM response
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameter.return_value = {
+            'Parameter': {
+                'Value': json.dumps({
+                    'recipients': [{
+                        'email': 'recipient@example.com',
+                        'frequency': 'weekly',
+                        'report_type': ['detailed']
+                    }]
+                })
+            }
+        }
+
+        def mock_client(service_name):
+            if service_name == 'securityhub':
+                return mock_securityhub
+            elif service_name == 'ssm':
+                return mock_ssm
+            return MagicMock()
+
+        mock_boto3.side_effect = mock_client
+
+        response = lambda_handler({'frequency': 'weekly'}, {})
         assert response['statusCode'] == 200
-        assert 'No findings to analyze' in response['body']
+        assert 'Successfully sent weekly SecurityHub SOC 2 analysis reports' in response['body']
+        assert '"findingsAnalyzed": 0' in response['body']
 
 def test_lambda_handler_error(mock_env):
     with patch('boto3.client') as mock_boto3:
-        mock_boto3.return_value.get_findings.side_effect = Exception('Test error')
+        mock_boto3.return_value.get_paginator.side_effect = Exception('Test error')
         response = lambda_handler({}, {})
         assert response['statusCode'] == 500
-        assert 'Error processing findings' in response['body']
+        assert 'error' in response['body']
 
 def test_lambda_handler_ses_error(sample_findings, mock_bedrock_response, mock_env):
     with patch('boto3.client') as mock_boto3:
-        # Mock SecurityHub and Bedrock success
+        # Mock SecurityHub response
         mock_securityhub = MagicMock()
-        mock_securityhub.get_findings.return_value = {'Findings': sample_findings}
-        
+        paginator = MagicMock()
+        paginator.paginate.return_value = [{'Findings': sample_findings}]
+        mock_securityhub.get_paginator.return_value = paginator
+
+        # Mock Bedrock response
         mock_bedrock = MagicMock()
         mock_bedrock.invoke_model.return_value = mock_bedrock_response
-        
+
+        # Mock SSM response
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameter.return_value = {
+            'Parameter': {
+                'Value': json.dumps({
+                    'recipients': [{
+                        'email': 'recipient@example.com',
+                        'frequency': 'weekly',
+                        'report_type': ['detailed']
+                    }]
+                })
+            }
+        }
+
         # Mock SES error
         mock_ses = MagicMock()
         mock_ses.send_raw_email.side_effect = Exception('SES error')
-        
+
         def mock_client(service_name):
             if service_name == 'securityhub':
                 return mock_securityhub
             elif service_name == 'bedrock-runtime':
                 return mock_bedrock
+            elif service_name == 'ssm':
+                return mock_ssm
             elif service_name == 'ses':
                 return mock_ses
-        
+            return MagicMock()
+
         mock_boto3.side_effect = mock_client
-        
-        response = lambda_handler({}, {})
+
+        response = lambda_handler({'frequency': 'weekly'}, {})
         assert response['statusCode'] == 500
-        assert 'Error processing findings' in response['body'] 
+        assert 'error' in response['body']
+
+def test_lambda_handler_test_email(mock_env):
+    with patch('boto3.client') as mock_boto3:
+        # Mock SES response
+        mock_ses = MagicMock()
+        mock_ses.send_raw_email.return_value = {'MessageId': 'test-message-id'}
+
+        def mock_client(service_name):
+            if service_name == 'ses':
+                return mock_ses
+            return MagicMock()
+
+        mock_boto3.side_effect = mock_client
+
+        response = lambda_handler({
+            'test_email': True,
+            'recipient_email': 'test@example.com'
+        }, {})
+        assert response['statusCode'] == 200
+        assert 'success' in response['body']
+        assert 'message_id' in response['body'] 
