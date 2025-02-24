@@ -51,7 +51,6 @@ def summarize_findings(findings):
     logger.info(
         "Analyzing {} critical and {} high severity findings".format(
             len(critical_findings), min(len(high_findings), max_high_findings)
-        )
     )
 
     # Map findings to SOC 2 controls and prepare for analysis
@@ -364,8 +363,6 @@ def lambda_handler(event, context):
             recipient_email = event.get("recipient_email")
             if not recipient_email:
                 raise ValueError("recipient_email is required for test emails")
-
-            # Send test email
             result = send_test_email(recipient_email)
             return {
                 "statusCode": 200 if result["success"] else 500,
@@ -379,7 +376,9 @@ def lambda_handler(event, context):
 
         findings = get_findings(hours)
         if send_report(config["recipients"], findings, frequency):
-            success_message = f"Successfully sent {frequency} SecurityHub SOC 2 analysis reports"
+            success_message = (
+                f"Successfully sent {frequency} SecurityHub SOC 2 analysis reports"
+            )
             response_body = {
                 "message": success_message,
                 "findingsAnalyzed": len(findings)
@@ -391,12 +390,10 @@ def lambda_handler(event, context):
         else:
             return {
                 "statusCode": 500,
-                "body": json.dumps(
-                    {
-                        "error": "Failed to send reports",
-                        "findingsAnalyzed": len(findings),
-                    }
-                ),
+                "body": json.dumps({
+                    "error": "Failed to send reports",
+                    "findingsAnalyzed": len(findings),
+                }),
             }
 
     except Exception as e:
