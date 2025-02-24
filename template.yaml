@@ -52,7 +52,7 @@ Resources:
           PreTraffic: !Ref PreTrafficHook
       Environment:
         Variables:
-          FUNCTION_VERSION: !Ref SecurityHubAnalyzerFunctionVersion
+          FUNCTION_VERSION: "Live"  # This will be updated during deployment
       
   # Function version reference for tracking in environment variables
   SecurityHubAnalyzerFunctionVersion:

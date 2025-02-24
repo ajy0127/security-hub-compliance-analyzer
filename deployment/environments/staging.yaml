@@ -22,7 +22,7 @@ Resources:
   SecurityHubAnalyzerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: '../template.yaml'
+      TemplateURL: '../../template.yaml'
       Parameters:
         RecipientsConfig: !Sub |
           {
@@ -41,7 +41,7 @@ Resources:
           Value: Staging
 
 Outputs:
-  StackName:
+  SecurityHubAnalyzerStackName:
     Description: Name of the nested stack
     Value: !Ref SecurityHubAnalyzerStack
   
