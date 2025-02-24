@@ -9,7 +9,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 # Configure the base logger
@@ -44,7 +44,7 @@ class ContextLogger:
         # Create a UUID for this logger instance
         self.context = {
             "request_id": str(uuid.uuid4()),
-            "start_time": datetime.utcnow().isoformat(),
+            "start_time": datetime.now(timezone.utc).isoformat(),
             "function_name": os.environ.get("AWS_LAMBDA_FUNCTION_NAME", "local"),
             "function_version": os.environ.get("AWS_LAMBDA_FUNCTION_VERSION", "local"),
         }
@@ -91,7 +91,7 @@ class ContextLogger:
             Dictionary containing the formatted log entry
         """
         log_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "message": message,
             "context": self.context.copy(),
         }

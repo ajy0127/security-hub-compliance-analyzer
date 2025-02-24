@@ -10,7 +10,7 @@ import json
 import time
 import logging
 from typing import Dict, List, Set, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import boto3
 
 from src.utils.logging_utils import get_logger
@@ -103,7 +103,7 @@ class RemediationTracker:
         
         try:
             # Get current timestamp
-            now = datetime.utcnow().isoformat()
+            now = datetime.now(timezone.utc).isoformat()
             
             # Prepare item
             item = {
@@ -169,7 +169,7 @@ class RemediationTracker:
                 return
             
             # Update status
-            now = datetime.utcnow().isoformat()
+            now = datetime.now(timezone.utc).isoformat()
             updates = {
                 'current_status': 'REMEDIATED',
                 'remediated_at': now,
