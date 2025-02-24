@@ -8,20 +8,32 @@ logger.setLevel(logging.INFO)
 
 
 class SOC2Mapper:
-    def __init__(self):
+    def __init__(self, custom_config_path=None):
         """
         Initialize the SOC2Mapper by loading control mappings from JSON configuration.
         Maps SecurityHub finding types to SOC 2 controls.
+        
+        Args:
+            custom_config_path (str, optional): Path to a custom configuration file.
+                If not provided, the default config is used.
         """
         # Build config path
         root = Path(__file__).parent
         base_path = root.parent.parent
         config_dir = base_path / "config"
-        config_path = config_dir / "soc2_control_mappings.json"
+        
+        if custom_config_path:
+            config_path = Path(custom_config_path)
+        else:
+            config_path = config_dir / "soc2_control_mappings.json"
 
         try:
             with open(config_path, "r") as f:
                 self.mappings = json.load(f)
+            
+            # Validate the mappings
+            self.validate_mappings()
+            
         except FileNotFoundError:
             error_part = "Could not find configuration file at"
             msg = f"{error_part} {config_path}"
@@ -40,10 +52,69 @@ class SOC2Mapper:
                 "severity_risk_mapping": {},
                 "control_descriptions": {},
             }
+    
+    def validate_mappings(self):
+        """
+        Validate the control mappings configuration.
+        
+        Checks for:
+        1. Required mapping sections
+        2. Control references that don't have descriptions
+        3. Invalid control format
+        
+        Logs warnings for any issues found, but allows operation to continue.
+        """
+        # Check for required sections
+        required_sections = ["finding_type_mappings", "severity_risk_mapping", "control_descriptions"]
+        for section in required_sections:
+            if section not in self.mappings:
+                logger.warning(f"Missing required section in mappings: {section}")
+                self.mappings[section] = {}
+        
+        # Get all control IDs referenced in mappings
+        all_controls = set()
+        ftm = self.mappings.get("finding_type_mappings", {})
+        
+        for finding_type, mapping in ftm.items():
+            primary_controls = mapping.get("primary_controls", [])
+            secondary_controls = mapping.get("secondary_controls", [])
+            
+            all_controls.update(primary_controls)
+            all_controls.update(secondary_controls)
+        
+        # Check for controls without descriptions
+        control_descriptions = self.mappings.get("control_descriptions", {})
+        missing_descriptions = [control for control in all_controls 
+                               if control not in control_descriptions]
+        
+        if missing_descriptions:
+            logger.warning(f"The following controls are missing descriptions: {missing_descriptions}")
+        
+        # Validate control ID format (should be CCx.y or CCx.y.z)
+        invalid_format = [
+            control for control in all_controls 
+            if not (control.startswith("CC") and "." in control)
+        ]
+        
+        if invalid_format:
+            logger.warning(f"The following controls have invalid format: {invalid_format}")
+        
+        # Validate severity mappings
+        if "severity_risk_mapping" in self.mappings:
+            severity_levels = self.mappings["severity_risk_mapping"].keys()
+            standard_levels = {"CRITICAL", "HIGH", "MEDIUM", "LOW", "INFORMATIONAL"}
+            
+            missing_levels = standard_levels - set(severity_levels)
+            if missing_levels:
+                logger.warning(f"Missing severity mappings for: {missing_levels}")
+                
+        return True
 
     def map_finding_to_controls(self, finding):
         """
         Map a SecurityHub finding to relevant SOC 2 controls based on finding type.
+        
+        Supports both exact matching and partial string matching for finding types.
 
         Args:
             finding (dict): SecurityHub finding object
@@ -67,8 +138,9 @@ class SOC2Mapper:
         if not finding_type:
             return mapped_controls
 
-        # First try exact match
         ftm = self.mappings["finding_type_mappings"]
+        
+        # Step 1: Try exact match first
         if finding_type in ftm:
             mapping = ftm[finding_type]
             # Extract controls from mapping
@@ -77,9 +149,35 @@ class SOC2Mapper:
             # Add controls to result
             mapped_controls["primary_controls"].extend(primary)
             mapped_controls["secondary_controls"].extend(secondary)
+            logger.info(f"Exact match found for finding type: {finding_type}")
             return mapped_controls  # Return early if exact match is found
-
-        # If no exact match, return empty mappings
+        
+        # Step 2: If no exact match, try partial match
+        matched = False
+        for mapping_type, mapping in ftm.items():
+            # Check if any part of the finding type contains the mapping key or vice versa
+            if mapping_type in finding_type or any(part in finding_type for part in mapping_type.split('/')):
+                # Calculate match score based on length of common substring
+                match_score = len(set(finding_type.split('/')).intersection(set(mapping_type.split('/'))))
+                
+                if match_score > 0:
+                    logger.info(f"Partial match found: {finding_type} with {mapping_type}, score: {match_score}")
+                    # Add controls to result
+                    mapped_controls["primary_controls"].extend(mapping["primary_controls"])
+                    mapped_controls["secondary_controls"].extend(mapping["secondary_controls"])
+                    matched = True
+        
+        # Deduplicate controls if we found multiple matches
+        if matched:
+            mapped_controls["primary_controls"] = list(set(mapped_controls["primary_controls"]))
+            mapped_controls["secondary_controls"] = list(set(mapped_controls["secondary_controls"]))
+            # Remove any controls that appear in both primary and secondary
+            mapped_controls["secondary_controls"] = [
+                control for control in mapped_controls["secondary_controls"]
+                if control not in mapped_controls["primary_controls"]
+            ]
+            
+        logger.debug(f"Controls mapped for {finding_type}: {mapped_controls}")
         return mapped_controls
 
     def get_control_description(self, control_id):

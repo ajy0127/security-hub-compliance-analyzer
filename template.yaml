@@ -45,16 +45,86 @@ Resources:
       CodeUri: src/
       Handler: handlers.securityhub_handler.lambda_handler
       Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
+        Hooks:
+          PreTraffic: !Ref PreTrafficHook
+      Environment:
+        Variables:
+          FUNCTION_VERSION: !Ref SecurityHubAnalyzerFunctionVersion
+      
+  # Function version reference for tracking in environment variables
+  SecurityHubAnalyzerFunctionVersion:
+    Type: Custom::LambdaVersion
+    Properties:
+      ServiceToken: !GetAtt VersionFunction.Arn
+      FunctionName: !Ref SecurityHubAnalyzerFunction
+  
+  # Lambda function to create a static version identifier
+  VersionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: lambda.version_handler.lambda_handler
+      Runtime: python3.12
+      Timeout: 30
+      Environment:
+        Variables:
+          FUNCTION_NAME: !Ref SecurityHubAnalyzerFunction
       Policies:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
-                - securityhub:GetFindings
-                - ses:SendRawEmail
-                - bedrock:InvokeModel
-                - ssm:GetParameter
+                - lambda:PublishVersion
+                - lambda:GetFunctionConfiguration
+              Resource: !GetAtt SecurityHubAnalyzerFunction.Arn
+              
+  # Pre-traffic test function
+  PreTrafficHook:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: lambda.pretraffic_hook.lambda_handler
+      Runtime: python3.12
+      Timeout: 60
+      Environment:
+        Variables:
+          FUNCTION_NAME: !Ref SecurityHubAnalyzerFunction
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+                - codedeploy:PutLifecycleEventHookExecutionStatus
               Resource: '*'
+            # CloudWatch Logs permissions
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
+              
+            # SES permissions - limited to verified email addresses
+            - Effect: Allow
+              Action:
+                - ses:SendRawEmail
+              Resource: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
+              
+            # Bedrock permissions - limited to specific model
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/${BedrockModelId}'
+              
+            # SSM Parameter permissions - limited to specific parameter
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/securityhub/recipients'
 
   # Weekly Schedule
   WeeklyAnalysisSchedule:
@@ -145,6 +215,10 @@ Outputs:
   SecurityHubAnalyzerFunctionArn:
     Description: ARN of the SecurityHub Analyzer Lambda function
     Value: !GetAtt SecurityHubAnalyzerFunction.Arn
+    
+  SecurityHubAnalyzerFunctionName:
+    Description: Name of the SecurityHub Analyzer Lambda function
+    Value: !Ref SecurityHubAnalyzerFunction
 
   RecipientsParameterName:
     Description: SSM Parameter name for recipients configuration
@@ -153,3 +227,7 @@ Outputs:
   SecurityHubAnalyzerLogGroupName:
     Description: Name of the CloudWatch Log Group for the Lambda function
     Value: !Ref SecurityHubAnalyzerLogGroup 
+    
+  SecurityHubAnalyzerVersion:
+    Description: Current version of the Lambda function
+    Value: !Ref SecurityHubAnalyzerFunctionVersion
