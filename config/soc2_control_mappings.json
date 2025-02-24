@@ -75,6 +75,10 @@
         "Software and Configuration Checks/AWS Security Best Practices/WAF": {
             "primary_controls": ["CC6.6.3", "CC6.1.4"],
             "secondary_controls": ["CC6.6.2"]
+        },
+        "Software and Configuration Checks/AWS Security Best Practices/Config": {
+            "primary_controls": ["CC6.6.2", "CC6.6.4"],
+            "secondary_controls": []
         }
     },
     "severity_risk_mapping": {

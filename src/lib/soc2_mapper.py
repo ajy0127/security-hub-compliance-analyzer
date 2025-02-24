@@ -40,11 +40,11 @@ class SOC2Mapper:
         except FileNotFoundError:
             msg = f"Could not find configuration file at {config_path}"
             logger.error(msg)
-            raise
+            self.mappings = {"finding_type_mappings": {}, "severity_risk_mapping": {}, "control_descriptions": {}}  # Initialize all sections as empty
         except json.JSONDecodeError:
             msg = f"Invalid JSON in configuration file at {config_path}"
             logger.error(msg)
-            raise
+            self.mappings = {"finding_type_mappings": {}, "severity_risk_mapping": {}, "control_descriptions": {}}  # Initialize all sections as empty
 
     def map_finding_to_controls(self, finding):
         """
@@ -82,32 +82,9 @@ class SOC2Mapper:
             # Add controls to result
             mapped_controls["primary_controls"].extend(primary)
             mapped_controls["secondary_controls"].extend(secondary)
+            return mapped_controls  # Return early if exact match is found
 
-        # Look for partial matches in the finding type path
-        finding_parts = finding_type.split("/")
-        for mapping_type, mapping in ftm.items():
-            mapping_parts = mapping_type.split("/")
-
-            # Check if any part of the finding type matches the mapping
-            for part in finding_parts:
-                if not part:  # Skip empty parts
-                    continue
-                if part in mapping_parts:
-                    # Add controls if not already present
-                    primary = mapping["primary_controls"]
-                    secondary = mapping["secondary_controls"]
-                    # Add primary controls
-                    for control in primary:
-                        primary_list = mapped_controls["primary_controls"]
-                        if control not in primary_list:
-                            primary_list.append(control)
-                    # Add secondary controls
-                    for control in secondary:
-                        secondary_list = mapped_controls["secondary_controls"]
-                        if control not in secondary_list:
-                            secondary_list.append(control)
-                    break
-
+        # If no exact match, return empty mappings
         return mapped_controls
 
     def get_control_description(self, control_id):

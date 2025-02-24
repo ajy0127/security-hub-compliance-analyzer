@@ -14,15 +14,18 @@ The function can be triggered:
 - Immediately for testing and verification
 """
 
-import boto3
-from datetime import datetime, timedelta
-import json
-import logging
 import csv
 import io
+import json
+import logging
+import os
+import sys
+from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
+
+import boto3
+
 from src.lib.soc2_mapper import SOC2Mapper
 
 # Configure logging
@@ -145,7 +148,8 @@ def summarize_findings(findings):
                 }
             ),
         )
-        summary = json.loads(response["body"].read())["content"][0]["text"]
+        response_body = json.loads(response["body"].read())
+        summary = response_body["content"][0]["text"]
 
         # Add a note about the findings breakdown
         summary_note = (
@@ -181,47 +185,47 @@ def generate_soc2_csv(findings):
 
 def get_recipients_config():
     """Get recipients configuration from SSM Parameter Store"""
-    ssm = boto3.client('ssm')
-    param = ssm.get_parameter(Name='/securityhub/recipients')
-    return json.loads(param['Parameter']['Value'])
+    ssm = boto3.client("ssm")
+    param = ssm.get_parameter(Name="/securityhub/recipients")
+    return json.loads(param["Parameter"]["Value"])
 
 
 def get_findings(hours):
     """Get SecurityHub findings from the last N hours"""
-    securityhub = boto3.client('securityhub')
-    now = datetime.utcnow()
+    securityhub = boto3.client("securityhub")
+    now = datetime.now(timezone.utc)
     start_time = now - timedelta(hours=hours)
 
-    filters = {
-        'UpdatedAt': [{'Start': start_time.isoformat(), 'End': now.isoformat()}]
-    }
+    filters = {"UpdatedAt": [{"Start": start_time.isoformat(), "End": now.isoformat()}]}
 
     findings = []
-    paginator = securityhub.get_paginator('get_findings')
+    paginator = securityhub.get_paginator("get_findings")
     for page in paginator.paginate(Filters=filters):
-        findings.extend(page['Findings'])
+        findings.extend(page["Findings"])
 
     return findings
 
 
 def analyze_findings_with_bedrock(findings, report_type="detailed"):
     """Analyze findings using Amazon Bedrock"""
-    bedrock = boto3.client('bedrock-runtime')
-    model_id = os.environ.get('BEDROCK_MODEL_ID', 'anthropic.claude-3-sonnet')
+    bedrock = boto3.client("bedrock-runtime")
+    model_id = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-3-sonnet")
 
     # Prepare findings summary based on report type
     if report_type == "summary":
         findings_text = f"Summary of {len(findings)} SecurityHub findings:\n"
         for finding in findings[:5]:  # Only include top 5 findings for summary
-            findings_text += f"- {finding['Title']} (Severity: {finding['Severity']['Label']})\n"
+            severity = finding.get("Severity", "N/A")
+            title = finding.get("Title", "N/A")
+            findings_text += f"- {title} (Severity: {severity})\n"
     else:
         findings_text = "Detailed analysis of SecurityHub findings:\n"
         for finding in findings:
             findings_text += (
-                f"Title: {finding['Title']}\n"
-                f"Severity: {finding['Severity']['Label']}\n"
-                f"Description: {finding['Description']}\n"
-                f"Resource: {finding['Resources'][0]['Type']}\n"
+                f"Title: {finding.get('Title', 'N/A')}\n"
+                f"Severity: {finding.get('Severity', 'N/A')}\n"
+                f"Description: {finding.get('Description', 'N/A')}\n"
+                f"Resource: {finding.get('ResourceType', 'N/A')}\n"
                 f"---\n"
             )
 
@@ -236,44 +240,77 @@ def analyze_findings_with_bedrock(findings, report_type="detailed"):
     4. Compliance status summary
     """
 
-    response = bedrock.invoke_model(
-        modelId=model_id,
-        body=json.dumps({
-            "prompt": prompt,
-            "max_tokens": 2048,
-            "temperature": 0.7
-        })
-    )
-
-    return json.loads(response['body'])['completion']
-
-
-def send_report(recipients, findings_analysis, frequency):
-    """Send report to specified recipients"""
-    ses = boto3.client('ses')
-
-    for recipient in recipients:
-        if recipient['frequency'] != frequency:
-            continue
-
-        msg = MIMEMultipart()
-        msg['Subject'] = f'SecurityHub SOC 2 Analysis Report ({frequency.capitalize()})'
-        msg['From'] = recipient['email']  # Sender must be verified in SES
-        msg['To'] = recipient['email']
-
-        # Create report content based on recipient preferences
-        report_content = ""
-        for report_type in recipient.get('report_type', ['detailed']):
-            analysis = analyze_findings_with_bedrock(findings_analysis, report_type)
-            report_content += f"\n\n{report_type.upper()} REPORT:\n{analysis}"
-
-        msg.attach(MIMEText(report_content, 'plain'))
-
-        ses.send_raw_email(
-            Source=msg['From'],
-            Destinations=[msg['To']],
-            RawMessage={'Data': msg.as_string()}
+    try:
+        response = bedrock.invoke_model(
+            modelId=model_id,
+            body=json.dumps(
+                {
+                    "messages": [{"role": "user", "content": prompt}],
+                    "anthropic_version": "bedrock-2023-05-31",
+                    "max_tokens": 2048,
+                    "temperature": 0.7,
+                }
+            ),
         )
+        response_body = json.loads(response["body"].read())
+        return response_body["content"][0]["text"]
+    except Exception as e:
+        logger.error(f"Error analyzing findings with Bedrock: {str(e)}")
+        return "Error generating analysis"
+
+
+def is_critical(finding):
+    return finding.get("Severity") == "CRITICAL"
+
+
+def is_high(finding):
+    return finding.get("Severity") == "HIGH"
+
+
+def send_report(recipients, findings, frequency):
+    """Send report to specified recipients"""
+    ses = boto3.client("ses")
+
+    try:
+        for recipient in recipients:
+            if recipient["frequency"] != frequency:
+                continue
+
+            msg = MIMEMultipart()
+            report_name = "SecurityHub SOC 2 Analysis Report"
+            subject = f"{report_name} ({frequency.capitalize()})"
+            msg["Subject"] = subject
+            sender_email = recipient["email"]  # Must be verified in SES
+            msg["From"] = sender_email
+            msg["To"] = sender_email
+
+            # Create report content based on recipient preferences
+            report_content = ""
+            report_types = recipient.get("report_type", ["detailed"])
+            for report_type in report_types:
+                analysis = analyze_findings_with_bedrock(findings, report_type)
+                report_header = "\n\n" + report_type.upper() + " REPORT:\n"
+                report_content += report_header + analysis
+
+            # Add findings summary
+            report_content += f"\n\nTotal findings analyzed: {len(findings)}"
+            critical_findings = sum(1 for f in findings if is_critical(f))
+            high_findings = sum(1 for f in findings if is_high(f))
+            report_content += f"\nCritical findings: {critical_findings}"
+            report_content += f"\nHigh severity findings: {high_findings}"
+
+            msg.attach(MIMEText(report_content, "plain"))
+
+            ses.send_raw_email(
+                Source=msg["From"],
+                Destinations=[msg["To"]],
+                RawMessage={"Data": msg.as_string()},
+            )
+
+        return True
+    except Exception as e:
+        logger.error(f"Error sending report: {str(e)}")
+        return False
 
 
 def send_test_email(recipient_email):
@@ -287,13 +324,13 @@ def send_test_email(recipient_email):
         dict: Response containing success/failure status and message ID
     """
     try:
-        ses = boto3.client('ses')
+        ses = boto3.client("ses")
 
         # Create the email message
         msg = MIMEMultipart()
-        msg['Subject'] = 'SecurityHub SOC 2 Analyzer - Test Email'
-        msg['From'] = recipient_email  # Must be verified in SES
-        msg['To'] = recipient_email
+        msg["Subject"] = "SecurityHub SOC 2 Analyzer - Test Email"
+        msg["From"] = recipient_email  # Must be verified in SES
+        msg["To"] = recipient_email
 
         # Create the email body
         body = """
@@ -316,69 +353,69 @@ def send_test_email(recipient_email):
         For more information, please consult the documentation.
         """.format(
             email=recipient_email,
-            timestamp=datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
+            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         )
 
-        msg.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(body, "plain"))
 
         # Send the email
         response = ses.send_raw_email(
-            Source=msg['From'],
-            Destinations=[msg['To']],
-            RawMessage={'Data': msg.as_string()}
+            Source=msg["From"],
+            Destinations=[msg["To"]],
+            RawMessage={"Data": msg.as_string()},
         )
 
         logger.info(f"Test email sent successfully to {recipient_email}")
-        return {
-            'success': True,
-            'message_id': response['MessageId']
-        }
+        return {"success": True, "message_id": response["MessageId"]}
 
     except Exception as e:
         logger.error(f"Error sending test email: {str(e)}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 def lambda_handler(event, context):
     """Main Lambda handler function"""
     try:
         # Check if this is a test email request
-        if event.get('test_email'):
-            recipient_email = event.get('recipient_email')
+        if event.get("test_email"):
+            recipient_email = event.get("recipient_email")
             if not recipient_email:
                 raise ValueError("recipient_email is required for test emails")
 
             # Send test email
             result = send_test_email(recipient_email)
             return {
-                'statusCode': 200 if result['success'] else 500,
-                'body': json.dumps(result)
+                "statusCode": 200 if result["success"] else 500,
+                "body": json.dumps(result),
             }
 
         # Regular report processing
-        frequency = event.get('frequency', 'weekly')
+        frequency = event.get("frequency", "weekly")
         config = get_recipients_config()
-        hours = int(os.environ.get('FINDINGS_HOURS', '24'))
+        hours = int(os.environ.get("FINDINGS_HOURS", "24"))
 
         findings = get_findings(hours)
-        send_report(config['recipients'], findings, frequency)
-
-        return {
-            'statusCode': 200,
-            'body': json.dumps({
-                'message': f'Successfully sent {frequency} SecurityHub SOC 2 analysis reports',
-                'findingsAnalyzed': len(findings)
-            })
-        }
+        if send_report(config["recipients"], findings, frequency):
+            return {
+                "statusCode": 200,
+                "body": json.dumps(
+                    {
+                        "message": f"Successfully sent {frequency} SecurityHub SOC 2 analysis reports",
+                        "findingsAnalyzed": len(findings),
+                    }
+                ),
+            }
+        else:
+            return {
+                "statusCode": 500,
+                "body": json.dumps(
+                    {
+                        "error": "Failed to send reports",
+                        "findingsAnalyzed": len(findings),
+                    }
+                ),
+            }
 
     except Exception as e:
         logger.error(f"Error: {str(e)}")
-        return {
-            'statusCode': 500,
-            'body': json.dumps({
-                'error': str(e)
-            })
-        }
+        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
