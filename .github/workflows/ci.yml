@@ -80,4 +80,4 @@ jobs:
       run: pip install cfn-lint
     - name: Run cfn-lint
       run: |
-        python -m cfn_lint template.yaml 
+        cfn-lint template.yaml 
