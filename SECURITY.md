@@ -28,7 +28,8 @@ We take the security of SecurityHub SOC 2 Analyzer seriously. If you believe you
 Instead, please report them via:
 1. AWS Security: If the vulnerability relates to AWS services, report through [AWS Security](https://aws.amazon.com/security/vulnerability-reporting/)
 2. GitHub Security: Use the [Security tab](https://github.com/ajy0127/analyze-securityhub-findings-with-bedrock-soc2/security) to report repository-specific issues
-3. Email: For other security concerns, contact [security@yourdomain.com](mailto:security@yourdomain.com)
+3. Email: For other security concerns, contact the repository Owner: Through GitHub
+
 
 You should receive a response within 48 hours. If for some reason you do not, please follow up to ensure we received your original message.
 
