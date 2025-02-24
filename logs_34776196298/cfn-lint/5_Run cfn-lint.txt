@@ -1,0 +1,13 @@
+﻿2025-02-24T02:06:40.9798286Z ##[group]Run python -m cfn_lint template.yaml 
+2025-02-24T02:06:40.9798666Z [36;1mpython -m cfn_lint template.yaml [0m
+2025-02-24T02:06:40.9857419Z shell: /usr/bin/bash -e {0}
+2025-02-24T02:06:40.9857668Z env:
+2025-02-24T02:06:40.9857925Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9858347Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.9/x64/lib/pkgconfig
+2025-02-24T02:06:40.9858769Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9859161Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9859552Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9859929Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.9/x64/lib
+2025-02-24T02:06:40.9860416Z ##[endgroup]
+2025-02-24T02:06:41.0056303Z /opt/hostedtoolcache/Python/3.12.9/x64/bin/python: No module named cfn_lint
+2025-02-24T02:06:41.0090625Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,21 @@
+﻿2025-02-24T02:06:20.5674965Z ##[group]Run actions/setup-python@v5
+2025-02-24T02:06:20.5676048Z with:
+2025-02-24T02:06:20.5676794Z   python-version: 3.12
+2025-02-24T02:06:20.5677619Z   cache: pip
+2025-02-24T02:06:20.5678378Z   check-latest: false
+2025-02-24T02:06:20.5679468Z   token: ***
+2025-02-24T02:06:20.5680256Z   update-environment: true
+2025-02-24T02:06:20.5681184Z   allow-prereleases: false
+2025-02-24T02:06:20.5682065Z ##[endgroup]
+2025-02-24T02:06:20.7482606Z ##[group]Installed versions
+2025-02-24T02:06:20.7544694Z Successfully set up CPython (3.12.9)
+2025-02-24T02:06:20.7546437Z ##[endgroup]
+2025-02-24T02:06:20.8180946Z [command]/opt/hostedtoolcache/Python/3.12.9/x64/bin/pip cache dir
+2025-02-24T02:06:21.1384393Z /home/runner/.cache/pip
+2025-02-24T02:06:21.4579679Z Cache hit for: setup-python-Linux-x64-24.04-Ubuntu-python-3.12.9-pip-91d90556e6b943c05d069084bc8cbcbd49e4bfe3709354780feecc28d856cb9e
+2025-02-24T02:06:22.8432482Z Received 0 of 33589058 (0.0%), 0.0 MBs/sec
+2025-02-24T02:06:23.4939445Z Received 33589058 of 33589058 (100.0%), 19.4 MBs/sec
+2025-02-24T02:06:23.4940632Z Cache Size: ~32 MB (33589058 B)
+2025-02-24T02:06:23.4975414Z [command]/usr/bin/tar -xf /home/runner/work/_temp/03367169-be14-493b-8e9f-113c61981448/cache.tzst -P -C /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis --use-compress-program unzstd
+2025-02-24T02:06:23.5794402Z Cache restored successfully
+2025-02-24T02:06:23.5871264Z Cache restored from key: setup-python-Linux-x64-24.04-Ubuntu-python-3.12.9-pip-91d90556e6b943c05d069084bc8cbcbd49e4bfe3709354780feecc28d856cb9e

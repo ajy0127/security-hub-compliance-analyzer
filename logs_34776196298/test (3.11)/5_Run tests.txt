@@ -1,0 +1,25 @@
+﻿2025-02-24T02:06:42.3337903Z ##[group]Run python -m pytest tests/ --cov=src/ --cov-report=xml
+2025-02-24T02:06:42.3338403Z [36;1mpython -m pytest tests/ --cov=src/ --cov-report=xml[0m
+2025-02-24T02:06:42.3397972Z shell: /usr/bin/bash -e {0}
+2025-02-24T02:06:42.3398249Z env:
+2025-02-24T02:06:42.3398542Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:42.3399039Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.11/x64/lib/pkgconfig
+2025-02-24T02:06:42.3399884Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:42.3400325Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:42.3400767Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:42.3401205Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.11/x64/lib
+2025-02-24T02:06:42.3401569Z ##[endgroup]
+2025-02-24T02:06:43.2793105Z ============================= test session starts ==============================
+2025-02-24T02:06:43.2793847Z platform linux -- Python 3.11.11, pytest-8.1.1, pluggy-1.5.0
+2025-02-24T02:06:43.2794707Z rootdir: /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:43.2795361Z configfile: pytest.ini
+2025-02-24T02:06:43.2795721Z plugins: cov-4.1.0
+2025-02-24T02:06:43.2796043Z collected 9 items
+2025-02-24T02:06:43.2796243Z 
+2025-02-24T02:06:43.3607947Z tests/test_index.py .........                                            [100%]
+2025-02-24T02:06:43.3608403Z 
+2025-02-24T02:06:43.3608667Z ---------- coverage: platform linux, python 3.11.11-final-0 ----------
+2025-02-24T02:06:43.3609551Z Coverage XML written to file coverage.xml
+2025-02-24T02:06:43.3609841Z 
+2025-02-24T02:06:43.3609848Z 
+2025-02-24T02:06:43.3610019Z ============================== 9 passed in 0.44s ===============================

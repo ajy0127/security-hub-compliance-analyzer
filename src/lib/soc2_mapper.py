@@ -29,7 +29,7 @@ class SOC2Mapper:
             self.mappings = {
                 "finding_type_mappings": {},
                 "severity_risk_mapping": {},
-                "control_descriptions": {}
+                "control_descriptions": {},
             }
         except json.JSONDecodeError:
             error_part = "Invalid JSON in configuration file at"
@@ -38,7 +38,7 @@ class SOC2Mapper:
             self.mappings = {
                 "finding_type_mappings": {},
                 "severity_risk_mapping": {},
-                "control_descriptions": {}
+                "control_descriptions": {},
             }
 
     def map_finding_to_controls(self, finding):

@@ -1,0 +1,67 @@
+﻿2025-02-24T02:06:18.3732812Z ##[group]Run actions/checkout@v4
+2025-02-24T02:06:18.3733936Z with:
+2025-02-24T02:06:18.3734431Z   repository: ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:18.3735280Z   token: ***
+2025-02-24T02:06:18.3735798Z   ssh-strict: true
+2025-02-24T02:06:18.3736215Z   ssh-user: git
+2025-02-24T02:06:18.3736762Z   persist-credentials: true
+2025-02-24T02:06:18.3737341Z   clean: true
+2025-02-24T02:06:18.3737776Z   sparse-checkout-cone-mode: true
+2025-02-24T02:06:18.3738391Z   fetch-depth: 1
+2025-02-24T02:06:18.3738857Z   fetch-tags: false
+2025-02-24T02:06:18.3739346Z   show-progress: true
+2025-02-24T02:06:18.3740082Z   lfs: false
+2025-02-24T02:06:18.3740583Z   submodules: false
+2025-02-24T02:06:18.3741077Z   set-safe-directory: true
+2025-02-24T02:06:18.3741946Z ##[endgroup]
+2025-02-24T02:06:18.5615949Z Syncing repository: ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:18.5618761Z ##[group]Getting Git version info
+2025-02-24T02:06:18.5620650Z Working directory is '/home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis'
+2025-02-24T02:06:18.5622823Z [command]/usr/bin/git version
+2025-02-24T02:06:18.5668242Z git version 2.48.1
+2025-02-24T02:06:18.5697706Z ##[endgroup]
+2025-02-24T02:06:18.5719775Z Temporarily overriding HOME='/home/runner/work/_temp/5a0d16dd-5aac-4ed3-97fd-0284a30d9885' before making global git config changes
+2025-02-24T02:06:18.5721887Z Adding repository directory to the temporary git global config as a safe directory
+2025-02-24T02:06:18.5725426Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:18.5762671Z Deleting the contents of '/home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis'
+2025-02-24T02:06:18.5766158Z ##[group]Initializing the repository
+2025-02-24T02:06:18.5770588Z [command]/usr/bin/git init /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:18.5881509Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-02-24T02:06:18.5882982Z hint: is subject to change. To configure the initial branch name to use in all
+2025-02-24T02:06:18.5884516Z hint: of your new repositories, which will suppress this warning, call:
+2025-02-24T02:06:18.5886088Z hint:
+2025-02-24T02:06:18.5887142Z hint: 	git config --global init.defaultBranch <name>
+2025-02-24T02:06:18.5888677Z hint:
+2025-02-24T02:06:18.5890197Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-02-24T02:06:18.5891634Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-02-24T02:06:18.5892513Z hint:
+2025-02-24T02:06:18.5892962Z hint: 	git branch -m <name>
+2025-02-24T02:06:18.5894079Z Initialized empty Git repository in /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis/.git/
+2025-02-24T02:06:18.5902098Z [command]/usr/bin/git remote add origin https://github.com/ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:18.5936611Z ##[endgroup]
+2025-02-24T02:06:18.5937811Z ##[group]Disabling automatic garbage collection
+2025-02-24T02:06:18.5941776Z [command]/usr/bin/git config --local gc.auto 0
+2025-02-24T02:06:18.5974152Z ##[endgroup]
+2025-02-24T02:06:18.5975062Z ##[group]Setting up auth
+2025-02-24T02:06:18.5983092Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-02-24T02:06:18.6020500Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-02-24T02:06:18.6330872Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-02-24T02:06:18.6365428Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-02-24T02:06:18.6605133Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-02-24T02:06:18.6649540Z ##[endgroup]
+2025-02-24T02:06:18.6651305Z ##[group]Fetching the repository
+2025-02-24T02:06:18.6659848Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +f785de282e6e4c896b36b9d8c7bb2ff1d5118872:refs/remotes/origin/main
+2025-02-24T02:06:18.9609580Z From https://github.com/ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:18.9612007Z  * [new ref]         f785de282e6e4c896b36b9d8c7bb2ff1d5118872 -> origin/main
+2025-02-24T02:06:18.9636888Z ##[endgroup]
+2025-02-24T02:06:18.9640704Z ##[group]Determining the checkout info
+2025-02-24T02:06:18.9642216Z ##[endgroup]
+2025-02-24T02:06:18.9644044Z [command]/usr/bin/git sparse-checkout disable
+2025-02-24T02:06:18.9685969Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-02-24T02:06:18.9715634Z ##[group]Checking out the ref
+2025-02-24T02:06:18.9718594Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2025-02-24T02:06:18.9811093Z Switched to a new branch 'main'
+2025-02-24T02:06:18.9813613Z branch 'main' set up to track 'origin/main'.
+2025-02-24T02:06:18.9819159Z ##[endgroup]
+2025-02-24T02:06:18.9853904Z [command]/usr/bin/git log -1 --format=%H
+2025-02-24T02:06:18.9877742Z f785de282e6e4c896b36b9d8c7bb2ff1d5118872

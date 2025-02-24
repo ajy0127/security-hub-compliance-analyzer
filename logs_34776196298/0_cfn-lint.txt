@@ -1,0 +1,397 @@
+﻿2025-02-24T02:06:15.6727950Z Current runner version: '2.322.0'
+2025-02-24T02:06:15.6756711Z ##[group]Operating System
+2025-02-24T02:06:15.6757563Z Ubuntu
+2025-02-24T02:06:15.6758227Z 24.04.1
+2025-02-24T02:06:15.6758903Z LTS
+2025-02-24T02:06:15.6759394Z ##[endgroup]
+2025-02-24T02:06:15.6759971Z ##[group]Runner Image
+2025-02-24T02:06:15.6760610Z Image: ubuntu-24.04
+2025-02-24T02:06:15.6761149Z Version: 20250209.1.0
+2025-02-24T02:06:15.6762182Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250209.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-02-24T02:06:15.6763956Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250209.1
+2025-02-24T02:06:15.6764915Z ##[endgroup]
+2025-02-24T02:06:15.6765537Z ##[group]Runner Image Provisioner
+2025-02-24T02:06:15.6766160Z 2.0.422.1
+2025-02-24T02:06:15.6766636Z ##[endgroup]
+2025-02-24T02:06:15.6767832Z ##[group]GITHUB_TOKEN Permissions
+2025-02-24T02:06:15.6770250Z Contents: read
+2025-02-24T02:06:15.6770922Z Metadata: read
+2025-02-24T02:06:15.6771633Z Packages: read
+2025-02-24T02:06:15.6772645Z ##[endgroup]
+2025-02-24T02:06:15.6775793Z Secret source: Actions
+2025-02-24T02:06:15.6776693Z Prepare workflow directory
+2025-02-24T02:06:15.7086120Z Prepare all required actions
+2025-02-24T02:06:15.7122534Z Getting action download info
+2025-02-24T02:06:15.8711868Z ##[group]Download immutable action package 'actions/checkout@v4'
+2025-02-24T02:06:15.8713374Z Version: 4.2.2
+2025-02-24T02:06:15.8714369Z Digest: sha256:ccb2698953eaebd21c7bf6268a94f9c26518a7e38e27e0b83c1fe1ad049819b1
+2025-02-24T02:06:15.8715672Z Source commit SHA: 11bd71901bbe5b1630ceea73d27597364c9af683
+2025-02-24T02:06:15.8716453Z ##[endgroup]
+2025-02-24T02:06:15.9503591Z ##[group]Download immutable action package 'actions/setup-python@v5'
+2025-02-24T02:06:15.9504465Z Version: 5.4.0
+2025-02-24T02:06:15.9505214Z Digest: sha256:6003df952c8106bcd378d2ba997eef202da924317a57269dfa72449b135adb7f
+2025-02-24T02:06:15.9506247Z Source commit SHA: 42375524e23c412d93fb67b49958b491fce71c38
+2025-02-24T02:06:15.9507029Z ##[endgroup]
+2025-02-24T02:06:16.2276389Z Complete job name: cfn-lint
+2025-02-24T02:06:16.3029706Z ##[group]Run actions/checkout@v4
+2025-02-24T02:06:16.3030547Z with:
+2025-02-24T02:06:16.3031023Z   repository: ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:16.3031739Z   token: ***
+2025-02-24T02:06:16.3032152Z   ssh-strict: true
+2025-02-24T02:06:16.3032749Z   ssh-user: git
+2025-02-24T02:06:16.3033190Z   persist-credentials: true
+2025-02-24T02:06:16.3033671Z   clean: true
+2025-02-24T02:06:16.3034093Z   sparse-checkout-cone-mode: true
+2025-02-24T02:06:16.3034604Z   fetch-depth: 1
+2025-02-24T02:06:16.3035031Z   fetch-tags: false
+2025-02-24T02:06:16.3035455Z   show-progress: true
+2025-02-24T02:06:16.3035882Z   lfs: false
+2025-02-24T02:06:16.3036284Z   submodules: false
+2025-02-24T02:06:16.3036725Z   set-safe-directory: true
+2025-02-24T02:06:16.3037560Z ##[endgroup]
+2025-02-24T02:06:16.4869463Z Syncing repository: ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:16.4871246Z ##[group]Getting Git version info
+2025-02-24T02:06:16.4872485Z Working directory is '/home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis'
+2025-02-24T02:06:16.4874550Z [command]/usr/bin/git version
+2025-02-24T02:06:16.4947557Z git version 2.48.1
+2025-02-24T02:06:16.4976785Z ##[endgroup]
+2025-02-24T02:06:16.4992496Z Temporarily overriding HOME='/home/runner/work/_temp/d8dd1f0a-7b2b-4042-b1e4-98d5eb746bed' before making global git config changes
+2025-02-24T02:06:16.4994934Z Adding repository directory to the temporary git global config as a safe directory
+2025-02-24T02:06:16.5007201Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:16.5042084Z Deleting the contents of '/home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis'
+2025-02-24T02:06:16.5045868Z ##[group]Initializing the repository
+2025-02-24T02:06:16.5051078Z [command]/usr/bin/git init /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:16.5129760Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-02-24T02:06:16.5130913Z hint: is subject to change. To configure the initial branch name to use in all
+2025-02-24T02:06:16.5131995Z hint: of your new repositories, which will suppress this warning, call:
+2025-02-24T02:06:16.5132874Z hint:
+2025-02-24T02:06:16.5133542Z hint: 	git config --global init.defaultBranch <name>
+2025-02-24T02:06:16.5134559Z hint:
+2025-02-24T02:06:16.5135507Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-02-24T02:06:16.5136992Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-02-24T02:06:16.5138171Z hint:
+2025-02-24T02:06:16.5138622Z hint: 	git branch -m <name>
+2025-02-24T02:06:16.5139549Z Initialized empty Git repository in /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis/.git/
+2025-02-24T02:06:16.5148301Z [command]/usr/bin/git remote add origin https://github.com/ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:16.5181436Z ##[endgroup]
+2025-02-24T02:06:16.5182450Z ##[group]Disabling automatic garbage collection
+2025-02-24T02:06:16.5185638Z [command]/usr/bin/git config --local gc.auto 0
+2025-02-24T02:06:16.5214166Z ##[endgroup]
+2025-02-24T02:06:16.5214920Z ##[group]Setting up auth
+2025-02-24T02:06:16.5220639Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-02-24T02:06:16.5250295Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-02-24T02:06:16.5549356Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-02-24T02:06:16.5577790Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-02-24T02:06:16.5806410Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-02-24T02:06:16.5841076Z ##[endgroup]
+2025-02-24T02:06:16.5841925Z ##[group]Fetching the repository
+2025-02-24T02:06:16.5849607Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +f785de282e6e4c896b36b9d8c7bb2ff1d5118872:refs/remotes/origin/main
+2025-02-24T02:06:16.8123335Z From https://github.com/ajy0127/securityhub_soc2analysis
+2025-02-24T02:06:16.8126350Z  * [new ref]         f785de282e6e4c896b36b9d8c7bb2ff1d5118872 -> origin/main
+2025-02-24T02:06:16.8151672Z ##[endgroup]
+2025-02-24T02:06:16.8153076Z ##[group]Determining the checkout info
+2025-02-24T02:06:16.8154646Z ##[endgroup]
+2025-02-24T02:06:16.8159439Z [command]/usr/bin/git sparse-checkout disable
+2025-02-24T02:06:16.8197758Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-02-24T02:06:16.8227050Z ##[group]Checking out the ref
+2025-02-24T02:06:16.8231458Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2025-02-24T02:06:16.8323518Z Switched to a new branch 'main'
+2025-02-24T02:06:16.8326564Z branch 'main' set up to track 'origin/main'.
+2025-02-24T02:06:16.8332524Z ##[endgroup]
+2025-02-24T02:06:16.8366096Z [command]/usr/bin/git log -1 --format=%H
+2025-02-24T02:06:16.8388913Z f785de282e6e4c896b36b9d8c7bb2ff1d5118872
+2025-02-24T02:06:16.8624004Z ##[group]Run actions/setup-python@v5
+2025-02-24T02:06:16.8624563Z with:
+2025-02-24T02:06:16.8624954Z   python-version: 3.12
+2025-02-24T02:06:16.8625380Z   cache: pip
+2025-02-24T02:06:16.8625774Z   check-latest: false
+2025-02-24T02:06:16.8626348Z   token: ***
+2025-02-24T02:06:16.8626758Z   update-environment: true
+2025-02-24T02:06:16.8627233Z   allow-prereleases: false
+2025-02-24T02:06:16.8627677Z ##[endgroup]
+2025-02-24T02:06:17.0342501Z ##[group]Installed versions
+2025-02-24T02:06:17.0429245Z Successfully set up CPython (3.12.9)
+2025-02-24T02:06:17.0431115Z ##[endgroup]
+2025-02-24T02:06:17.1040515Z [command]/opt/hostedtoolcache/Python/3.12.9/x64/bin/pip cache dir
+2025-02-24T02:06:17.3774415Z /home/runner/.cache/pip
+2025-02-24T02:06:17.4942400Z Cache hit for: setup-python-Linux-x64-24.04-Ubuntu-python-3.12.9-pip-91d90556e6b943c05d069084bc8cbcbd49e4bfe3709354780feecc28d856cb9e
+2025-02-24T02:06:17.7698883Z Received 33589058 of 33589058 (100.0%), 131.8 MBs/sec
+2025-02-24T02:06:17.7699933Z Cache Size: ~32 MB (33589058 B)
+2025-02-24T02:06:17.7728423Z [command]/usr/bin/tar -xf /home/runner/work/_temp/bacc94bc-6381-4700-99d7-b049fb1cd43e/cache.tzst -P -C /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis --use-compress-program unzstd
+2025-02-24T02:06:17.8387915Z Cache restored successfully
+2025-02-24T02:06:17.8465780Z Cache restored from key: setup-python-Linux-x64-24.04-Ubuntu-python-3.12.9-pip-91d90556e6b943c05d069084bc8cbcbd49e4bfe3709354780feecc28d856cb9e
+2025-02-24T02:06:17.8623136Z ##[group]Run python -m pip install --upgrade pip setuptools wheel
+2025-02-24T02:06:17.8623815Z [36;1mpython -m pip install --upgrade pip setuptools wheel[0m
+2025-02-24T02:06:17.8624244Z [36;1mpip install -r requirements.txt[0m
+2025-02-24T02:06:17.8780157Z shell: /usr/bin/bash -e {0}
+2025-02-24T02:06:17.8780508Z env:
+2025-02-24T02:06:17.8780827Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:17.8781332Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.9/x64/lib/pkgconfig
+2025-02-24T02:06:17.8781821Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:17.8782500Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:17.8782949Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:17.8783372Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.9/x64/lib
+2025-02-24T02:06:17.8783732Z ##[endgroup]
+2025-02-24T02:06:18.4420293Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.12.9/x64/lib/python3.12/site-packages (25.0.1)
+2025-02-24T02:06:18.6536733Z Collecting setuptools
+2025-02-24T02:06:18.6886903Z   Downloading setuptools-75.8.0-py3-none-any.whl.metadata (6.7 kB)
+2025-02-24T02:06:18.7166317Z Collecting wheel
+2025-02-24T02:06:18.7201083Z   Downloading wheel-0.45.1-py3-none-any.whl.metadata (2.3 kB)
+2025-02-24T02:06:18.7291691Z Downloading setuptools-75.8.0-py3-none-any.whl (1.2 MB)
+2025-02-24T02:06:18.7536083Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 105.2 MB/s eta 0:00:00
+2025-02-24T02:06:18.7574147Z Downloading wheel-0.45.1-py3-none-any.whl (72 kB)
+2025-02-24T02:06:18.7766304Z Installing collected packages: wheel, setuptools
+2025-02-24T02:06:19.5907344Z Successfully installed setuptools-75.8.0 wheel-0.45.1
+2025-02-24T02:06:20.3267648Z Collecting boto3==1.34.69 (from -r requirements.txt (line 1))
+2025-02-24T02:06:20.3583746Z   Downloading boto3-1.34.69-py3-none-any.whl.metadata (6.6 kB)
+2025-02-24T02:06:20.3733191Z Collecting python-dateutil==2.8.2 (from -r requirements.txt (line 2))
+2025-02-24T02:06:20.3767075Z   Downloading python_dateutil-2.8.2-py2.py3-none-any.whl.metadata (8.2 kB)
+2025-02-24T02:06:20.4079094Z Collecting requests==2.31.0 (from -r requirements.txt (line 3))
+2025-02-24T02:06:20.4117272Z   Downloading requests-2.31.0-py3-none-any.whl.metadata (4.6 kB)
+2025-02-24T02:06:20.4466733Z Collecting pytest==8.1.1 (from -r requirements.txt (line 4))
+2025-02-24T02:06:20.4501330Z   Downloading pytest-8.1.1-py3-none-any.whl.metadata (7.6 kB)
+2025-02-24T02:06:20.4701467Z Collecting pytest-cov==4.1.0 (from -r requirements.txt (line 5))
+2025-02-24T02:06:20.4734579Z   Downloading pytest_cov-4.1.0-py3-none-any.whl.metadata (26 kB)
+2025-02-24T02:06:20.4983338Z Collecting flake8==7.0.0 (from -r requirements.txt (line 6))
+2025-02-24T02:06:20.5022446Z   Downloading flake8-7.0.0-py2.py3-none-any.whl.metadata (3.8 kB)
+2025-02-24T02:06:20.5435112Z Collecting black==24.3.0 (from -r requirements.txt (line 7))
+2025-02-24T02:06:20.5564532Z   Downloading black-24.3.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (75 kB)
+2025-02-24T02:06:20.6252824Z Collecting cfn-lint==0.85.1 (from -r requirements.txt (line 8))
+2025-02-24T02:06:20.6334693Z   Downloading cfn_lint-0.85.1-py3-none-any.whl.metadata (16 kB)
+2025-02-24T02:06:20.7768366Z Collecting moto==5.0.3 (from -r requirements.txt (line 9))
+2025-02-24T02:06:20.7829673Z   Downloading moto-5.0.3-py2.py3-none-any.whl.metadata (11 kB)
+2025-02-24T02:06:20.9045726Z Collecting mypy==1.9.0 (from -r requirements.txt (line 10))
+2025-02-24T02:06:20.9153068Z   Downloading mypy-1.9.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.9 kB)
+2025-02-24T02:06:20.9404268Z Collecting bandit==1.7.8 (from -r requirements.txt (line 11))
+2025-02-24T02:06:20.9474511Z   Downloading bandit-1.7.8-py3-none-any.whl.metadata (6.0 kB)
+2025-02-24T02:06:20.9855261Z Collecting pre-commit==3.6.2 (from -r requirements.txt (line 12))
+2025-02-24T02:06:20.9921257Z   Downloading pre_commit-3.6.2-py2.py3-none-any.whl.metadata (1.3 kB)
+2025-02-24T02:06:21.2835081Z Collecting botocore<1.35.0,>=1.34.69 (from boto3==1.34.69->-r requirements.txt (line 1))
+2025-02-24T02:06:21.2869819Z   Downloading botocore-1.34.162-py3-none-any.whl.metadata (5.7 kB)
+2025-02-24T02:06:21.3006977Z Collecting jmespath<2.0.0,>=0.7.1 (from boto3==1.34.69->-r requirements.txt (line 1))
+2025-02-24T02:06:21.3019806Z   Using cached jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+2025-02-24T02:06:21.3169418Z Collecting s3transfer<0.11.0,>=0.10.0 (from boto3==1.34.69->-r requirements.txt (line 1))
+2025-02-24T02:06:21.3205403Z   Downloading s3transfer-0.10.4-py3-none-any.whl.metadata (1.7 kB)
+2025-02-24T02:06:21.3456758Z Collecting six>=1.5 (from python-dateutil==2.8.2->-r requirements.txt (line 2))
+2025-02-24T02:06:21.3468445Z   Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+2025-02-24T02:06:21.3989927Z Collecting charset-normalizer<4,>=2 (from requests==2.31.0->-r requirements.txt (line 3))
+2025-02-24T02:06:21.4020988Z   Downloading charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+2025-02-24T02:06:21.4200253Z Collecting idna<4,>=2.5 (from requests==2.31.0->-r requirements.txt (line 3))
+2025-02-24T02:06:21.4228727Z   Downloading idna-3.10-py3-none-any.whl.metadata (10 kB)
+2025-02-24T02:06:21.4498393Z Collecting urllib3<3,>=1.21.1 (from requests==2.31.0->-r requirements.txt (line 3))
+2025-02-24T02:06:21.4509935Z   Using cached urllib3-2.3.0-py3-none-any.whl.metadata (6.5 kB)
+2025-02-24T02:06:21.4679793Z Collecting certifi>=2017.4.17 (from requests==2.31.0->-r requirements.txt (line 3))
+2025-02-24T02:06:21.4712678Z   Downloading certifi-2025.1.31-py3-none-any.whl.metadata (2.5 kB)
+2025-02-24T02:06:21.4827773Z Collecting iniconfig (from pytest==8.1.1->-r requirements.txt (line 4))
+2025-02-24T02:06:21.4856470Z   Downloading iniconfig-2.0.0-py3-none-any.whl.metadata (2.6 kB)
+2025-02-24T02:06:21.5015912Z Collecting packaging (from pytest==8.1.1->-r requirements.txt (line 4))
+2025-02-24T02:06:21.5047976Z   Downloading packaging-24.2-py3-none-any.whl.metadata (3.2 kB)
+2025-02-24T02:06:21.5178513Z Collecting pluggy<2.0,>=1.4 (from pytest==8.1.1->-r requirements.txt (line 4))
+2025-02-24T02:06:21.5208609Z   Downloading pluggy-1.5.0-py3-none-any.whl.metadata (4.8 kB)
+2025-02-24T02:06:21.7648173Z Collecting coverage>=5.2.1 (from coverage[toml]>=5.2.1->pytest-cov==4.1.0->-r requirements.txt (line 5))
+2025-02-24T02:06:21.7688609Z   Downloading coverage-7.6.12-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (8.5 kB)
+2025-02-24T02:06:21.7856829Z Collecting mccabe<0.8.0,>=0.7.0 (from flake8==7.0.0->-r requirements.txt (line 6))
+2025-02-24T02:06:21.7887143Z   Downloading mccabe-0.7.0-py2.py3-none-any.whl.metadata (5.0 kB)
+2025-02-24T02:06:21.8116290Z Collecting pycodestyle<2.12.0,>=2.11.0 (from flake8==7.0.0->-r requirements.txt (line 6))
+2025-02-24T02:06:21.8145251Z   Downloading pycodestyle-2.11.1-py2.py3-none-any.whl.metadata (4.5 kB)
+2025-02-24T02:06:21.8312102Z Collecting pyflakes<3.3.0,>=3.2.0 (from flake8==7.0.0->-r requirements.txt (line 6))
+2025-02-24T02:06:21.8341635Z   Downloading pyflakes-3.2.0-py2.py3-none-any.whl.metadata (3.5 kB)
+2025-02-24T02:06:21.8521229Z Collecting click>=8.0.0 (from black==24.3.0->-r requirements.txt (line 7))
+2025-02-24T02:06:21.8549415Z   Downloading click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+2025-02-24T02:06:21.8665666Z Collecting mypy-extensions>=0.4.3 (from black==24.3.0->-r requirements.txt (line 7))
+2025-02-24T02:06:21.8696690Z   Downloading mypy_extensions-1.0.0-py3-none-any.whl.metadata (1.1 kB)
+2025-02-24T02:06:21.8847245Z Collecting pathspec>=0.9.0 (from black==24.3.0->-r requirements.txt (line 7))
+2025-02-24T02:06:21.8879312Z   Downloading pathspec-0.12.1-py3-none-any.whl.metadata (21 kB)
+2025-02-24T02:06:21.9063365Z Collecting platformdirs>=2 (from black==24.3.0->-r requirements.txt (line 7))
+2025-02-24T02:06:21.9107568Z   Downloading platformdirs-4.3.6-py3-none-any.whl.metadata (11 kB)
+2025-02-24T02:06:21.9408784Z Collecting pyyaml>5.4 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:21.9422967Z   Using cached PyYAML-6.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.1 kB)
+2025-02-24T02:06:21.9679016Z Collecting aws-sam-translator>=1.84.0 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:21.9689851Z   Using cached aws_sam_translator-1.95.0-py3-none-any.whl.metadata (8.3 kB)
+2025-02-24T02:06:21.9839948Z Collecting jsonpatch (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:21.9850553Z   Using cached jsonpatch-1.33-py2.py3-none-any.whl.metadata (3.0 kB)
+2025-02-24T02:06:22.0069286Z Collecting jsonschema<5,>=3.0 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.0080082Z   Using cached jsonschema-4.23.0-py3-none-any.whl.metadata (7.9 kB)
+2025-02-24T02:06:22.0311716Z Collecting networkx<4,>=2.4 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.0322797Z   Using cached networkx-3.4.2-py3-none-any.whl.metadata (6.3 kB)
+2025-02-24T02:06:22.0465119Z Collecting junit-xml~=1.9 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.0501401Z   Downloading junit_xml-1.9-py2.py3-none-any.whl.metadata (3.2 kB)
+2025-02-24T02:06:22.0634601Z Collecting jschema-to-python~=1.2.3 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.0666191Z   Downloading jschema_to_python-1.2.3-py3-none-any.whl.metadata (3.1 kB)
+2025-02-24T02:06:22.0809958Z Collecting sarif-om~=1.0.4 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.0842636Z   Downloading sarif_om-1.0.4-py3-none-any.whl.metadata (3.2 kB)
+2025-02-24T02:06:22.0997232Z Collecting sympy>=1.0.0 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.1007913Z   Using cached sympy-1.13.3-py3-none-any.whl.metadata (12 kB)
+2025-02-24T02:06:22.3218387Z Collecting regex>=2021.7.1 (from cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:22.3230931Z   Using cached regex-2024.11.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (40 kB)
+2025-02-24T02:06:22.6814938Z Collecting cryptography>=3.3.1 (from moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:22.6850039Z   Downloading cryptography-44.0.1-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+2025-02-24T02:06:22.7061831Z Collecting xmltodict (from moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:22.7091007Z   Downloading xmltodict-0.14.2-py2.py3-none-any.whl.metadata (8.0 kB)
+2025-02-24T02:06:22.7407513Z Collecting werkzeug!=2.2.0,!=2.2.1,>=0.5 (from moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:22.7440407Z   Downloading werkzeug-3.1.3-py3-none-any.whl.metadata (3.7 kB)
+2025-02-24T02:06:22.7641337Z Collecting responses>=0.15.0 (from moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:22.7673012Z   Downloading responses-0.25.6-py3-none-any.whl.metadata (47 kB)
+2025-02-24T02:06:22.7892150Z Collecting Jinja2>=2.10.1 (from moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:22.7921699Z   Downloading jinja2-3.1.5-py3-none-any.whl.metadata (2.6 kB)
+2025-02-24T02:06:22.8094634Z Collecting typing-extensions>=4.1.0 (from mypy==1.9.0->-r requirements.txt (line 10))
+2025-02-24T02:06:22.8105262Z   Using cached typing_extensions-4.12.2-py3-none-any.whl.metadata (3.0 kB)
+2025-02-24T02:06:22.8318343Z Collecting stevedore>=1.20.0 (from bandit==1.7.8->-r requirements.txt (line 11))
+2025-02-24T02:06:22.8349959Z   Downloading stevedore-5.4.1-py3-none-any.whl.metadata (2.3 kB)
+2025-02-24T02:06:22.8994123Z Collecting rich (from bandit==1.7.8->-r requirements.txt (line 11))
+2025-02-24T02:06:22.9031276Z   Downloading rich-13.9.4-py3-none-any.whl.metadata (18 kB)
+2025-02-24T02:06:22.9188976Z Collecting cfgv>=2.0.0 (from pre-commit==3.6.2->-r requirements.txt (line 12))
+2025-02-24T02:06:22.9238223Z   Downloading cfgv-3.4.0-py2.py3-none-any.whl.metadata (8.5 kB)
+2025-02-24T02:06:22.9606998Z Collecting identify>=1.0.0 (from pre-commit==3.6.2->-r requirements.txt (line 12))
+2025-02-24T02:06:22.9654908Z   Downloading identify-2.6.8-py2.py3-none-any.whl.metadata (4.4 kB)
+2025-02-24T02:06:22.9804113Z Collecting nodeenv>=0.11.1 (from pre-commit==3.6.2->-r requirements.txt (line 12))
+2025-02-24T02:06:22.9833928Z   Downloading nodeenv-1.9.1-py2.py3-none-any.whl.metadata (21 kB)
+2025-02-24T02:06:23.0229022Z Collecting virtualenv>=20.10.0 (from pre-commit==3.6.2->-r requirements.txt (line 12))
+2025-02-24T02:06:23.0260771Z   Downloading virtualenv-20.29.2-py3-none-any.whl.metadata (4.5 kB)
+2025-02-24T02:06:23.3437226Z Collecting pydantic!=1.10.15,!=1.10.17,<3,>=1.8 (from aws-sam-translator>=1.84.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.3448684Z   Using cached pydantic-2.10.6-py3-none-any.whl.metadata (30 kB)
+2025-02-24T02:06:23.4369976Z Collecting cffi>=1.12 (from cryptography>=3.3.1->moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:23.4420952Z   Downloading cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+2025-02-24T02:06:23.4832858Z Collecting MarkupSafe>=2.0 (from Jinja2>=2.10.1->moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:23.4882011Z   Downloading MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+2025-02-24T02:06:23.5039362Z Collecting attrs (from jschema-to-python~=1.2.3->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.5049993Z   Using cached attrs-25.1.0-py3-none-any.whl.metadata (10 kB)
+2025-02-24T02:06:23.5274839Z Collecting jsonpickle (from jschema-to-python~=1.2.3->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.5310898Z   Downloading jsonpickle-4.0.2-py3-none-any.whl.metadata (8.2 kB)
+2025-02-24T02:06:23.5547617Z Collecting pbr (from jschema-to-python~=1.2.3->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.5584753Z   Downloading pbr-6.1.1-py2.py3-none-any.whl.metadata (3.4 kB)
+2025-02-24T02:06:23.5736741Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema<5,>=3.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.5748242Z   Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl.metadata (3.0 kB)
+2025-02-24T02:06:23.5958186Z Collecting referencing>=0.28.4 (from jsonschema<5,>=3.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.5968843Z   Using cached referencing-0.36.2-py3-none-any.whl.metadata (2.8 kB)
+2025-02-24T02:06:23.7591057Z Collecting rpds-py>=0.7.1 (from jsonschema<5,>=3.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.7603767Z   Using cached rpds_py-0.23.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+2025-02-24T02:06:23.9466283Z Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.0.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:23.9477407Z   Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+2025-02-24T02:06:23.9659709Z Collecting distlib<1,>=0.3.7 (from virtualenv>=20.10.0->pre-commit==3.6.2->-r requirements.txt (line 12))
+2025-02-24T02:06:23.9690637Z   Downloading distlib-0.3.9-py2.py3-none-any.whl.metadata (5.2 kB)
+2025-02-24T02:06:23.9874878Z Collecting filelock<4,>=3.12.2 (from virtualenv>=20.10.0->pre-commit==3.6.2->-r requirements.txt (line 12))
+2025-02-24T02:06:23.9910247Z   Downloading filelock-3.17.0-py3-none-any.whl.metadata (2.9 kB)
+2025-02-24T02:06:24.0162911Z Collecting jsonpointer>=1.9 (from jsonpatch->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:24.0174416Z   Using cached jsonpointer-3.0.0-py2.py3-none-any.whl.metadata (2.3 kB)
+2025-02-24T02:06:24.0338065Z Collecting markdown-it-py>=2.2.0 (from rich->bandit==1.7.8->-r requirements.txt (line 11))
+2025-02-24T02:06:24.0376218Z   Downloading markdown_it_py-3.0.0-py3-none-any.whl.metadata (6.9 kB)
+2025-02-24T02:06:24.1008614Z Collecting pygments<3.0.0,>=2.13.0 (from rich->bandit==1.7.8->-r requirements.txt (line 11))
+2025-02-24T02:06:24.1041292Z   Downloading pygments-2.19.1-py3-none-any.whl.metadata (2.5 kB)
+2025-02-24T02:06:24.1229902Z Collecting pycparser (from cffi>=1.12->cryptography>=3.3.1->moto==5.0.3->-r requirements.txt (line 9))
+2025-02-24T02:06:24.1280270Z   Downloading pycparser-2.22-py3-none-any.whl.metadata (943 bytes)
+2025-02-24T02:06:24.1539500Z Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->bandit==1.7.8->-r requirements.txt (line 11))
+2025-02-24T02:06:24.1582669Z   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+2025-02-24T02:06:24.1671902Z Requirement already satisfied: setuptools in /opt/hostedtoolcache/Python/3.12.9/x64/lib/python3.12/site-packages (from pbr->jschema-to-python~=1.2.3->cfn-lint==0.85.1->-r requirements.txt (line 8)) (75.8.0)
+2025-02-24T02:06:24.1784548Z Collecting annotated-types>=0.6.0 (from pydantic!=1.10.15,!=1.10.17,<3,>=1.8->aws-sam-translator>=1.84.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:24.1795605Z   Using cached annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+2025-02-24T02:06:24.5607670Z Collecting pydantic-core==2.27.2 (from pydantic!=1.10.15,!=1.10.17,<3,>=1.8->aws-sam-translator>=1.84.0->cfn-lint==0.85.1->-r requirements.txt (line 8))
+2025-02-24T02:06:24.5620836Z   Using cached pydantic_core-2.27.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+2025-02-24T02:06:24.6101261Z Downloading boto3-1.34.69-py3-none-any.whl (139 kB)
+2025-02-24T02:06:24.6177751Z Downloading python_dateutil-2.8.2-py2.py3-none-any.whl (247 kB)
+2025-02-24T02:06:24.6276759Z Downloading requests-2.31.0-py3-none-any.whl (62 kB)
+2025-02-24T02:06:24.6361220Z Downloading pytest-8.1.1-py3-none-any.whl (337 kB)
+2025-02-24T02:06:24.6460229Z Downloading pytest_cov-4.1.0-py3-none-any.whl (21 kB)
+2025-02-24T02:06:24.6515940Z Downloading flake8-7.0.0-py2.py3-none-any.whl (57 kB)
+2025-02-24T02:06:24.6600284Z Downloading black-24.3.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.8 MB)
+2025-02-24T02:06:24.6845408Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 74.2 MB/s eta 0:00:00
+2025-02-24T02:06:24.7042800Z Downloading cfn_lint-0.85.1-py3-none-any.whl (3.7 MB)
+2025-02-24T02:06:24.7653022Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.7/3.7 MB 60.7 MB/s eta 0:00:00
+2025-02-24T02:06:24.7819664Z Downloading moto-5.0.3-py2.py3-none-any.whl (3.3 MB)
+2025-02-24T02:06:24.8250806Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 75.8 MB/s eta 0:00:00
+2025-02-24T02:06:24.8292657Z Downloading mypy-1.9.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (12.5 MB)
+2025-02-24T02:06:24.9174356Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.5/12.5 MB 142.8 MB/s eta 0:00:00
+2025-02-24T02:06:24.9249733Z Downloading bandit-1.7.8-py3-none-any.whl (127 kB)
+2025-02-24T02:06:24.9350811Z Downloading pre_commit-3.6.2-py2.py3-none-any.whl (204 kB)
+2025-02-24T02:06:24.9387863Z Using cached aws_sam_translator-1.95.0-py3-none-any.whl (385 kB)
+2025-02-24T02:06:24.9426280Z Downloading botocore-1.34.162-py3-none-any.whl (12.5 MB)
+2025-02-24T02:06:25.0055405Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.5/12.5 MB 203.6 MB/s eta 0:00:00
+2025-02-24T02:06:25.0106601Z Downloading certifi-2025.1.31-py3-none-any.whl (166 kB)
+2025-02-24T02:06:25.0166008Z Downloading cfgv-3.4.0-py2.py3-none-any.whl (7.2 kB)
+2025-02-24T02:06:25.0214430Z Downloading charset_normalizer-3.4.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (145 kB)
+2025-02-24T02:06:25.0274951Z Downloading click-8.1.8-py3-none-any.whl (98 kB)
+2025-02-24T02:06:25.0329713Z Downloading coverage-7.6.12-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (242 kB)
+2025-02-24T02:06:25.0414244Z Downloading cryptography-44.0.1-cp39-abi3-manylinux_2_34_x86_64.whl (4.2 MB)
+2025-02-24T02:06:25.0654319Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 183.4 MB/s eta 0:00:00
+2025-02-24T02:06:25.0691521Z Downloading identify-2.6.8-py2.py3-none-any.whl (99 kB)
+2025-02-24T02:06:25.0750363Z Downloading idna-3.10-py3-none-any.whl (70 kB)
+2025-02-24T02:06:25.0804073Z Downloading jinja2-3.1.5-py3-none-any.whl (134 kB)
+2025-02-24T02:06:25.0839306Z Using cached jmespath-1.0.1-py3-none-any.whl (20 kB)
+2025-02-24T02:06:25.0872111Z Downloading jschema_to_python-1.2.3-py3-none-any.whl (10 kB)
+2025-02-24T02:06:25.0900707Z Using cached jsonschema-4.23.0-py3-none-any.whl (88 kB)
+2025-02-24T02:06:25.0939506Z Downloading junit_xml-1.9-py2.py3-none-any.whl (7.1 kB)
+2025-02-24T02:06:25.0991055Z Downloading mccabe-0.7.0-py2.py3-none-any.whl (7.3 kB)
+2025-02-24T02:06:25.1040121Z Downloading mypy_extensions-1.0.0-py3-none-any.whl (4.7 kB)
+2025-02-24T02:06:25.1075828Z Using cached networkx-3.4.2-py3-none-any.whl (1.7 MB)
+2025-02-24T02:06:25.1118937Z Downloading nodeenv-1.9.1-py2.py3-none-any.whl (22 kB)
+2025-02-24T02:06:25.1167575Z Downloading packaging-24.2-py3-none-any.whl (65 kB)
+2025-02-24T02:06:25.1224265Z Downloading pathspec-0.12.1-py3-none-any.whl (31 kB)
+2025-02-24T02:06:25.1271302Z Downloading platformdirs-4.3.6-py3-none-any.whl (18 kB)
+2025-02-24T02:06:25.1328652Z Downloading pluggy-1.5.0-py3-none-any.whl (20 kB)
+2025-02-24T02:06:25.1379141Z Downloading pycodestyle-2.11.1-py2.py3-none-any.whl (31 kB)
+2025-02-24T02:06:25.1435935Z Downloading pyflakes-3.2.0-py2.py3-none-any.whl (62 kB)
+2025-02-24T02:06:25.1474424Z Using cached PyYAML-6.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (767 kB)
+2025-02-24T02:06:25.1491104Z Using cached regex-2024.11.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (796 kB)
+2025-02-24T02:06:25.1530827Z Downloading responses-0.25.6-py3-none-any.whl (34 kB)
+2025-02-24T02:06:25.1581875Z Downloading s3transfer-0.10.4-py3-none-any.whl (83 kB)
+2025-02-24T02:06:25.1643226Z Downloading sarif_om-1.0.4-py3-none-any.whl (30 kB)
+2025-02-24T02:06:25.1678626Z Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+2025-02-24T02:06:25.1709532Z Downloading stevedore-5.4.1-py3-none-any.whl (49 kB)
+2025-02-24T02:06:25.1742055Z Using cached sympy-1.13.3-py3-none-any.whl (6.2 MB)
+2025-02-24T02:06:25.1798480Z Using cached typing_extensions-4.12.2-py3-none-any.whl (37 kB)
+2025-02-24T02:06:25.1809525Z Using cached urllib3-2.3.0-py3-none-any.whl (128 kB)
+2025-02-24T02:06:25.1845999Z Downloading virtualenv-20.29.2-py3-none-any.whl (4.3 MB)
+2025-02-24T02:06:25.2095998Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 179.6 MB/s eta 0:00:00
+2025-02-24T02:06:25.2126607Z Downloading werkzeug-3.1.3-py3-none-any.whl (224 kB)
+2025-02-24T02:06:25.2184297Z Downloading iniconfig-2.0.0-py3-none-any.whl (5.9 kB)
+2025-02-24T02:06:25.2214500Z Using cached jsonpatch-1.33-py2.py3-none-any.whl (12 kB)
+2025-02-24T02:06:25.2242071Z Downloading rich-13.9.4-py3-none-any.whl (242 kB)
+2025-02-24T02:06:25.2303795Z Downloading xmltodict-0.14.2-py2.py3-none-any.whl (10.0 kB)
+2025-02-24T02:06:25.2332952Z Using cached attrs-25.1.0-py3-none-any.whl (63 kB)
+2025-02-24T02:06:25.2365259Z Downloading cffi-1.17.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (479 kB)
+2025-02-24T02:06:25.2459451Z Downloading distlib-0.3.9-py2.py3-none-any.whl (468 kB)
+2025-02-24T02:06:25.2538420Z Downloading filelock-3.17.0-py3-none-any.whl (16 kB)
+2025-02-24T02:06:25.2567095Z Using cached jsonpointer-3.0.0-py2.py3-none-any.whl (7.6 kB)
+2025-02-24T02:06:25.2578054Z Using cached jsonschema_specifications-2024.10.1-py3-none-any.whl (18 kB)
+2025-02-24T02:06:25.2607246Z Downloading markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
+2025-02-24T02:06:25.2673887Z Downloading MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+2025-02-24T02:06:25.2702772Z Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+2025-02-24T02:06:25.2735745Z Downloading pbr-6.1.1-py2.py3-none-any.whl (108 kB)
+2025-02-24T02:06:25.2772951Z Using cached pydantic-2.10.6-py3-none-any.whl (431 kB)
+2025-02-24T02:06:25.2787177Z Using cached pydantic_core-2.27.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
+2025-02-24T02:06:25.2834599Z Downloading pygments-2.19.1-py3-none-any.whl (1.2 MB)
+2025-02-24T02:06:25.2932988Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 137.3 MB/s eta 0:00:00
+2025-02-24T02:06:25.2942921Z Using cached referencing-0.36.2-py3-none-any.whl (26 kB)
+2025-02-24T02:06:25.2954548Z Using cached rpds_py-0.23.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (391 kB)
+2025-02-24T02:06:25.2985308Z Downloading jsonpickle-4.0.2-py3-none-any.whl (46 kB)
+2025-02-24T02:06:25.3017510Z Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+2025-02-24T02:06:25.3045081Z Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+2025-02-24T02:06:25.3091037Z Downloading pycparser-2.22-py3-none-any.whl (117 kB)
+2025-02-24T02:06:25.5795410Z Installing collected packages: mpmath, distlib, xmltodict, urllib3, typing-extensions, sympy, six, rpds-py, regex, pyyaml, pygments, pyflakes, pycparser, pycodestyle, pluggy, platformdirs, pbr, pathspec, packaging, nodeenv, networkx, mypy-extensions, mdurl, mccabe, MarkupSafe, jsonpointer, jsonpickle, jmespath, iniconfig, idna, identify, filelock, coverage, click, charset-normalizer, cfgv, certifi, attrs, annotated-types, werkzeug, virtualenv, stevedore, sarif-om, requests, referencing, python-dateutil, pytest, pydantic-core, mypy, markdown-it-py, junit-xml, jsonpatch, jschema-to-python, Jinja2, flake8, cffi, black, rich, responses, pytest-cov, pydantic, pre-commit, jsonschema-specifications, cryptography, botocore, s3transfer, jsonschema, bandit, boto3, moto, aws-sam-translator, cfn-lint
+2025-02-24T02:06:40.7357935Z Successfully installed Jinja2-3.1.5 MarkupSafe-3.0.2 annotated-types-0.7.0 attrs-25.1.0 aws-sam-translator-1.95.0 bandit-1.7.8 black-24.3.0 boto3-1.34.69 botocore-1.34.162 certifi-2025.1.31 cffi-1.17.1 cfgv-3.4.0 cfn-lint-0.85.1 charset-normalizer-3.4.1 click-8.1.8 coverage-7.6.12 cryptography-44.0.1 distlib-0.3.9 filelock-3.17.0 flake8-7.0.0 identify-2.6.8 idna-3.10 iniconfig-2.0.0 jmespath-1.0.1 jschema-to-python-1.2.3 jsonpatch-1.33 jsonpickle-4.0.2 jsonpointer-3.0.0 jsonschema-4.23.0 jsonschema-specifications-2024.10.1 junit-xml-1.9 markdown-it-py-3.0.0 mccabe-0.7.0 mdurl-0.1.2 moto-5.0.3 mpmath-1.3.0 mypy-1.9.0 mypy-extensions-1.0.0 networkx-3.4.2 nodeenv-1.9.1 packaging-24.2 pathspec-0.12.1 pbr-6.1.1 platformdirs-4.3.6 pluggy-1.5.0 pre-commit-3.6.2 pycodestyle-2.11.1 pycparser-2.22 pydantic-2.10.6 pydantic-core-2.27.2 pyflakes-3.2.0 pygments-2.19.1 pytest-8.1.1 pytest-cov-4.1.0 python-dateutil-2.8.2 pyyaml-6.0.2 referencing-0.36.2 regex-2024.11.6 requests-2.31.0 responses-0.25.6 rich-13.9.4 rpds-py-0.23.1 s3transfer-0.10.4 sarif-om-1.0.4 six-1.17.0 stevedore-5.4.1 sympy-1.13.3 typing-extensions-4.12.2 urllib3-2.3.0 virtualenv-20.29.2 werkzeug-3.1.3 xmltodict-0.14.2
+2025-02-24T02:06:40.9798300Z ##[group]Run python -m cfn_lint template.yaml 
+2025-02-24T02:06:40.9798669Z [36;1mpython -m cfn_lint template.yaml [0m
+2025-02-24T02:06:40.9857425Z shell: /usr/bin/bash -e {0}
+2025-02-24T02:06:40.9857671Z env:
+2025-02-24T02:06:40.9857928Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9858350Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.9/x64/lib/pkgconfig
+2025-02-24T02:06:40.9858771Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9859170Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9859553Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.9/x64
+2025-02-24T02:06:40.9859931Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.9/x64/lib
+2025-02-24T02:06:40.9860419Z ##[endgroup]
+2025-02-24T02:06:41.0056320Z /opt/hostedtoolcache/Python/3.12.9/x64/bin/python: No module named cfn_lint
+2025-02-24T02:06:41.0090639Z ##[error]Process completed with exit code 1.
+2025-02-24T02:06:41.0179747Z Post job cleanup.
+2025-02-24T02:06:41.1105682Z [command]/usr/bin/git version
+2025-02-24T02:06:41.1141201Z git version 2.48.1
+2025-02-24T02:06:41.1184516Z Temporarily overriding HOME='/home/runner/work/_temp/8e6ae993-f2f7-41ce-bba3-36e823c9e5d7' before making global git config changes
+2025-02-24T02:06:41.1185829Z Adding repository directory to the temporary git global config as a safe directory
+2025-02-24T02:06:41.1197890Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:41.1234201Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-02-24T02:06:41.1267507Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-02-24T02:06:41.1502736Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-02-24T02:06:41.1523151Z http.https://github.com/.extraheader
+2025-02-24T02:06:41.1535721Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-02-24T02:06:41.1566358Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-02-24T02:06:41.1898058Z Cleaning up orphan processes

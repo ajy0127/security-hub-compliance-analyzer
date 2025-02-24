@@ -1,0 +1,34 @@
+﻿2025-02-24T02:06:43.4165193Z ##[group]Run codecov/codecov-action@v4
+2025-02-24T02:06:43.4165484Z with:
+2025-02-24T02:06:43.4165656Z env:
+2025-02-24T02:06:43.4165895Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:43.4166307Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.11/x64/lib/pkgconfig
+2025-02-24T02:06:43.4166689Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:43.4167034Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:43.4167383Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.11/x64
+2025-02-24T02:06:43.4167729Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.11/x64/lib
+2025-02-24T02:06:43.4168013Z   CODECOV_TOKEN: 
+2025-02-24T02:06:43.4168204Z ##[endgroup]
+2025-02-24T02:06:43.5001855Z eventName: push
+2025-02-24T02:06:43.5016337Z ==> linux OS detected
+2025-02-24T02:06:44.0921546Z https://cli.codecov.io/latest/linux/codecov.SHA256SUM
+2025-02-24T02:06:44.1826437Z gpg: directory '/home/runner/.gnupg' created
+2025-02-24T02:06:44.1828945Z gpg: keybox '/home/runner/.gnupg/pubring.kbx' created
+2025-02-24T02:06:44.1841977Z gpg: /home/runner/.gnupg/trustdb.gpg: trustdb created
+2025-02-24T02:06:44.1842983Z gpg: key 806BB28AED779869: public key "Codecov Uploader (Codecov Uploader Verification Key) <security@codecov.io>" imported
+2025-02-24T02:06:44.2133302Z gpg: Total number processed: 1
+2025-02-24T02:06:44.2133819Z gpg:               imported: 1
+2025-02-24T02:06:44.2188718Z gpg: Signature made Fri Feb 21 21:18:38 2025 UTC
+2025-02-24T02:06:44.2189527Z gpg:                using RSA key 27034E7FDB850E0BBC2C62FF806BB28AED779869
+2025-02-24T02:06:44.2192388Z gpg: Good signature from "Codecov Uploader (Codecov Uploader Verification Key) <security@codecov.io>" [unknown]
+2025-02-24T02:06:44.2193155Z gpg: WARNING: This key is not certified with a trusted signature!
+2025-02-24T02:06:44.2193832Z gpg:          There is no indication that the signature belongs to the owner.
+2025-02-24T02:06:44.2194600Z Primary key fingerprint: 2703 4E7F DB85 0E0B BC2C  62FF 806B B28A ED77 9869
+2025-02-24T02:06:44.2752785Z ==> Uploader SHASUM verified (ec031bdc38a2ca279ea1f56650b63aa6ce1365e7ee9da33b413e6f175a94fe2b  codecov)
+2025-02-24T02:06:44.2754067Z ==> Running version latest
+2025-02-24T02:06:44.3531790Z Could not pull latest version information: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+2025-02-24T02:06:44.3534321Z ==> Running git config --global --add safe.directory /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:44.3619886Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:44.3672138Z ==> Running command '/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov create-commit'
+2025-02-24T02:06:44.3674469Z [command]/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov create-commit --git-service github
+2025-02-24T02:06:44.7707008Z ##[error]The operation was canceled.

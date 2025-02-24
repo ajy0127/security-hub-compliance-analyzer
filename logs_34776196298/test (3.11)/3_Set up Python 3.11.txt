@@ -1,0 +1,16 @@
+﻿2025-02-24T02:06:18.4399277Z ##[group]Run actions/setup-python@v5
+2025-02-24T02:06:18.4400263Z with:
+2025-02-24T02:06:18.4400809Z   python-version: 3.11
+2025-02-24T02:06:18.4401452Z   cache: pip
+2025-02-24T02:06:18.4402020Z   check-latest: false
+2025-02-24T02:06:18.4402925Z   token: ***
+2025-02-24T02:06:18.4403517Z   update-environment: true
+2025-02-24T02:06:18.4404286Z   allow-prereleases: false
+2025-02-24T02:06:18.4404988Z ##[endgroup]
+2025-02-24T02:06:18.6131759Z ##[group]Installed versions
+2025-02-24T02:06:18.6195019Z Successfully set up CPython (3.11.11)
+2025-02-24T02:06:18.6196661Z ##[endgroup]
+2025-02-24T02:06:18.6749912Z [command]/opt/hostedtoolcache/Python/3.11.11/x64/bin/pip cache dir
+2025-02-24T02:06:19.8133871Z /home/runner/.cache/pip
+2025-02-24T02:06:19.9237157Z ##[warning]Cache not found for keys: setup-python-Linux-x64-24.04-Ubuntu-python-3.11.11-pip-91d90556e6b943c05d069084bc8cbcbd49e4bfe3709354780feecc28d856cb9e, setup-python-Linux-x64-24.04-Ubuntu-python-3.11.11-pip
+2025-02-24T02:06:19.9244536Z pip cache is not found

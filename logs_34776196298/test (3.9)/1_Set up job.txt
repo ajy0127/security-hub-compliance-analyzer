@@ -1,0 +1,36 @@
+﻿2025-02-24T02:06:17.5081736Z Current runner version: '2.322.0'
+2025-02-24T02:06:17.5107753Z ##[group]Operating System
+2025-02-24T02:06:17.5108508Z Ubuntu
+2025-02-24T02:06:17.5109012Z 24.04.1
+2025-02-24T02:06:17.5109611Z LTS
+2025-02-24T02:06:17.5110348Z ##[endgroup]
+2025-02-24T02:06:17.5110959Z ##[group]Runner Image
+2025-02-24T02:06:17.5111555Z Image: ubuntu-24.04
+2025-02-24T02:06:17.5112058Z Version: 20250209.1.0
+2025-02-24T02:06:17.5113204Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250209.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-02-24T02:06:17.5114687Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250209.1
+2025-02-24T02:06:17.5115665Z ##[endgroup]
+2025-02-24T02:06:17.5116250Z ##[group]Runner Image Provisioner
+2025-02-24T02:06:17.5116837Z 2.0.422.1
+2025-02-24T02:06:17.5117343Z ##[endgroup]
+2025-02-24T02:06:17.5118492Z ##[group]GITHUB_TOKEN Permissions
+2025-02-24T02:06:17.5120465Z Contents: read
+2025-02-24T02:06:17.5121078Z Metadata: read
+2025-02-24T02:06:17.5121612Z Packages: read
+2025-02-24T02:06:17.5122483Z ##[endgroup]
+2025-02-24T02:06:17.5125169Z Secret source: Actions
+2025-02-24T02:06:17.5125870Z Prepare workflow directory
+2025-02-24T02:06:17.5431225Z Prepare all required actions
+2025-02-24T02:06:17.5467817Z Getting action download info
+2025-02-24T02:06:17.7344505Z ##[group]Download immutable action package 'actions/checkout@v4'
+2025-02-24T02:06:17.7345551Z Version: 4.2.2
+2025-02-24T02:06:17.7346647Z Digest: sha256:ccb2698953eaebd21c7bf6268a94f9c26518a7e38e27e0b83c1fe1ad049819b1
+2025-02-24T02:06:17.7347781Z Source commit SHA: 11bd71901bbe5b1630ceea73d27597364c9af683
+2025-02-24T02:06:17.7348528Z ##[endgroup]
+2025-02-24T02:06:17.8142193Z ##[group]Download immutable action package 'actions/setup-python@v5'
+2025-02-24T02:06:17.8143145Z Version: 5.4.0
+2025-02-24T02:06:17.8143942Z Digest: sha256:6003df952c8106bcd378d2ba997eef202da924317a57269dfa72449b135adb7f
+2025-02-24T02:06:17.8144930Z Source commit SHA: 42375524e23c412d93fb67b49958b491fce71c38
+2025-02-24T02:06:17.8145774Z ##[endgroup]
+2025-02-24T02:06:18.0570955Z Download action repository 'codecov/codecov-action@v4' (SHA:b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238)
+2025-02-24T02:06:18.3087597Z Complete job name: test (3.9)

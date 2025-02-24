@@ -1,0 +1,39 @@
+﻿2025-02-24T02:06:41.6642915Z ##[group]Run python -m pytest tests/ --cov=src/ --cov-report=xml
+2025-02-24T02:06:41.6643436Z [36;1mpython -m pytest tests/ --cov=src/ --cov-report=xml[0m
+2025-02-24T02:06:41.6703680Z shell: /usr/bin/bash -e {0}
+2025-02-24T02:06:41.6703940Z env:
+2025-02-24T02:06:41.6704208Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.16/x64
+2025-02-24T02:06:41.6704668Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.16/x64/lib/pkgconfig
+2025-02-24T02:06:41.6705154Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.16/x64
+2025-02-24T02:06:41.6705676Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.16/x64
+2025-02-24T02:06:41.6706075Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.16/x64
+2025-02-24T02:06:41.6706470Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.16/x64/lib
+2025-02-24T02:06:41.6706798Z ##[endgroup]
+2025-02-24T02:06:42.2608635Z ============================= test session starts ==============================
+2025-02-24T02:06:42.2609523Z platform linux -- Python 3.10.16, pytest-8.1.1, pluggy-1.5.0
+2025-02-24T02:06:42.2610323Z rootdir: /home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis
+2025-02-24T02:06:42.2610917Z configfile: pytest.ini
+2025-02-24T02:06:42.2611234Z plugins: cov-4.1.0
+2025-02-24T02:06:42.2611551Z collected 0 items / 1 error
+2025-02-24T02:06:42.2611769Z 
+2025-02-24T02:06:42.2611945Z ==================================== ERRORS ====================================
+2025-02-24T02:06:42.2612515Z _____________________ ERROR collecting tests/test_index.py _____________________
+2025-02-24T02:06:42.2613529Z ImportError while importing test module '/home/runner/work/securityhub_soc2analysis/securityhub_soc2analysis/tests/test_index.py'.
+2025-02-24T02:06:42.2614561Z Hint: make sure your test modules/packages have valid Python names.
+2025-02-24T02:06:42.2615063Z Traceback:
+2025-02-24T02:06:42.2615824Z /opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/importlib/__init__.py:126: in import_module
+2025-02-24T02:06:42.2616611Z     return _bootstrap._gcd_import(name[level:], package, level)
+2025-02-24T02:06:42.2617103Z tests/test_index.py:14: in <module>
+2025-02-24T02:06:42.2617601Z     from src.handlers.securityhub_handler import (generate_soc2_csv,
+2025-02-24T02:06:42.2618179Z src/handlers/securityhub_handler.py:6: in <module>
+2025-02-24T02:06:42.2618670Z     from datetime import datetime, timedelta, UTC
+2025-02-24T02:06:42.2619504Z E   ImportError: cannot import name 'UTC' from 'datetime' (/opt/hostedtoolcache/Python/3.10.16/x64/lib/python3.10/datetime.py)
+2025-02-24T02:06:42.2620450Z 
+2025-02-24T02:06:42.2620717Z ---------- coverage: platform linux, python 3.10.16-final-0 ----------
+2025-02-24T02:06:42.2621269Z Coverage XML written to file coverage.xml
+2025-02-24T02:06:42.2621548Z 
+2025-02-24T02:06:42.2621738Z =========================== short test summary info ============================
+2025-02-24T02:06:42.2622195Z ERROR tests/test_index.py
+2025-02-24T02:06:42.2622625Z !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+2025-02-24T02:06:42.2623145Z =============================== 1 error in 0.20s ===============================
+2025-02-24T02:06:42.2939063Z ##[error]Process completed with exit code 2.

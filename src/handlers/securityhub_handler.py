@@ -3,7 +3,7 @@ import io
 import json
 import logging
 import os
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -176,7 +176,7 @@ def get_recipients_config():
 def get_findings(hours):
     """Get SecurityHub findings from the last N hours"""
     securityhub = boto3.client("securityhub")
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     start_time = now - timedelta(hours=hours)
 
     filters = {"UpdatedAt": [{"Start": start_time.isoformat(), "End": now.isoformat()}]}
@@ -336,7 +336,7 @@ def send_test_email(recipient_email):
         For more information, please consult the documentation.
         """.format(
             email=recipient_email,
-            timestamp=datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC"),
+            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         )
 
         msg.attach(MIMEText(body, "plain"))
@@ -382,24 +382,20 @@ def lambda_handler(event, context):
             )
             response_body = {
                 "message": success_message,
-                "findingsAnalyzed": len(findings)
+                "findingsAnalyzed": len(findings),
             }
-            return {
-                "statusCode": 200,
-                "body": json.dumps(response_body)
-            }
+            return {"statusCode": 200, "body": json.dumps(response_body)}
         else:
             return {
                 "statusCode": 500,
-                "body": json.dumps({
-                    "error": "Failed to send reports",
-                    "findingsAnalyzed": len(findings)
-                })
+                "body": json.dumps(
+                    {
+                        "error": "Failed to send reports",
+                        "findingsAnalyzed": len(findings),
+                    }
+                ),
             }
 
     except Exception as e:
         logger.error(f"Error: {str(e)}")
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
-        }
+        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
