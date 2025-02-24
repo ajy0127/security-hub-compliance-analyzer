@@ -22,7 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install -r requirements.txt
+        pip install --upgrade -r requirements.txt
     - name: Run tests
       run: |
         pytest tests/ --cov=src/ --cov-report=xml
@@ -42,8 +42,8 @@ jobs:
         cache: 'pip'
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip setuptools wheel
+        pip install --upgrade -r requirements.txt
     - name: Run linters
       run: |
         flake8 src/
@@ -60,8 +60,8 @@ jobs:
         cache: 'pip'
     - name: Install cfn-lint
       run: |
-        python -m pip install --upgrade pip
-        pip install cfn-lint
+        python -m pip install --upgrade pip setuptools wheel
+        pip install --upgrade cfn-lint
     - name: Run cfn-lint
       run: |
         cfn-lint template.yaml 
