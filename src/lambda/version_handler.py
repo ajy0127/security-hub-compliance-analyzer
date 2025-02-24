@@ -10,7 +10,7 @@ import logging
 import os
 import time
 import boto3
-import cfnresponse
+from . import cfnresponse  # Use relative import
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
