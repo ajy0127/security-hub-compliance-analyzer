@@ -22,7 +22,6 @@ import csv
 import io
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
 import os
 from src.lib.soc2_mapper import SOC2Mapper
 
