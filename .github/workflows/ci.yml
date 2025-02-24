@@ -75,6 +75,8 @@ jobs:
       run: |
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
+    - name: Install cfn-lint
+      run: pip install cfn-lint
     - name: Run cfn-lint
       run: |
         python -m cfn_lint template.yaml 
