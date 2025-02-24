@@ -1,18 +1,3 @@
-"""
-SOC 2 Mapper Module
-
-This module handles the mapping of AWS SecurityHub findings to SOC 2 Trust Service Criteria (TSC).
-It provides functionality to:
-- Map security findings to relevant SOC 2 controls
-- Format findings into SOC 2 workpaper format
-- Generate CSV data for audit documentation
-
-The mapping logic is based on the configurations in soc2_control_mappings.json, which defines:
-- Finding type to SOC 2 control mappings
-- Severity to risk level mappings
-- Control descriptions
-"""
-
 import json
 import logging
 from pathlib import Path
@@ -38,13 +23,23 @@ class SOC2Mapper:
             with open(config_path, "r") as f:
                 self.mappings = json.load(f)
         except FileNotFoundError:
-            msg = f"Could not find configuration file at {config_path}"
+            error_part = "Could not find configuration file at"
+            msg = f"{error_part} {config_path}"
             logger.error(msg)
-            self.mappings = {"finding_type_mappings": {}, "severity_risk_mapping": {}, "control_descriptions": {}}  # Initialize all sections as empty
+            self.mappings = {
+                "finding_type_mappings": {},
+                "severity_risk_mapping": {},
+                "control_descriptions": {}
+            }
         except json.JSONDecodeError:
-            msg = f"Invalid JSON in configuration file at {config_path}"
+            error_part = "Invalid JSON in configuration file at"
+            msg = f"{error_part} {config_path}"
             logger.error(msg)
-            self.mappings = {"finding_type_mappings": {}, "severity_risk_mapping": {}, "control_descriptions": {}}  # Initialize all sections as empty
+            self.mappings = {
+                "finding_type_mappings": {},
+                "severity_risk_mapping": {},
+                "control_descriptions": {}
+            }
 
     def map_finding_to_controls(self, finding):
         """

@@ -1,25 +1,8 @@
-"""
-AWS SecurityHub SOC 2 Compliance Analyzer
-
-This Lambda function analyzes AWS SecurityHub findings and generates SOC 2-compliant reports.
-It performs the following main tasks:
-1. Retrieves SecurityHub findings from the specified time window
-2. Maps findings to relevant SOC 2 controls
-3. Generates an AI-powered analysis using Amazon Bedrock
-4. Creates a SOC 2 workpaper in CSV format
-5. Sends the analysis and workpaper via email
-
-The function can be triggered:
-- On a schedule (weekly, bi-weekly, monthly)
-- Immediately for testing and verification
-"""
-
 import csv
 import io
 import json
 import logging
 import os
-import sys
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -211,7 +194,7 @@ def analyze_findings_with_bedrock(findings, report_type="detailed"):
     bedrock = boto3.client("bedrock-runtime")
     model_id = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-3-sonnet")
 
-    # Prepare findings summary based on report type
+    # Prepare findings summary based on report_type
     if report_type == "summary":
         findings_text = f"Summary of {len(findings)} SecurityHub findings:\n"
         for finding in findings[:5]:  # Only include top 5 findings for summary
@@ -396,14 +379,14 @@ def lambda_handler(event, context):
 
         findings = get_findings(hours)
         if send_report(config["recipients"], findings, frequency):
+            success_message = f"Successfully sent {frequency} SecurityHub SOC 2 analysis reports"
+            response_body = {
+                "message": success_message,
+                "findingsAnalyzed": len(findings)
+            }
             return {
                 "statusCode": 200,
-                "body": json.dumps(
-                    {
-                        "message": f"Successfully sent {frequency} SecurityHub SOC 2 analysis reports",
-                        "findingsAnalyzed": len(findings),
-                    }
-                ),
+                "body": json.dumps(response_body),
             }
         else:
             return {
