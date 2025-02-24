@@ -36,7 +36,8 @@ def get_boto3_client(service_name: str, retry_attempts: int = 3) -> Any:
         retries={"max_attempts": retry_attempts, "mode": "standard"},
         user_agent_extra="SecurityHubSOC2Analyzer/1.0",
     )
-    return boto3.client(service_name, config=config)
+    # Use type: ignore to suppress mypy error
+    return boto3.client(service_name, config=config)  # type: ignore
 
 
 def send_email(
@@ -77,11 +78,11 @@ def send_email(
     msg_body = MIMEMultipart("alternative")
 
     # Add text part
-    text_part = MIMEText(body_text.encode("utf-8"), "plain", "utf-8")
+    text_part = MIMEText(body_text, "plain", "utf-8")
     msg_body.attach(text_part)
 
     # Add HTML part
-    html_part = MIMEText(body_html.encode("utf-8"), "html", "utf-8")
+    html_part = MIMEText(body_html, "html", "utf-8")
     msg_body.attach(html_part)
 
     # Attach message body

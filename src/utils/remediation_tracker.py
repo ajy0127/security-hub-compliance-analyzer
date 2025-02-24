@@ -170,7 +170,7 @@ class RemediationTracker:
 
             # Update status
             now = datetime.now(timezone.utc).isoformat()
-            updates = {
+            updates: Dict[str, Any] = {
                 "current_status": "REMEDIATED",
                 "remediated_at": now,
                 "last_updated": now,
@@ -249,24 +249,24 @@ class RemediationTracker:
         ongoing_findings = [f for f in findings if f.get("Id") in ongoing_finding_ids]
 
         # Calculate age statistics
-        age_stats = {}
+        age_stats: Dict[str, Dict[str, Any]] = {}
         for item in all_tracked_items:
             if item["finding_id"] in ongoing_finding_ids:
-                days_open = item.get("days_open", 0)
+                days_open = int(item.get("days_open", 0))  # Ensure it's an integer
                 severity = item.get("severity", "UNKNOWN")
 
                 if severity not in age_stats:
                     age_stats[severity] = {
                         "count": 0,
-                        "avg_days": 0,
+                        "avg_days": 0.0,  # Using float for average
                         "max_days": 0,
                         "findings": [],
                     }
 
                 age_stats[severity]["count"] += 1
-                age_stats[severity]["avg_days"] = (
-                    age_stats[severity]["avg_days"] * (age_stats[severity]["count"] - 1)
-                    + days_open
+                age_stats[severity]["avg_days"] = float(
+                    (age_stats[severity]["avg_days"] * (age_stats[severity]["count"] - 1)
+                    + days_open)
                 ) / age_stats[severity]["count"]
                 age_stats[severity]["max_days"] = max(
                     age_stats[severity]["max_days"], days_open
