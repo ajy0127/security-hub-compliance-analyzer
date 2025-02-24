@@ -266,7 +266,7 @@ class RemediationTracker:
                 age_stats[severity]["count"] += 1
                 age_stats[severity]["avg_days"] = float(
                     (age_stats[severity]["avg_days"] * (age_stats[severity]["count"] - 1)
-                    + days_open)
+                     + days_open)
                 ) / age_stats[severity]["count"]
                 age_stats[severity]["max_days"] = max(
                     age_stats[severity]["max_days"], days_open
