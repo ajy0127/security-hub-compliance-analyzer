@@ -34,10 +34,14 @@ This guide provides detailed information for developers who want to contribute t
 │   └── guides/        # User and developer guides
 ├── src/               # Source code
 │   ├── handlers/      # Lambda handlers
-│   └── lib/           # Shared libraries
+│   ├── lambda/        # Lambda-specific helper functions
+│   ├── lib/           # Shared libraries
+│   └── utils/         # Utility modules and helpers
 ├── tests/             # Test files
 ├── config/            # Configuration files
-└── deployment/        # CloudFormation templates
+├── deployment/        # Environment-specific templates
+│   └── environments/  # Staging and production templates
+└── template.yaml      # Base SAM template
 ```
 
 ## Core Components
@@ -54,11 +58,27 @@ This guide provides detailed information for developers who want to contribute t
 - Handles risk assessment
 - Generates compliance reports
 
-### 3. Configuration (`config/soc2_control_mappings.json`)
-- Finding type mappings
-- Control descriptions
-- Risk level mappings
-- Compliance criteria
+### 3. Custom Mapper (`src/lib/custom_mapper.py`)
+- Extends base SOC2Mapper functionality
+- Adds organization-specific controls
+- Implements regex-based mapping
+- Provides resource-specific mappings
+
+### 4. Utility Modules
+- **Common Utilities** (`src/utils/common.py`): Shared functions
+- **Logging Utilities** (`src/utils/logging_utils.py`): Structured logging
+- **Deduplication** (`src/utils/deduplication.py`): Finding deduplication
+- **Remediation Tracking** (`src/utils/remediation_tracker.py`): Progress tracking
+
+### 5. Lambda Helper Functions
+- **Version Handler** (`src/lambda/version_handler.py`): Manages Lambda versions
+- **Pre-traffic Hook** (`src/lambda/pretraffic_hook.py`): Deployment validation
+- **CloudFormation Response** (`src/lambda/cfnresponse.py`): Custom resources
+
+### 6. Configurations
+- **Base Mappings** (`config/soc2_control_mappings.json`): Core control mappings
+- **Custom Controls** (`config/custom_controls.json`): Organization-specific definitions
+- **Environment Templates** (`deployment/environments/`): Staging and production configs
 
 ## Development Workflow
 

@@ -12,11 +12,16 @@ The **SecurityHub SOC 2 Compliance Analyzer** is a specialized tool that automat
 
 - **SOC 2 Control Mapping**: Automatic mapping of SecurityHub findings to SOC 2 Trust Service Criteria
 - **AI-Powered Analysis**: Utilizes Claude 3 Sonnet for intelligent finding summarization and compliance impact analysis
-- **Automated Daily Reports**: Runs Monday-Friday at 11 AM IST (5:30 AM UTC)
+- **Automated Reports**: Configurable schedules for weekly, bi-weekly, or monthly reports
 - **Multi-Account Support**: Aggregates findings across multiple AWS accounts
 - **Severity-Based Classification**: Categorizes findings by CRITICAL, HIGH, and MEDIUM severity levels
+- **Remediation Tracking**: Tracks findings over time to monitor remediation progress
+- **Finding Deduplication**: Reduces alert fatigue by intelligently identifying duplicate findings
+- **Custom Control Mappings**: Support for organization-specific control requirements
+- **Separate Environments**: Distinct staging and production deployment options
 - **Audit-Ready Reports**: Generates SOC 2-formatted workpapers in CSV format
 - **HTML/Text Email Format**: Provides both HTML and plain text email formats
+- **Monitoring Dashboard**: CloudWatch dashboard for monitoring in production
 
 ### Architecture Details
 
@@ -77,8 +82,8 @@ The **SecurityHub SOC 2 Compliance Analyzer** is a specialized tool that automat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/[your-username]/securityhub-soc2-analyzer.git
-   cd securityhub-soc2-analyzer
+   git clone https://github.com/ajy0127/analyze-securityhub-findings-with-bedrock-soc2.git
+   cd analyze-securityhub-findings-with-bedrock-soc2
    ```
 
 2. Create and activate a virtual environment:
@@ -93,19 +98,38 @@ The **SecurityHub SOC 2 Compliance Analyzer** is a specialized tool that automat
    ```
 
 4. Deploy using AWS SAM:
+
+   **For staging environment:**
    ```bash
    sam build
-   sam deploy --guided
+   sam deploy --template-file deployment/environments/staging.yaml --stack-name soc2-analyzer-staging --guided
+   ```
+
+   **For production environment:**
+   ```bash
+   sam build
+   sam deploy --template-file deployment/environments/production.yaml --stack-name soc2-analyzer-prod --guided
+   ```
+
+   **For a simple deployment:**
+   ```bash
+   sam build
+   sam deploy --template-file template.yaml --stack-name soc2-analyzer --guided
    ```
 
 ## Configuration
 
 ### SOC 2 Control Mappings
 
-Control mappings are defined in `config/soc2_control_mappings.json`. You can customize:
+Base control mappings are defined in `config/soc2_control_mappings.json`. You can customize:
 - Finding type to control mappings
 - Severity to risk level mappings
 - Control descriptions
+
+Custom control mappings can be added in `config/custom_controls.json`:
+- Organization-specific control definitions
+- Regex-based finding type matching
+- Resource-specific control mappings
 
 ### Lambda Configuration
 
@@ -125,10 +149,14 @@ Environment variables in `template.yaml`:
 │   └── guides/        # User and developer guides
 ├── src/               # Source code
 │   ├── handlers/      # Lambda handlers
-│   └── lib/           # Shared libraries
+│   ├── lambda/        # Lambda-specific helper functions
+│   ├── lib/           # Shared libraries
+│   └── utils/         # Utility modules and helpers
 ├── tests/             # Test files
 ├── config/            # Configuration files
-└── template.yaml      # SAM template
+├── deployment/        # Environment-specific templates
+│   └── environments/  # Staging and production templates
+└── template.yaml      # Base SAM template
 ```
 
 ## Development

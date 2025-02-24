@@ -122,11 +122,45 @@ The analyzer generates SOC 2-formatted reports including:
 
 ## Customizing Mappings
 
-Control mappings can be customized in `config/soc2_control_mappings.json`:
+### Base Control Mappings
+
+Core control mappings can be customized in `config/soc2_control_mappings.json`:
 1. Add new finding type mappings
 2. Modify control assignments
 3. Update risk levels
 4. Enhance control descriptions
+
+### Custom Organizational Controls
+
+Organization-specific control mappings can be added in `config/custom_controls.json`:
+
+1. **Custom Control Definitions**
+   ```json
+   "custom_controls": {
+     "ORG.SEC.1": "Organization-specific security control for data protection",
+     "ORG.SEC.2": "Organization-specific security control for access management"
+   }
+   ```
+
+2. **Regex-Based Mappings**
+   ```json
+   "regex_mappings": {
+     "password|credentials|secret": {
+       "primary_controls": ["ORG.SEC.2", "CC6.1.2"],
+       "secondary_controls": ["CC6.1.3"]
+     }
+   }
+   ```
+
+3. **Resource-Specific Mappings**
+   ```json
+   "resource_mappings": {
+     "AwsS3Bucket": {
+       "primary_controls": ["ORG.SEC.1", "CC6.1.10"],
+       "secondary_controls": ["CC6.1.4"]
+     }
+   }
+   ```
 
 ## Best Practices
 
