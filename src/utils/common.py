@@ -10,7 +10,7 @@ This module contains shared functionalities used across the codebase:
 import json
 import logging
 import boto3
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 def get_boto3_client(service_name: str, retry_attempts: int = 3) -> Any:
     """
     Get a boto3 client with retry logic configured.
-    
+
     Args:
         service_name: AWS service name
         retry_attempts: Number of retry attempts for retryable errors
-        
+
     Returns:
         Boto3 client with retry configuration
     """
@@ -50,7 +50,7 @@ def send_email(
 ) -> Dict[str, Any]:
     """
     Send an email with optional attachment using Amazon SES.
-    
+
     Args:
         sender: Email address of the sender
         recipient: Email address of the recipient
@@ -59,34 +59,34 @@ def send_email(
         body_html: HTML formatted email body
         attachment_content: Content of the attachment (optional)
         attachment_filename: Filename for the attachment (optional)
-        
+
     Returns:
         SES response dictionary
-    
+
     Raises:
         Exception: If there's an error sending the email
     """
     ses = get_boto3_client("ses")
-    
+
     msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = recipient
-    
+
     # Create multipart/alternative for text and HTML versions
     msg_body = MIMEMultipart("alternative")
-    
+
     # Add text part
     text_part = MIMEText(body_text.encode("utf-8"), "plain", "utf-8")
     msg_body.attach(text_part)
-    
+
     # Add HTML part
     html_part = MIMEText(body_html.encode("utf-8"), "html", "utf-8")
     msg_body.attach(html_part)
-    
+
     # Attach message body
     msg.attach(msg_body)
-    
+
     # Add attachment if provided
     if attachment_content and attachment_filename:
         attachment = MIMEApplication(attachment_content.encode("utf-8"))
@@ -94,7 +94,7 @@ def send_email(
             "Content-Disposition", "attachment", filename=attachment_filename
         )
         msg.attach(attachment)
-    
+
     try:
         response = ses.send_raw_email(
             Source=sender,
@@ -109,16 +109,15 @@ def send_email(
 
 
 def get_findings_from_securityhub(
-    hours: int, 
-    filter_params: Optional[Dict[str, Any]] = None
+    hours: int, filter_params: Optional[Dict[str, Any]] = None
 ) -> List[Dict[str, Any]]:
     """
     Retrieve findings from AWS SecurityHub with pagination.
-    
+
     Args:
         hours: Number of hours to look back for findings
         filter_params: Additional filter parameters to apply
-        
+
     Returns:
         List of SecurityHub findings
     """
@@ -126,52 +125,51 @@ def get_findings_from_securityhub(
         # Calculate time window
         end_time = datetime.now(timezone.utc)
         start_time = end_time - timedelta(hours=hours)
-        
+
         # Set up base filters
         time_filter = {
             "UpdatedAt": [
-                {
-                    "Start": start_time.isoformat(),
-                    "End": end_time.isoformat()
-                }
+                {"Start": start_time.isoformat(), "End": end_time.isoformat()}
             ]
         }
-        
+
         # Combine with additional filters if provided
         filters = time_filter
         if filter_params:
             filters.update(filter_params)
-        
+
         # Get SecurityHub client with retry logic
         securityhub = get_boto3_client("securityhub")
-        
+
         # Use paginator to handle pagination
         findings = []
         paginator = securityhub.get_paginator("get_findings")
         for page in paginator.paginate(Filters=filters):
             findings.extend(page["Findings"])
-        
+
         logger.info(f"Retrieved {len(findings)} findings from SecurityHub")
         return findings
-    
+
     except Exception as e:
-        logger.error(f"Error retrieving findings from SecurityHub: {str(e)}", exc_info=True)
+        logger.error(
+            f"Error retrieving findings from SecurityHub: {str(e)}", exc_info=True
+        )
         raise
 
 
 def format_finding(finding: Dict[str, Any]) -> Dict[str, Any]:
     """
     Format a SecurityHub finding for easier processing.
-    
+
     Args:
         finding: Raw SecurityHub finding JSON
-        
+
     Returns:
         Formatted finding dictionary
     """
     # Extract resource information safely
     resource = finding.get("Resources", [{}])[0]
-    
+
     return {
         "AccountId": finding.get("AwsAccountId", "N/A"),
         "Title": finding.get("Title", "N/A"),
@@ -179,7 +177,9 @@ def format_finding(finding: Dict[str, Any]) -> Dict[str, Any]:
         "Severity": finding.get("Severity", {}).get("Label", "N/A"),
         "ResourceType": resource.get("Type", "N/A"),
         "ResourceId": resource.get("Id", "N/A"),
-        "ResourceArn": resource.get("Details", {}).get("AwsS3Bucket", {}).get("Arn", resource.get("Id", "N/A")),
+        "ResourceArn": resource.get("Details", {})
+        .get("AwsS3Bucket", {})
+        .get("Arn", resource.get("Id", "N/A")),
         "ComplianceStatus": finding.get("Compliance", {}).get("Status", "N/A"),
         "RecordState": finding.get("RecordState", "N/A"),
         "LastObservedAt": finding.get("LastObservedAt", "N/A"),
@@ -195,10 +195,10 @@ def format_finding(finding: Dict[str, Any]) -> Dict[str, Any]:
 def format_findings(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Format a list of SecurityHub findings.
-    
+
     Args:
         findings: List of raw SecurityHub findings
-        
+
     Returns:
         List of formatted findings
     """
@@ -206,7 +206,7 @@ def format_findings(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def invoke_bedrock_model(
-    prompt: str, 
+    prompt: str,
     model_id: str,
     max_tokens: int = 2000,
     temperature: float = 0.5,
@@ -214,21 +214,21 @@ def invoke_bedrock_model(
 ) -> Optional[str]:
     """
     Invoke Amazon Bedrock model with retry logic.
-    
+
     Args:
         prompt: The prompt to send to the model
         model_id: Amazon Bedrock model ID
         max_tokens: Maximum tokens in the response
         temperature: Temperature parameter for model
         top_p: Top-p parameter for model
-        
+
     Returns:
         Model response text, or None if request fails
     """
     try:
         # Get Bedrock client with retry configuration
         bedrock = get_boto3_client("bedrock-runtime")
-        
+
         # Prepare request body
         body = {
             "messages": [{"role": "user", "content": prompt}],
@@ -237,20 +237,20 @@ def invoke_bedrock_model(
             "temperature": temperature,
             "top_p": top_p,
         }
-        
+
         # Request structured format if Claude 3 model
         if "claude-3" in model_id.lower():
             logger.info(f"Using structured format for {model_id}")
-        
+
         # Invoke model
         response = bedrock.invoke_model(
             modelId=model_id,
             body=json.dumps(body),
         )
-        
+
         # Parse response
         response_body = json.loads(response["body"].read())
-        
+
         # Extract text based on response format
         if "content" in response_body and isinstance(response_body["content"], list):
             # Claude 3 format
@@ -261,7 +261,7 @@ def invoke_bedrock_model(
         else:
             logger.warning(f"Unexpected response format: {response_body.keys()}")
             return None
-    
+
     except Exception as e:
         logger.error(f"Error invoking Bedrock model: {str(e)}", exc_info=True)
         return None
