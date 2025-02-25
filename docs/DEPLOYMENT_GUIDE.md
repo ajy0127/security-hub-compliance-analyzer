@@ -116,7 +116,8 @@ Let's make sure everything is working:
 5. In the Event JSON box, paste:
    ```json
    {
-     "test_email": "your-verified-email@example.com"
+     "test_email": true,
+     "recipient_email": "your-verified-email@example.com"
    }
    ```
 6. Replace with your actual verified email address
@@ -126,6 +127,48 @@ Let's make sure everything is working:
 > ⚠️ **IMPORTANT**: If you receive an error, check the CloudWatch logs for the Lambda function. The most common issue is using an email address that hasn't been verified in SES.
 
 > 💡 **GRC Insight**: Testing is a critical part of any compliance implementation - document your test approach!
+
+### Manually Invoking the Lambda Function
+
+You can also invoke the Lambda function manually using the AWS CLI. This is useful for automation, scheduled tasks, or testing without using the AWS Console:
+
+1. **Install the AWS CLI** (if not already installed):
+   - [AWS CLI Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+   - Configure your credentials with `aws configure` or use a named profile
+
+2. **To send a test email**:
+   ```bash
+   # Create a test payload file
+   echo '{"test_email": true, "recipient_email": "your-verified-email@example.com"}' > test_payload.json
+   
+   # Invoke the Lambda function (add --profile your-profile if using a named profile)
+   aws lambda invoke \
+     --function-name securityhub-soc2-analyzer-SecurityHubAnalyzer \
+     --cli-binary-format raw-in-base64-out \
+     --payload file://test_payload.json \
+     response.json
+   
+   # Check the response
+   cat response.json
+   ```
+
+3. **To generate a compliance report**:
+   ```bash
+   # Create a report payload file
+   echo '{"email": "your-verified-email@example.com", "hours": 24}' > report_payload.json
+   
+   # Invoke the Lambda function
+   aws lambda invoke \
+     --function-name securityhub-soc2-analyzer-SecurityHubAnalyzer \
+     --cli-binary-format raw-in-base64-out \
+     --payload file://report_payload.json \
+     response.json
+   
+   # Check the response
+   cat response.json
+   ```
+
+> 💡 **GRC Insight**: Being able to trigger compliance checks via CLI demonstrates your technical versatility and enables integration with other systems and processes.
 
 ## Step 7: Generate Your First Compliance Report
 
@@ -141,6 +184,12 @@ Now let's generate a real compliance report:
    ```
 3. Click "Test"
 4. Check your email for the compliance report
+   
+You should receive a detailed report that includes:
+- Summary of security findings
+- Analysis of SOC 2 impact
+- Key recommendations
+- A CSV attachment mapping findings to SOC 2 controls
 
 > 💡 **GRC Insight**: The report maps technical findings to SOC 2 controls - a perfect example of translating technical details into compliance language.
 
