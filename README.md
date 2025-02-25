@@ -155,7 +155,7 @@ After you've completed this lab, consider these next steps for your GRC portfoli
 
 Join our community of GRC professionals building their technical portfolios:
 
-- [LinkedIn Group](https://linkedin.com/groups/grc-cloud-portfolio)
+- [Connect on LinkedIn](https://www.linkedin.com/in/ajyawn/)
 - [Monthly Webinars](https://example.com/webinars)
 - [Q&A Forum](https://example.com/forum)
 
