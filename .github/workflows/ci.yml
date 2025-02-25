@@ -108,6 +108,17 @@ jobs:
           python -m venv deploy-venv
           source deploy-venv/bin/activate
           pip install aws-sam-cli
+          
+          # Create AWS credentials file with proper profile
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << EOF
+          [default]
+          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region=${{ secrets.AWS_REGION }}
+          EOF
+          
+          # Deploy using SAM CLI
           sam deploy --template-file template.yaml \
             --stack-name securityhub-soc2-analyzer \
             --capabilities CAPABILITY_IAM \
