@@ -7,14 +7,14 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = fh.read().splitlines()
 
 setup(
-    name="securityhub-soc2-analyzer",
+    name="security-hub-compliance-analyzer",
     version="0.1.0",
     author="AWS Security",
     author_email="your-email@example.com",
     description="A tool to analyze AWS SecurityHub findings and map them to SOC2 controls",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/securityhub_soc2analysis",
+    url="https://github.com/ajy0127/security-hub-compliance-analyzer",
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
@@ -26,7 +26,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "securityhub-soc2-analyzer=app:cli_handler",
+            "security-hub-compliance-analyzer=app:cli_handler",
         ],
     },
 )

@@ -75,14 +75,14 @@ SecurityHub is AWS's security findings service that we'll use as our data source
 Now we'll deploy the solution using AWS CloudFormation:
 
 1. Download the CloudFormation template:
-   - Go to the [GitHub repository](https://github.com/ajy0127/securityhub_soc2analysis)
+   - Go to the [GitHub repository](https://github.com/ajy0127/security-hub-compliance-analyzer)
    - Download the `cloudformation.yaml` file
    - Download the `lambda-code.zip` file (or create it by zipping the Python files as described in the README)
 
 2. Create an S3 bucket to store the Lambda code:
    - In the AWS search bar, type "S3" and select it
    - Click "Create bucket"
-   - Enter a unique bucket name (e.g., "securityhub-soc2-analyzer-[your-initials]")
+   - Enter a unique bucket name (e.g., "security-hub-compliance-analyzer-[your-initials]")
    - Keep all default settings and click "Create bucket"
    - Upload the `lambda-code.zip` file to this bucket
 
@@ -92,7 +92,7 @@ Now we'll deploy the solution using AWS CloudFormation:
    - Select "Upload a template file"
    - Click "Choose file" and select the `cloudformation.yaml` file you downloaded
    - Click "Next"
-   - Enter a stack name (e.g., "securityhub-soc2-analyzer")
+   - Enter a stack name (e.g., "security-hub-compliance-analyzer")
    - Fill in the parameters:
      - SenderEmail: Your verified email address
      - RecipientEmail: Your verified email address (or another verified email)
@@ -110,7 +110,7 @@ Now we'll deploy the solution using AWS CloudFormation:
 Let's make sure everything is working:
 
 1. In the AWS search bar, type "Lambda" and select it
-2. Find the function named `securityhub-soc2-analyzer-SecurityHubAnalyzer` (or with your stack name)
+2. Find the function named `security-hub-compliance-analyzer-SecurityHubAnalyzer` (or with your stack name)
 3. Click on the function name
 4. Click the "Test" tab
 5. In the Event JSON box, paste:
@@ -143,7 +143,7 @@ You can also invoke the Lambda function manually using the AWS CLI. This is usef
    
    # Invoke the Lambda function (add --profile your-profile if using a named profile)
    aws lambda invoke \
-     --function-name securityhub-soc2-analyzer-SecurityHubAnalyzer \
+     --function-name security-hub-compliance-analyzer-SecurityHubAnalyzer \
      --cli-binary-format raw-in-base64-out \
      --payload file://test_payload.json \
      response.json
@@ -159,7 +159,7 @@ You can also invoke the Lambda function manually using the AWS CLI. This is usef
    
    # Invoke the Lambda function
    aws lambda invoke \
-     --function-name securityhub-soc2-analyzer-SecurityHubAnalyzer \
+     --function-name security-hub-compliance-analyzer-SecurityHubAnalyzer \
      --cli-binary-format raw-in-base64-out \
      --payload file://report_payload.json \
      response.json
@@ -198,7 +198,7 @@ You should receive a detailed report that includes:
 Let's customize the mappings to demonstrate your SOC 2 knowledge:
 
 1. In the AWS search bar, type "S3" and select it
-2. Find the bucket named `securityhub-soc2-analyzer-configbucket-XXXX`
+2. Find the bucket named `security-hub-compliance-analyzer-configbucket-XXXX`
 3. Click on the bucket name
 4. Find and click on the file `mappings.json`
 5. Click "Download"
@@ -216,7 +216,7 @@ Let's set up a schedule for weekly reports:
 
 1. In the AWS search bar, type "EventBridge" and select it
 2. In the left navigation, click "Rules"
-3. Find the rule named `securityhub-soc2-analyzer-WeeklyAnalysisSchedule-XXXX`
+3. Find the rule named `security-hub-compliance-analyzer-WeeklyAnalysisSchedule-XXXX`
 4. Click on the rule name
 5. Click "Edit"
 6. Under "Schedule pattern", you can modify the schedule

@@ -98,7 +98,7 @@ fi
 
 # Package Lambda code
 echo -e "${YELLOW}Packaging Lambda code...${NC}"
-S3_BUCKET_NAME="securityhub-soc2-analyzer-$(date +%s)-deployment"
+S3_BUCKET_NAME="security-hub-compliance-analyzer-$(date +%s)-deployment"
 echo -e "${YELLOW}Creating S3 bucket for deployment: $S3_BUCKET_NAME${NC}"
 aws s3 mb s3://$S3_BUCKET_NAME --region $AWS_REGION
 
@@ -113,7 +113,7 @@ echo -e "${YELLOW}Deploying the application...${NC}"
 
 # Build CloudFormation deployment command
 CF_DEPLOY_CMD="aws cloudformation create-stack \
-  --stack-name securityhub-soc2-analyzer \
+  --stack-name security-hub-compliance-analyzer \
   --template-body file://../deployment/cloudformation.yaml \
   --capabilities CAPABILITY_IAM \
   --parameters \
@@ -136,7 +136,7 @@ echo "========================================================"
 echo -e "${GREEN}SecurityHub SOC 2 Email Reporter has been deployed successfully!${NC}"
 echo ""
 echo "To test the solution, run:"
-echo -e "${YELLOW}aws lambda invoke --function-name securityhub-soc2-analyzer-EmailFunction --payload '{\"test_email\":true}' response.json${NC}"
+echo -e "${YELLOW}aws lambda invoke --function-name security-hub-compliance-analyzer-EmailFunction --payload '{\"test_email\":true}' response.json${NC}"
 echo ""
 echo "You should receive a test email shortly if everything is configured correctly."
 echo ""

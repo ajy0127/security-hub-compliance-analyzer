@@ -1,6 +1,6 @@
 # AWS SecurityHub SOC 2 Compliance Lab
 
-[![CI/CD Pipeline](https://github.com/ajy0127/securityhub_soc2analysis/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/securityhub_soc2analysis/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml)
 
 ## A Portfolio-Building Project for GRC Professionals
 
@@ -64,7 +64,7 @@ See the [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) for detailed instructions o
 5. Deploy the CloudFormation stack:
    ```
    aws cloudformation create-stack \
-     --stack-name securityhub-soc2-analyzer \
+     --stack-name security-hub-compliance-analyzer \
      --template-body file://deployment/cloudformation.yaml \
      --capabilities CAPABILITY_IAM \
      --parameters \
