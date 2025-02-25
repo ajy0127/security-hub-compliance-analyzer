@@ -42,12 +42,12 @@ Before deploying this solution, you **must verify email addresses in Amazon SES*
 * AWS requires email verification to prevent unauthorized use of email sending capabilities
 * New AWS accounts are in "SES sandbox" mode, which only allows sending to verified email addresses
 
-See the [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions on email verification.
+See the [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) for detailed instructions on email verification.
 
 ## Getting Started
 
 ### For Non-Technical Users
-1. Follow the step-by-step [Deployment Guide](DEPLOYMENT_GUIDE.md) which includes:
+1. Follow the step-by-step [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) which includes:
    - Setting up your AWS account
    - **Verifying your email addresses in Amazon SES** (critical step)
    - Deploying the solution using CloudFormation
@@ -58,14 +58,14 @@ See the [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions on ema
 2. **Verify your email addresses in Amazon SES** (required)
 3. Package the Lambda code:
    ```
-   zip -r lambda-code.zip app.py utils.py soc2_mapper.py requirements.txt
+   zip -r lambda-code.zip src/app.py src/utils.py src/soc2_mapper.py src/requirements.txt
    ```
 4. Upload the `lambda-code.zip` file to an S3 bucket
 5. Deploy the CloudFormation stack:
    ```
    aws cloudformation create-stack \
      --stack-name securityhub-soc2-analyzer \
-     --template-body file://cloudformation.yaml \
+     --template-body file://deployment/cloudformation.yaml \
      --capabilities CAPABILITY_IAM \
      --parameters \
        ParameterKey=SenderEmail,ParameterValue=your-verified@email.com \
@@ -95,11 +95,23 @@ This solution consists of several parts, explained in non-technical terms:
 3. **The Analyzer** (AI Component): Reviews findings and generates compliance insights
 4. **The Reporter** (Email Component): Creates and delivers professional reports
 
+## Repository Structure
+
+This repository is organized into the following directories:
+
+- **docs/**: Documentation files including deployment guides, interview guides, and SOC 2 mapping references
+- **src/**: Source code for the application, including Lambda function code and utility modules
+  - **src/tests/**: Test files to verify the functionality of the code
+- **deployment/**: Files related to deployment, including CloudFormation templates and configuration
+  - **deployment/config/**: Configuration files like the SOC 2 control mappings 
+- **scripts/**: Utility scripts for package creation, deployment, and local testing
+- **examples/**: Example files including sample reports and test data
+
 ## Customizing for Your Portfolio
 
 You can customize this project to demonstrate your unique GRC expertise:
 
-1. **Modify Control Mappings**: Edit the mappings.json file to show your understanding of SOC 2 controls
+1. **Modify Control Mappings**: Edit the deployment/config/mappings.json file to show your understanding of SOC 2 controls
 2. **Customize Report Format**: Adjust the email template to showcase your reporting style
 3. **Add Additional Controls**: Extend the project to include other compliance frameworks you're familiar with
 
@@ -115,13 +127,13 @@ A: AWS offers a free tier that should cover most of your usage. We recommend set
 A: This is designed as a learning tool. For production environments, additional security and reliability considerations would be needed.
 
 **Q: How do I explain this project in interviews?**  
-A: We've included talking points in the [Interview Guide](INTERVIEW_GUIDE.md) to help you articulate what you've learned.
+A: We've included talking points in the [Interview Guide](docs/INTERVIEW_GUIDE.md) to help you articulate what you've learned.
 
 **Q: Why do I need to verify my email address?**  
 A: AWS requires email verification to prevent spam and unauthorized use. This is a security control that protects both AWS and email recipients.
 
 **Q: What if I get an error about email sending?**  
-A: The most common issue is not properly verifying both sender and recipient email addresses in Amazon SES. See the troubleshooting section in the [Deployment Guide](DEPLOYMENT_GUIDE.md).
+A: The most common issue is not properly verifying both sender and recipient email addresses in Amazon SES. See the troubleshooting section in the [Deployment Guide](docs/DEPLOYMENT_GUIDE.md).
 
 ## Next Steps After Completing This Lab
 
@@ -134,9 +146,10 @@ After you've completed this lab, consider these next steps for your GRC portfoli
 
 ## Resources for GRC Professionals
 
-- [SOC 2 Control Mapping Guide](SOC2_MAPPING_GUIDE.md)
+- [SOC 2 Control Mapping Guide](docs/SOC2_MAPPING_GUIDE.md)
 - [AWS SecurityHub for Compliance Professionals](https://example.com/securityhub-guide) (Coming soon)
-- [Sample Portfolio Write-up Template](PORTFOLIO_TEMPLATE.md)
+- [Sample Portfolio Write-up Template](docs/PORTFOLIO_TEMPLATE.md)
+- [Example SOC 2 Compliance Report](examples/example-report-email.md)
 
 ## Community Support
 
