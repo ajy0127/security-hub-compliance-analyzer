@@ -57,17 +57,17 @@ jobs:
       - name: Lint with flake8
         run: |
           source venv/bin/activate
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv/,build/,dist/,*.egg-info/
           
       - name: Check formatting with black
         run: |
           source venv/bin/activate
-          black --check .
+          black --check . --exclude="/(\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|venv)/"
           
       - name: Check imports with isort
         run: |
           source venv/bin/activate
-          isort --check-only --profile black .
+          isort --check-only --profile black . --skip venv --skip .git
 
   build-and-deploy:
     needs: [test, lint]
