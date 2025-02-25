@@ -225,6 +225,9 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
     msg["From"] = sender_email
     msg["To"] = recipient_email
 
+    # Format the analysis text to replace newlines with HTML line breaks
+    formatted_analysis = analysis.replace('\n', '<br>')
+    
     # Create HTML body
     html_part = MIMEText(
         f"""
@@ -253,7 +256,7 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
         
         <h2>Analysis</h2>
         <div>
-            {analysis.replace(r'\n', '<br>')}
+            {formatted_analysis}
         </div>
         
         <p>A detailed CSV report is attached with all findings mapped to SOC 2 controls.</p>
