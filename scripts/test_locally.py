@@ -16,20 +16,28 @@ os.environ["BEDROCK_MODEL_ID"] = "anthropic.claude-3-sonnet"
 os.environ["FINDINGS_HOURS"] = "24"
 
 # Add the src directory to the Python path
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+)
 
 # Import the Lambda handler
 try:
     from app import lambda_handler
 except ImportError:
     print("Error: Could not import lambda_handler from src/app.py")
-    print("Make sure the project structure is correct and this script is in the scripts directory.")
+    print(
+        "Make sure the project structure is correct and this script is in the scripts directory."
+    )
     sys.exit(1)
 
 
 def load_test_event():
     """Load test event from examples/test-event.json or create a default one."""
-    test_event_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "examples", "test-event.json")
+    test_event_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "examples",
+        "test-event.json",
+    )
     try:
         with open(test_event_path, "r") as f:
             return json.load(f)

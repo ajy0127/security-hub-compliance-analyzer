@@ -23,18 +23,18 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m venv venv
           source venv/bin/activate
-          pip install --retries 5 --timeout 60 -r requirements.txt
+          pip install --retries 5 --timeout 60 -r src/requirements.txt
           pip install --retries 5 --timeout 60 pytest pytest-cov
           
       - name: Run tests
         run: |
           source venv/bin/activate
-          pytest tests/ --cov=. --cov-report=xml
+          pytest src/tests/ --cov=src --cov-report=xml
           
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage.xml
+          file: ./src/coverage.xml
           fail_ci_if_error: false
 
   lint:
@@ -62,14 +62,14 @@ jobs:
       - name: Check formatting with black
         run: |
           source venv/bin/activate
-          black --check . --exclude="/(\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|venv)/"
+          black --check ./src ./scripts --exclude="/(\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|venv)/"
           
       - name: Check imports with isort
         run: |
           source venv/bin/activate
-          isort --check-only --profile black . --skip venv --skip .git
+          isort --check-only --profile black ./src ./scripts --skip venv --skip .git
           
       - name: Validate CloudFormation template
         run: |
           source venv/bin/activate
-          cfn-lint cloudformation.yaml
+          cfn-lint deployment/cloudformation.yaml
