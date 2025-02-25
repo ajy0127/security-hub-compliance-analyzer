@@ -3,7 +3,7 @@
 import json
 import os
 import unittest
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 from soc2_mapper import SOC2Mapper
 
@@ -19,7 +19,9 @@ class TestSOC2Mapper(unittest.TestCase):
             "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
             "GeneratorId": "aws-foundational-security-best-practices/v/1.0.0/IAM.1",
             "AwsAccountId": "123456789012",
-            "Types": ["Software and Configuration Checks/Industry and Regulatory Standards"],
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ],
             "FirstObservedAt": "2023-01-01T00:00:00.000Z",
             "LastObservedAt": "2023-01-01T00:00:00.000Z",
             "CreatedAt": "2023-01-01T00:00:00.000Z",
@@ -28,7 +30,9 @@ class TestSOC2Mapper(unittest.TestCase):
             "Title": "IAM root user access key should not exist",
             "Description": "This AWS control checks whether the root user access key is available.",
             "Remediation": {
-                "Recommendation": {"Text": "Remove root access keys and create IAM users instead."}
+                "Recommendation": {
+                    "Text": "Remove root access keys and create IAM users instead."
+                }
             },
             "ProductFields": {
                 "StandardsArn": "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0",
@@ -40,35 +44,37 @@ class TestSOC2Mapper(unittest.TestCase):
                 "StandardsControlArn": "arn:aws:securityhub:us-east-1:123456789012:control/aws-foundational-security-best-practices/v/1.0.0/IAM.1",
                 "aws/securityhub/ProductName": "Security Hub",
                 "aws/securityhub/CompanyName": "AWS",
-                "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/securityhub/arn:aws:securityhub:us-east-1:123456789012:subscription/aws-foundational-security-best-practices/v/1.0.0/IAM.1/finding/12345678-1234-1234-1234-123456789012"
+                "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/securityhub/arn:aws:securityhub:us-east-1:123456789012:subscription/aws-foundational-security-best-practices/v/1.0.0/IAM.1/finding/12345678-1234-1234-1234-123456789012",
             },
             "Resources": [
                 {
                     "Type": "AwsAccount",
                     "Id": "AWS::::Account:123456789012",
                     "Partition": "aws",
-                    "Region": "us-east-1"
+                    "Region": "us-east-1",
                 }
             ],
             "Compliance": {"Status": "FAILED"},
             "WorkflowState": "NEW",
-            "RecordState": "ACTIVE"
+            "RecordState": "ACTIVE",
         }
 
         self.sample_mappings = {
             "type_mappings": {
-                "Software and Configuration Checks/Industry and Regulatory Standards": ["CC1.3", "CC2.2", "CC2.3"]
+                "Software and Configuration Checks/Industry and Regulatory Standards": [
+                    "CC1.3",
+                    "CC2.2",
+                    "CC2.3",
+                ]
             },
-            "title_mappings": {
-                "access key": ["CC6.1", "CC6.3"]
-            },
+            "title_mappings": {"access key": ["CC6.1", "CC6.3"]},
             "control_descriptions": {
                 "CC1.3": "Management has established procedures to evaluate and determine whether controls are operating effectively.",
                 "CC2.2": "Information security policies include requirements for addressing security objectives.",
                 "CC2.3": "Responsibility and accountability for designing, developing, implementing, operating, maintaining, and monitoring controls are assigned to individuals within the entity with appropriate skill levels and authority.",
                 "CC6.1": "The entity implements logical access security software, infrastructure, and architectures for authentication and access to the system.",
-                "CC6.3": "The entity authorizes, modifies, or removes access to data, software, functions, and other protected information assets based on roles and responsibilities and considering the concepts of least privilege and segregation of duties."
-            }
+                "CC6.3": "The entity authorizes, modifies, or removes access to data, software, functions, and other protected information assets based on roles and responsibilities and considering the concepts of least privilege and segregation of duties.",
+            },
         }
 
     @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({}))
@@ -94,19 +100,24 @@ class TestSOC2Mapper(unittest.TestCase):
         """Test mapping a finding to SOC2 controls."""
         mock_load_mappings.return_value = self.sample_mappings
         mapper = SOC2Mapper()
-        
+
         mapped_finding = mapper.map_finding(self.sample_finding)
-        
+
         self.assertIsNotNone(mapped_finding)
-        self.assertEqual(mapped_finding["Title"], "IAM root user access key should not exist")
+        self.assertEqual(
+            mapped_finding["Title"], "IAM root user access key should not exist"
+        )
         self.assertEqual(mapped_finding["Severity"], "MEDIUM")
-        self.assertEqual(mapped_finding["Type"], "Software and Configuration Checks/Industry and Regulatory Standards")
+        self.assertEqual(
+            mapped_finding["Type"],
+            "Software and Configuration Checks/Industry and Regulatory Standards",
+        )
         self.assertEqual(mapped_finding["ResourceId"], "AWS::::Account:123456789012")
-        
+
         # Check that the finding was mapped to the correct controls
         self.assertIn("SOC2Controls", mapped_finding)
         self.assertIsInstance(mapped_finding["SOC2Controls"], list)
-        
+
         # The finding should be mapped to controls from both type and title mappings
         expected_controls = ["CC1.3", "CC2.2", "CC2.3", "CC6.1", "CC6.3"]
         for control in expected_controls:
@@ -117,24 +128,20 @@ class TestSOC2Mapper(unittest.TestCase):
         """Test mapping a finding with no matching controls."""
         # Create mappings with no matches for our sample finding
         empty_mappings = {
-            "type_mappings": {
-                "Some Other Type": ["CC1.3"]
-            },
-            "title_mappings": {
-                "some other keyword": ["CC6.1"]
-            },
-            "control_descriptions": {}
+            "type_mappings": {"Some Other Type": ["CC1.3"]},
+            "title_mappings": {"some other keyword": ["CC6.1"]},
+            "control_descriptions": {},
         }
         mock_load_mappings.return_value = empty_mappings
         mapper = SOC2Mapper()
-        
+
         # Modify the finding to have a type that doesn't match any mappings
         finding = self.sample_finding.copy()
         finding["Types"] = ["Some Unmapped Type"]
         finding["Title"] = "Some unmapped title"
-        
+
         mapped_finding = mapper.map_finding(finding)
-        
+
         # Should default to CC7.1
         self.assertIn("SOC2Controls", mapped_finding)
         self.assertIn("CC7.1", mapped_finding["SOC2Controls"])
@@ -144,17 +151,17 @@ class TestSOC2Mapper(unittest.TestCase):
         """Test extracting resource ID from finding."""
         mock_load_mappings.return_value = self.sample_mappings
         mapper = SOC2Mapper()
-        
+
         # Test with a finding that has a resource
         resource_id = mapper._get_resource_id(self.sample_finding)
         self.assertEqual(resource_id, "AWS::::Account:123456789012")
-        
+
         # Test with a finding that has no resources
         finding_no_resources = self.sample_finding.copy()
         finding_no_resources.pop("Resources")
         resource_id = mapper._get_resource_id(finding_no_resources)
         self.assertEqual(resource_id, "Unknown")
-        
+
         # Test with a finding that has empty resources
         finding_empty_resources = self.sample_finding.copy()
         finding_empty_resources["Resources"] = []
@@ -163,4 +170,4 @@ class TestSOC2Mapper(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main() 
+    unittest.main()

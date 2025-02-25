@@ -7,27 +7,32 @@ from pathlib import Path
 # Configure logging
 logger = logging.getLogger()
 
+
 class SOC2Mapper:
     """Maps SecurityHub findings to SOC2 controls"""
-    
+
     def __init__(self, mappings_file=None):
         """Initialize the mapper with control mappings"""
-        self.mappings_file = mappings_file or os.path.join(os.path.dirname(__file__), 'config', 'mappings.json')
+        self.mappings_file = mappings_file or os.path.join(
+            os.path.dirname(__file__), "config", "mappings.json"
+        )
         self.mappings = self._load_mappings()
-        
+
     def _load_mappings(self):
         """Load mappings from JSON file or use default mappings"""
         try:
             if os.path.exists(self.mappings_file):
-                with open(self.mappings_file, 'r') as f:
+                with open(self.mappings_file, "r") as f:
                     return json.load(f)
             else:
-                logger.warning(f"Mappings file {self.mappings_file} not found, using default mappings")
+                logger.warning(
+                    f"Mappings file {self.mappings_file} not found, using default mappings"
+                )
                 return self._get_default_mappings()
         except Exception as e:
             logger.error(f"Error loading mappings: {str(e)}")
             return self._get_default_mappings()
-    
+
     def _get_default_mappings(self):
         """Default SOC2 control mappings if file not found"""
         return {
@@ -35,11 +40,15 @@ class SOC2Mapper:
                 "Software and Configuration Checks": ["CC6.1", "CC6.8", "CC7.1"],
                 "Vulnerabilities": ["CC7.1", "CC8.1"],
                 "Effects": ["CC7.1", "CC7.2"],
-                "Software and Configuration Checks/Industry and Regulatory Standards": ["CC1.3", "CC2.2", "CC2.3"],
+                "Software and Configuration Checks/Industry and Regulatory Standards": [
+                    "CC1.3",
+                    "CC2.2",
+                    "CC2.3",
+                ],
                 "Sensitive Data Identifications": ["CC6.1", "CC6.5"],
                 "Network Reachability": ["CC6.6", "CC6.7"],
                 "Unusual Behaviors": ["CC7.2", "CC7.3"],
-                "Policy": ["CC1.2", "CC1.3", "CC1.4"]
+                "Policy": ["CC1.2", "CC1.3", "CC1.4"],
             },
             "title_mappings": {
                 "password": ["CC6.1", "CC6.3"],
@@ -52,7 +61,7 @@ class SOC2Mapper:
                 "update": ["CC7.1", "CC8.1"],
                 "backup": ["A1.2", "A1.3"],
                 "logging": ["CC4.1", "CC4.2"],
-                "monitor": ["CC7.2", "CC7.3"]
+                "monitor": ["CC7.2", "CC7.3"],
             },
             "control_descriptions": {
                 "CC1.2": "Management has defined and communicated roles and responsibilities for the design, implementation, operation, and maintenance of controls.",
@@ -73,10 +82,10 @@ class SOC2Mapper:
                 "CC7.3": "The entity evaluates security events to determine if they could or have resulted in a security incident.",
                 "CC8.1": "The entity authorizes, designs, develops or acquires, implements, operates, approves, maintains, and monitors environmental protections, software, data backup processes, and recovery infrastructure to meet its objectives.",
                 "A1.2": "The entity authorizes, designs, develops or acquires, implements, operates, approves, maintains, and monitors environmental protections, software, data backup processes, and recovery infrastructure to meet its availability objectives.",
-                "A1.3": "The entity designs, develops, implements, and operates controls to mitigate threats to availability."
-            }
+                "A1.3": "The entity designs, develops, implements, and operates controls to mitigate threats to availability.",
+            },
         }
-    
+
     def map_finding(self, finding):
         """Map a SecurityHub finding to SOC2 controls"""
         # Extract relevant information from finding
@@ -85,45 +94,50 @@ class SOC2Mapper:
         description = finding.get("Description", "")
         severity = finding.get("Severity", {}).get("Label", "UNKNOWN")
         resource_id = self._get_resource_id(finding)
-        
+
         # Map to SOC2 controls
         controls = self._map_to_controls(finding_type, title, description)
-        
+
         # Create mapped finding
         mapped_finding = {
             "Title": title,
             "Severity": severity,
             "Type": finding_type,
             "ResourceId": resource_id,
-            "Description": description[:200] + "..." if len(description) > 200 else description,
+            "Description": (
+                description[:200] + "..." if len(description) > 200 else description
+            ),
             "SOC2Controls": controls,
-            "ControlDescriptions": [self.mappings["control_descriptions"].get(control, "") for control in controls]
+            "ControlDescriptions": [
+                self.mappings["control_descriptions"].get(control, "")
+                for control in controls
+            ],
         }
-        
+
         return mapped_finding
-    
+
     def _map_to_controls(self, finding_type, title, description):
         """Map finding to SOC2 controls based on type, title, and description"""
         controls = set()
-        
+
         # Check type mappings
         for type_pattern, type_controls in self.mappings["type_mappings"].items():
             if type_pattern in finding_type:
                 controls.update(type_controls)
-        
+
         # Check title mappings
         for title_pattern, title_controls in self.mappings["title_mappings"].items():
-            if re.search(r'\b' + re.escape(title_pattern) + r'\b', title.lower()):
+            if re.search(r"\b" + re.escape(title_pattern) + r"\b", title.lower()):
                 controls.update(title_controls)
-        
+
         # If no controls mapped, use default
         if not controls:
             controls.add("CC7.1")  # Default to security operations
-        
+
         return list(controls)
-    
+
     def _get_resource_id(self, finding):
         """Extract resource ID from finding"""
         if "Resources" in finding and finding["Resources"]:
             return finding["Resources"][0].get("Id", "Unknown")
-        return "Unknown" 
+        return "Unknown"

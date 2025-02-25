@@ -1,9 +1,9 @@
 """Tests for email-related functions in app.py."""
 
-import unittest
-from unittest.mock import patch, MagicMock
-import os
 import json
+import os
+import unittest
+from unittest.mock import MagicMock, patch
 
 import app
 
@@ -26,126 +26,126 @@ class TestAppEmail(unittest.TestCase):
                         "Type": "AwsAccount",
                         "Id": "AWS::::Account:123456789012",
                         "Partition": "aws",
-                        "Region": "us-east-1"
+                        "Region": "us-east-1",
                     }
-                ]
+                ],
             }
         ]
 
         # Sample stats for testing
         self.sample_stats = {
-            'total': 1,
-            'critical': 0,
-            'high': 0,
-            'medium': 1,
-            'low': 0
+            "total": 1,
+            "critical": 0,
+            "high": 0,
+            "medium": 1,
+            "low": 0,
         }
 
-    @patch('app.boto3.client')
+    @patch("app.boto3.client")
     def test_send_email_missing_email(self, mock_boto3_client):
         """Test sending email with missing email addresses."""
         # Create a mock SES client
         mock_ses = MagicMock()
         mock_boto3_client.return_value = mock_ses
-        
+
         # Clear environment variables
-        if 'SENDER_EMAIL' in os.environ:
-            del os.environ['SENDER_EMAIL']
-        
+        if "SENDER_EMAIL" in os.environ:
+            del os.environ["SENDER_EMAIL"]
+
         # Call the function with missing sender
         result = app.send_email(
             "test@example.com",
             self.sample_findings,
             "Sample analysis",
             self.sample_stats,
-            MagicMock()
+            MagicMock(),
         )
-        
+
         # Verify the function returned False
         self.assertFalse(result)
-        
+
         # Set sender email
-        os.environ['SENDER_EMAIL'] = 'sender@example.com'
-        
+        os.environ["SENDER_EMAIL"] = "sender@example.com"
+
         # Call the function with missing recipient
         result = app.send_email(
             None,
             self.sample_findings,
             "Sample analysis",
             self.sample_stats,
-            MagicMock()
+            MagicMock(),
         )
-        
+
         # Verify the function returned False
         self.assertFalse(result)
-    
-    @patch('app.boto3.client')
+
+    @patch("app.boto3.client")
     def test_send_email_exception(self, mock_boto3_client):
         """Test sending email with exception."""
         # Create a mock SES client
         mock_ses = MagicMock()
         mock_boto3_client.return_value = mock_ses
-        
+
         # Configure the mock to raise an exception
         mock_ses.send_raw_email.side_effect = Exception("Test exception")
-        
+
         # Set environment variables for testing
-        os.environ['SENDER_EMAIL'] = 'sender@example.com'
-        
+        os.environ["SENDER_EMAIL"] = "sender@example.com"
+
         # Call the function
         result = app.send_email(
             "test@example.com",
             self.sample_findings,
             "Sample analysis",
             self.sample_stats,
-            MagicMock()
+            MagicMock(),
         )
-        
+
         # Verify the function returned False
         self.assertFalse(result)
-    
-    @patch('app.boto3.client')
+
+    @patch("app.boto3.client")
     def test_send_test_email_missing_email(self, mock_boto3_client):
         """Test sending test email with missing email addresses."""
         # Create a mock SES client
         mock_ses = MagicMock()
         mock_boto3_client.return_value = mock_ses
-        
+
         # Clear environment variables
-        if 'SENDER_EMAIL' in os.environ:
-            del os.environ['SENDER_EMAIL']
-        
+        if "SENDER_EMAIL" in os.environ:
+            del os.environ["SENDER_EMAIL"]
+
         # Call the function with missing sender
         result = app.send_test_email("test@example.com")
-        
+
         # Verify the function returned False
         self.assertFalse(result)
-        
+
         # Set sender email
-        os.environ['SENDER_EMAIL'] = 'sender@example.com'
-        
+        os.environ["SENDER_EMAIL"] = "sender@example.com"
+
         # Call the function with missing recipient
         result = app.send_test_email(None)
-        
+
         # Verify the function returned False
         self.assertFalse(result)
-    
-    @patch('app.boto3.client')
+
+    @patch("app.boto3.client")
     def test_send_test_email_exception(self, mock_boto3_client):
         """Test sending test email with exception."""
         # Create a mock SES client
         mock_ses = MagicMock()
         mock_boto3_client.return_value = mock_ses
-        
+
         # Configure the mock to raise an exception
         mock_ses.send_raw_email.side_effect = Exception("Test exception")
-        
+
         # Set environment variables for testing
-        os.environ['SENDER_EMAIL'] = 'sender@example.com'
-        
+        os.environ["SENDER_EMAIL"] = "sender@example.com"
+
         # Call the function
         result = app.send_test_email("test@example.com")
-        
+
         # Verify the function returned False
         self.assertFalse(result)
 

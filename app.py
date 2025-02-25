@@ -1,13 +1,13 @@
+import argparse
 import csv
 import io
 import json
 import logging
 import os
-import argparse
 from datetime import datetime, timedelta, timezone
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
 
 import boto3
 
@@ -226,8 +226,8 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
     msg["To"] = recipient_email
 
     # Format the analysis text to replace newlines with HTML line breaks
-    formatted_analysis = analysis.replace('\n', '<br>')
-    
+    formatted_analysis = analysis.replace("\n", "<br>")
+
     # Create HTML body
     html_part = MIMEText(
         f"""
