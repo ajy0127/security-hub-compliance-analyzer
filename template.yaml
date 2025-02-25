@@ -44,11 +44,11 @@ Resources:
     Type: AWS::Serverless::Function
     DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
-      PackageType: !If [UseLocalImage, Zip, Image]
-      ImageUri: !If [UseLocalImage, !Ref AWS::NoValue, !Sub "${ImageRepository}:latest"]
-      CodeUri: !If [UseLocalImage, './', !Ref AWS::NoValue]
-      Handler: !If [UseLocalImage, 'app.lambda_handler', !Ref AWS::NoValue]
-      Runtime: !If [UseLocalImage, 'python3.12', !Ref AWS::NoValue]
+      PackageType: !If [UseLocalImage, 'Zip', 'Image']
+      ImageUri: !If [UseLocalImage, !Ref 'AWS::NoValue', !Sub "${ImageRepository}:latest"]
+      CodeUri: !If [UseLocalImage, './', !Ref 'AWS::NoValue']
+      Handler: !If [UseLocalImage, 'app.lambda_handler', !Ref 'AWS::NoValue']
+      Runtime: !If [UseLocalImage, 'python3.12', !Ref 'AWS::NoValue']
       MemorySize: 256
       Timeout: 300
       Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
