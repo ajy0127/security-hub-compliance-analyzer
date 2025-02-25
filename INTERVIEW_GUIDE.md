@@ -40,12 +40,13 @@ When discussing this project in interviews, frame it as a self-directed learning
 * Describe your experience working with AWS services like Lambda, SecurityHub, and SES
 * Explain your understanding of infrastructure-as-code concepts (CloudFormation)
 * Discuss how you troubleshot issues during the implementation
+* Highlight your experience with AWS SES email verification requirements and how you addressed them
 
 ## Common Interview Questions and Suggested Responses
 
 ### "Tell me about a project where you've worked with cloud security."
 
-> "I implemented an AWS SecurityHub SOC 2 compliance monitoring solution that automatically collects security findings and maps them to SOC 2 controls. This gave me hands-on experience with AWS security services and compliance mapping. I customized the control mappings based on my understanding of SOC 2 requirements and set up automated reporting to provide regular compliance insights."
+> "I implemented an AWS SecurityHub SOC 2 compliance monitoring solution that automatically collects security findings and maps them to SOC 2 controls. This gave me hands-on experience with AWS security services and compliance mapping. I customized the control mappings based on my understanding of SOC 2 requirements and set up automated reporting to provide regular compliance insights. I also navigated AWS SES email verification requirements to ensure reliable delivery of compliance reports."
 
 ### "How do you stay current with compliance requirements?"
 
@@ -61,7 +62,7 @@ When discussing this project in interviews, frame it as a self-directed learning
 
 ### "What experience do you have with AWS security services?"
 
-> "I've worked hands-on with AWS SecurityHub to collect and analyze security findings across AWS services. I deployed a Lambda function using CloudFormation that processes these findings and maps them to compliance frameworks. I also configured Amazon SES for secure delivery of compliance reports. This experience gave me practical insight into how AWS security services can support compliance objectives."
+> "I've worked hands-on with AWS SecurityHub to collect and analyze security findings across AWS services. I deployed a Lambda function using CloudFormation that processes these findings and maps them to compliance frameworks. I also configured Amazon SES for secure delivery of compliance reports, including navigating the email verification requirements in AWS SES sandbox environments. This experience gave me practical insight into how AWS security services can support compliance objectives while adhering to AWS security controls."
 
 ## Demonstrating Your Work
 
@@ -97,5 +98,6 @@ Always tie your experience back to the specific role:
 3. How would you extend this solution to cover other compliance frameworks beyond SOC 2?
 4. What improvements would you make to this solution in a production environment?
 5. How does this solution help organizations prepare for SOC 2 audits?
+6. How did you handle the email verification requirements in Amazon SES, and why is this important for compliance reporting?
 
 Remember, the goal is not to present yourself as an expert in everything, but as a GRC professional who takes initiative to gain practical experience and can bridge the gap between compliance requirements and technical implementations. 

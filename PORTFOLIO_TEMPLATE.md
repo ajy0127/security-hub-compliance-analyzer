@@ -44,7 +44,7 @@ My solution addresses these challenges by automating the collection, analysis, a
 3. **Implementation**
    - Deployed AWS SecurityHub to collect security findings
    - Implemented a Lambda function to process findings and generate reports
-   - Configured Amazon SES for secure delivery of compliance reports
+   - Configured Amazon SES for secure delivery of compliance reports, including required email verification steps
    - Set up scheduled execution for continuous monitoring
 
 4. **Customization & Enhancement**
@@ -69,9 +69,9 @@ My solution addresses these challenges by automating the collection, analysis, a
 
 ## Challenges & Solutions
 
-**Challenge 1: [Specific challenge you encountered]**
-- Solution: [How you addressed it]
-- Outcome: [The result of your solution]
+**Challenge 1: Email Verification Requirements in Amazon SES**
+- Solution: Identified and implemented the required email verification process in Amazon SES to ensure compliant email delivery
+- Outcome: Successfully configured both sender and recipient email verification, enabling reliable delivery of compliance reports even within AWS SES sandbox limitations
 
 **Challenge 2: [Specific challenge you encountered]**
 - Solution: [How you addressed it]
@@ -106,6 +106,7 @@ My solution addresses these challenges by automating the collection, analysis, a
 
 ## Lessons Learned
 
+- Email verification is a critical prerequisite when using Amazon SES for automated reporting in AWS
 - [Key insight about compliance automation]
 - [Key insight about cloud security]
 - [Key insight about SOC 2 implementation]

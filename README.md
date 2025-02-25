@@ -34,25 +34,39 @@ This solution automatically:
 
 Think of it as an automated compliance assistant that helps you monitor SOC 2 requirements in AWS.
 
+## ⚠️ Important Email Verification Requirement
+
+**Before deploying this solution, you MUST verify your email address in Amazon SES.**
+
+This is a critical requirement because:
+1. The solution sends compliance reports via email
+2. AWS requires email verification to prevent unauthorized use
+3. New AWS accounts are in the "SES sandbox" mode, which only allows sending to verified email addresses
+
+Both the sender and recipient email addresses must be verified in SES for the solution to work properly. See the [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions on email verification.
+
 ## Getting Started (For Non-Technical Users)
 
 This lab is designed to be accessible even if you have limited technical experience. You have two options:
 
-### Option 1: Follow Along with the Tutorial (Recommended for Beginners)
+### Option 1: Follow the Deployment Guide (Recommended)
 
-We've created a step-by-step tutorial that walks you through the project without requiring you to write code:
+We've created a step-by-step guide that walks you through the project:
 
-1. [Download the tutorial PDF](https://example.com/tutorial.pdf) (Coming soon)
-2. Follow the screenshots and instructions
-3. Use our pre-configured AWS CloudFormation template to deploy the solution
+1. Follow our [Deployment Guide for GRC Professionals](DEPLOYMENT_GUIDE.md)
+2. Pay special attention to the email verification step (Step 4)
+3. Use the CloudFormation template to deploy the solution
+4. Test the deployment by sending a test email
+5. Generate your first compliance report
 
-### Option 2: Hands-On Deployment (For Those Ready to Try)
+### Option 2: Advanced Deployment (For Technical Users)
 
-If you're feeling more adventurous and want to get hands-on:
+If you're comfortable with command-line tools:
 
-1. Create a free AWS account (or use an existing one)
-2. Follow our [Deployment Guide for GRC Professionals](DEPLOYMENT_GUIDE.md)
-3. Use the solution to generate your first compliance report
+1. Clone this repository
+2. Verify your email address in Amazon SES
+3. Use the SAM CLI to deploy the solution
+4. Follow the instructions in the [Deployment Guide](DEPLOYMENT_GUIDE.md) under "Alternative Deployment Using SAM CLI"
 
 ## Sample Deliverables for Your Portfolio
 
@@ -94,6 +108,12 @@ A: This is designed as a learning tool. For production environments, additional 
 **Q: How do I explain this project in interviews?**  
 A: We've included talking points in the [Interview Guide](INTERVIEW_GUIDE.md) to help you articulate what you've learned.
 
+**Q: Why do I need to verify my email address?**  
+A: AWS requires email verification to prevent spam and unauthorized use. This is a security control that protects both AWS and email recipients.
+
+**Q: What if I get an error about email sending?**  
+A: The most common issue is not properly verifying both sender and recipient email addresses in Amazon SES. See the troubleshooting section in the [Deployment Guide](DEPLOYMENT_GUIDE.md).
+
 ## Next Steps After Completing This Lab
 
 After you've completed this lab, consider these next steps for your GRC portfolio:
@@ -105,9 +125,9 @@ After you've completed this lab, consider these next steps for your GRC portfoli
 
 ## Resources for GRC Professionals
 
-- [SOC 2 Control Mapping Guide](https://example.com/soc2-guide) (Coming soon)
+- [SOC 2 Control Mapping Guide](SOC2_MAPPING_GUIDE.md)
 - [AWS SecurityHub for Compliance Professionals](https://example.com/securityhub-guide) (Coming soon)
-- [Sample Portfolio Write-up Template](https://example.com/portfolio-template) (Coming soon)
+- [Sample Portfolio Write-up Template](PORTFOLIO_TEMPLATE.md)
 
 ## Community Support
 

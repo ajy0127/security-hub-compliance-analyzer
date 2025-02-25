@@ -7,7 +7,7 @@ This guide will walk you through setting up the AWS SecurityHub SOC 2 Compliance
 ### What You'll Need
 
 - An AWS account (free tier is sufficient)
-- A verified email address in Amazon SES (for sending reports)
+- A verified email address in Amazon SES (for sending reports) - **CRITICAL REQUIREMENT**
 - Approximately 1-2 hours to complete the setup
 - No coding experience required!
 
@@ -54,16 +54,20 @@ SecurityHub is AWS's security findings service that we'll use as our data source
 
 > 💡 **GRC Insight**: In your portfolio, explain how centralized security findings repositories support continuous compliance monitoring.
 
-## Step 4: Verify an Email in Amazon SES
+## Step 4: Verify an Email in Amazon SES (CRITICAL STEP)
 
-To send compliance reports, we need to verify an email address:
+To send compliance reports, you MUST verify an email address in Amazon SES. This is a critical step - the solution will not work without a verified email address.
 
 1. In the AWS search bar, type "SES" and select "Simple Email Service"
 2. In the left navigation, click "Verified identities"
 3. Click "Create identity"
 4. Select "Email address" and enter your email
 5. Click "Create identity"
-6. Check your email and click the verification link
+6. Check your email and click the verification link in the email from AWS
+7. Return to the SES console and confirm that your email shows "Verified" status
+8. **IMPORTANT**: By default, new AWS accounts are in the SES "sandbox" mode, which means you can only send emails to verified addresses. This means both the sender and recipient email addresses must be verified in SES.
+
+> ⚠️ **CRITICAL**: Both the sender and recipient email addresses must be verified in SES for the solution to work. If you want to send reports to a different email, you must verify that email address as well.
 
 > 💡 **GRC Insight**: Document how email verification is an identity control that prevents unauthorized communications.
 
@@ -71,18 +75,40 @@ To send compliance reports, we need to verify an email address:
 
 AWS CloudFormation lets us deploy the entire solution with a few clicks:
 
-1. Download the CloudFormation template: [securityhub-soc2-lab.yaml](https://example.com/securityhub-soc2-lab.yaml)
+1. Clone or download this repository to your local machine
 2. In the AWS search bar, type "CloudFormation" and select it
 3. Click "Create stack" and select "With new resources"
-4. Select "Upload a template file" and upload the template you downloaded
+4. Select "Upload a template file" and upload the template.yaml file from the repository
 5. Click "Next"
-6. Enter a Stack name: `securityhub-soc2-lab`
+6. Enter a Stack name: `securityhub-soc2-analyzer`
 7. Fill in the parameters:
    - SenderEmail: Enter the email address you verified in Step 4
-   - RecipientEmail: Where you want to receive compliance reports
+   - RecipientEmail: Enter the same verified email address (or another verified email if you've verified multiple)
    - FindingsHours: 24 (to look back 24 hours for findings)
+   - BedrockModelId: Use the default value
+   - ImageRepository: Leave empty for ZIP deployment
 8. Click "Next" twice, then check the acknowledgment box and click "Create stack"
 9. Wait approximately 5-10 minutes for deployment to complete
+
+### Alternative Deployment Using SAM CLI (For Technical Users)
+
+If you're comfortable with command-line tools, you can also deploy using the SAM CLI:
+
+1. Install the [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+2. Configure AWS credentials with the AWS CLI
+3. Create an AWS profile (e.g., "sandbox") if you want to deploy to a specific account
+4. Run the following commands:
+
+```bash
+# Create an S3 bucket for deployment (if it doesn't exist)
+aws s3 mb s3://aws-sam-cli-managed-sandbox-samclisourcebucket --profile sandbox --region us-east-1
+
+# Build the application
+sam build
+
+# Deploy the application
+sam deploy --profile sandbox --stack-name securityhub-soc2-analyzer-sandbox --config-env sandbox --resolve-image-repos
+```
 
 > 💡 **GRC Insight**: This demonstrates infrastructure-as-code, a key concept in modern compliance automation.
 
@@ -91,18 +117,20 @@ AWS CloudFormation lets us deploy the entire solution with a few clicks:
 Let's make sure everything is working:
 
 1. In the AWS search bar, type "Lambda" and select it
-2. Find the function named `securityhub-soc2-lab-SecurityHubAnalyzerFunction-XXXX`
+2. Find the function named `securityhub-soc2-analyzer-SecurityHubAnalyzer` (or with your stack name)
 3. Click on the function name
 4. Click the "Test" tab
 5. In the Event JSON box, paste:
    ```json
    {
-     "test_email": "your-email@example.com"
+     "test_email": "your-verified-email@example.com"
    }
    ```
-6. Replace with your actual email address
+6. Replace with your actual verified email address
 7. Click "Test"
 8. Check your email for a test message
+
+> ⚠️ **IMPORTANT**: If you receive an error, check the CloudWatch logs for the Lambda function. The most common issue is using an email address that hasn't been verified in SES.
 
 > 💡 **GRC Insight**: Testing is a critical part of any compliance implementation - document your test approach!
 
@@ -114,7 +142,7 @@ Now let's generate a real compliance report:
 2. Create a new test event with:
    ```json
    {
-     "email": "your-email@example.com",
+     "email": "your-verified-email@example.com",
      "hours": 24
    }
    ```
@@ -128,7 +156,7 @@ Now let's generate a real compliance report:
 Let's customize the mappings to demonstrate your SOC 2 knowledge:
 
 1. In the AWS search bar, type "S3" and select it
-2. Find the bucket named `securityhub-soc2-lab-configbucket-XXXX`
+2. Find the bucket named `securityhub-soc2-analyzer-configbucket-XXXX`
 3. Click on the bucket name
 4. Find and click on the file `mappings.json`
 5. Click "Download"
@@ -146,7 +174,7 @@ Let's set up a schedule for weekly reports:
 
 1. In the AWS search bar, type "EventBridge" and select it
 2. In the left navigation, click "Rules"
-3. Find the rule named `securityhub-soc2-lab-WeeklyAnalysisSchedule-XXXX`
+3. Find the rule named `securityhub-soc2-analyzer-WeeklyAnalysisSchedule-XXXX`
 4. Click on the rule name
 5. Click "Edit"
 6. Under "Schedule pattern", you can modify the schedule
@@ -190,8 +218,12 @@ This entire system runs automatically on your schedule, providing regular compli
 ### No Email Received
 
 1. Check your spam folder
-2. Verify your email was correctly verified in SES
-3. Check if your AWS account is still in the SES sandbox (see AWS documentation)
+2. **Verify both sender and recipient emails are correctly verified in SES**
+3. Check if your AWS account is still in the SES sandbox (it most likely is)
+   - In the SES console, look for "Account dashboard" in the left navigation
+   - Under "Sending statistics", it will indicate if you're in the sandbox
+   - While in the sandbox, you can only send to verified email addresses
+4. Check the CloudWatch logs for the Lambda function for specific error messages
 
 ### No Findings in Report
 
@@ -204,6 +236,10 @@ This entire system runs automatically on your schedule, providing regular compli
 1. In the Lambda console, check the "Monitor" tab
 2. Click "View logs in CloudWatch"
 3. Look for error messages that might explain the issue
+4. Common errors include:
+   - Email verification issues
+   - Missing permissions
+   - Configuration errors
 
 ## Next Steps for Your GRC Portfolio
 
