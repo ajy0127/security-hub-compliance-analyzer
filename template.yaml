@@ -41,6 +41,7 @@ Globals:
 Resources:
   SecurityHubAnalyzerFunction:
     Type: AWS::Serverless::Function
+    DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
       CodeUri: src/
       Handler: handlers.securityhub_handler.lambda_handler
@@ -57,18 +58,30 @@ Resources:
   # Function version reference for tracking in environment variables
   SecurityHubAnalyzerFunctionVersion:
     Type: Custom::LambdaVersion
+    DependsOn: 
+      - VersionFunction 
+      - VersionFunctionLogGroup
     Properties:
       ServiceToken: !GetAtt VersionFunction.Arn
       FunctionName: !Ref SecurityHubAnalyzerFunction
   
+  # Explicit Log Group for Version Function to avoid race conditions
+  VersionFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-VersionFunction"
+      RetentionInDays: 30
+
   # Lambda function to create a static version identifier
   VersionFunction:
     Type: AWS::Serverless::Function
+    DependsOn: VersionFunctionLogGroup
     Properties:
       CodeUri: src/
       Handler: lambda.version_handler.lambda_handler
       Runtime: python3.12
       Timeout: 30
+      FunctionName: !Sub "${AWS::StackName}-VersionFunction"
       Environment:
         Variables:
           FUNCTION_NAME: !Ref SecurityHubAnalyzerFunction
@@ -80,15 +93,31 @@ Resources:
                 - lambda:PublishVersion
                 - lambda:GetFunctionConfiguration
               Resource: !GetAtt SecurityHubAnalyzerFunction.Arn
+            # CloudWatch Logs permissions
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
               
+  # Explicit Log Group for PreTrafficHook function
+  PreTrafficHookLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-PreTrafficHook"
+      RetentionInDays: 30
+
   # Pre-traffic test function
   PreTrafficHook:
     Type: AWS::Serverless::Function
+    DependsOn: PreTrafficHookLogGroup
     Properties:
       CodeUri: src/
       Handler: lambda.pretraffic_hook.lambda_handler
       Runtime: python3.12
       Timeout: 60
+      FunctionName: !Sub "${AWS::StackName}-PreTrafficHook"
       Environment:
         Variables:
           FUNCTION_NAME: !Ref SecurityHubAnalyzerFunction
