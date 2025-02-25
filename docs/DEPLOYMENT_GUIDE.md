@@ -95,11 +95,11 @@ Now we'll deploy the solution using AWS CloudFormation:
 2. Set Up Deployment Resources Using AWS CLI:
 
    ```bash
-   # Create an S3 bucket to store the Lambda code
-   aws s3 mb s3://security-hub-compliance-analyzer-$(date +%s)
+   # Create an S3 bucket to store the Lambda code (choose a unique name)
+   aws s3 mb s3://security-hub-soc2-YOUR-UNIQUE-NAME
    
    # Store the bucket name in a variable for later use
-   BUCKET_NAME=security-hub-compliance-analyzer-$(date +%s)
+   BUCKET_NAME=security-hub-soc2-YOUR-UNIQUE-NAME
    
    # Upload the Lambda code ZIP file to the bucket
    aws s3 cp lambda-code.zip s3://$BUCKET_NAME/
@@ -119,9 +119,25 @@ Now we'll deploy the solution using AWS CloudFormation:
    aws cloudformation describe-stacks --stack-name security-hub-compliance-analyzer
    ```
 
-   **Important:** Replace `your-verified@email.com` with your actual verified email addresses.
+   **Important Notes:** 
+   - Replace `your-verified@email.com` with your actual verified email addresses.
+   - Replace `YOUR-UNIQUE-NAME` with a unique identifier (e.g., your username or a random string).
+   - **CRITICAL**: You MUST create the S3 bucket BEFORE deploying the CloudFormation stack.
+   - The S3 bucket name you provide to CloudFormation must EXACTLY match the bucket you created.
+   - S3 bucket names are globally unique across all AWS accounts, so you may need to try different names if your first choice is taken.
 
 3. Alternatively, Deploy Using the AWS Console:
+
+   **Step 1: Create the S3 bucket first**
+   - In the AWS search bar, type "S3" and select it
+   - Click "Create bucket"
+   - Enter a unique bucket name (e.g., "security-hub-soc2-YOUR-UNIQUE-NAME")
+   - Keep all default settings and click "Create bucket"
+   - Select your new bucket and click "Upload"
+   - Upload your lambda-code.zip file to the bucket
+   - Make note of the EXACT bucket name as you'll need it for the CloudFormation parameters
+
+   **Step 2: Deploy the CloudFormation stack**
    - In the AWS search bar, type "CloudFormation" and select it
    - Click "Create stack" > "With new resources"
    - Select "Upload a template file"
@@ -131,7 +147,7 @@ Now we'll deploy the solution using AWS CloudFormation:
    - Fill in the parameters:
      - SenderEmail: Your verified email address
      - RecipientEmail: Your verified email address (or another verified email)
-     - S3BucketName: The name of the bucket you created
+     - S3BucketName: The EXACT name of the bucket you created in Step 1
      - S3KeyName: "lambda-code.zip"
    - Click "Next" twice
    - Check the box acknowledging that CloudFormation might create IAM resources
@@ -291,6 +307,15 @@ Let's break down what you've deployed in non-technical terms:
 This entire system runs automatically on your schedule, providing regular compliance insights without manual effort.
 
 ## Troubleshooting Common Issues
+
+### Stack Creation Fails with "NoSuchBucket" Error
+
+If you see an error like: "Error occurred while GetObject. S3 Error Code: NoSuchBucket. S3 Error Message: The specified bucket does not exist":
+
+1. **Verify the S3 bucket exists** - You must create the S3 bucket *before* deploying the CloudFormation stack
+2. **Check the bucket name** - The name you provide to CloudFormation must exactly match the bucket you created
+3. **Verify Lambda code is uploaded** - The lambda-code.zip file must be uploaded to the bucket
+4. **Try with a new bucket name** - S3 bucket names are globally unique, so try a more unique name
 
 ### No Email Received
 
