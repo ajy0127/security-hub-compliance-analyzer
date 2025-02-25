@@ -120,7 +120,7 @@ fi
 echo -e "${YELLOW}Deploying the application...${NC}"
 
 # Build SAM deployment command
-SAM_DEPLOY_CMD="sam deploy --config-file=/dev/null"
+SAM_DEPLOY_CMD="sam deploy"
 
 # Add guided mode if selected
 if [ "$GUIDED" = true ]; then
