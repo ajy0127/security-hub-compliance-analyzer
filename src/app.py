@@ -294,7 +294,9 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
     csv_data = generate_csv(findings, soc2_mapper)
     attachment = MIMEApplication(csv_data.encode("utf-8"))
     attachment.add_header(
-        "Content-Disposition", "attachment", filename="security_hub_compliance_findings.csv"
+        "Content-Disposition",
+        "attachment",
+        filename="security_hub_compliance_findings.csv",
     )
     msg.attach(attachment)
 
@@ -513,9 +515,8 @@ def cli_handler():
         # Generate CSV if requested
         if args.csv:
             csv_data = generate_csv(findings, soc2_mapper)
-            csv_path = (
-                args.csv_path
-                or f"security_hub_compliance_findings_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            csv_path = args.csv_path or (
+                f"security_hub_compliance_findings_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
             )
 
             with open(csv_path, "w", encoding="utf-8") as f:
