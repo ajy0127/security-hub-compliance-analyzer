@@ -30,6 +30,7 @@ Parameters:
 
 Conditions:
   UseLocalImage: !Equals [!Ref ImageRepository, '']
+  UseContainerImage: !Not [!Equals [!Ref ImageRepository, '']]
 
 Resources:
   # Explicit Log Group for main function
@@ -39,16 +40,59 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-SecurityHubAnalyzer"
       RetentionInDays: 30
 
-  # Main Lambda function - simplified without custom versioning
-  SecurityHubAnalyzerFunction:
+  # Lambda function - Zip packaging
+  SecurityHubAnalyzerFunctionZip:
     Type: AWS::Serverless::Function
+    Condition: UseLocalImage
     DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
-      PackageType: !If [UseLocalImage, 'Zip', 'Image']
-      ImageUri: !If [UseLocalImage, !Ref 'AWS::NoValue', !Sub "${ImageRepository}:latest"]
-      CodeUri: !If [UseLocalImage, './', !Ref 'AWS::NoValue']
-      Handler: !If [UseLocalImage, 'app.lambda_handler', !Ref 'AWS::NoValue']
-      Runtime: !If [UseLocalImage, 'python3.12', !Ref 'AWS::NoValue']
+      PackageType: Zip
+      CodeUri: ./
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      MemorySize: 256
+      Timeout: 300
+      Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
+      FunctionName: !Sub "${AWS::StackName}-SecurityHubAnalyzer"
+      Environment:
+        Variables:
+          SENDER_EMAIL: !Ref SenderEmail
+          RECIPIENT_EMAIL: !Ref RecipientEmail
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          FINDINGS_HOURS: !Ref FindingsHours
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - securityhub:GetFindings
+                - securityhub:BatchImportFindings
+                - securityhub:BatchUpdateFindings
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: 'arn:aws:logs:*:*:*'
+  
+  # Lambda function - Container packaging
+  SecurityHubAnalyzerFunctionContainer:
+    Type: AWS::Serverless::Function
+    Condition: UseContainerImage
+    DependsOn: SecurityHubAnalyzerLogGroup
+    Properties:
+      PackageType: Image
+      ImageUri: !Sub "${ImageRepository}:latest"
       MemorySize: 256
       Timeout: 300
       Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
@@ -84,6 +128,7 @@ Resources:
                 - logs:PutLogEvents
               Resource: 'arn:aws:logs:*:*:*'
 
+  # Weekly Schedule
   WeeklyAnalysisSchedule:
     Type: AWS::Events::Rule
     Properties:
@@ -91,32 +136,49 @@ Resources:
       ScheduleExpression: cron(0 9 ? * MON *)
       State: ENABLED
       Targets:
-        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
+        - Arn: !If 
+            - UseLocalImage
+            - !GetAtt SecurityHubAnalyzerFunctionZip.Arn
+            - !GetAtt SecurityHubAnalyzerFunctionContainer.Arn
           Id: SecurityHubAnalyzerTarget
 
+  # Permission for EventBridge
   WeeklyAnalysisPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref SecurityHubAnalyzerFunction
+      FunctionName: !If 
+        - UseLocalImage
+        - !Ref SecurityHubAnalyzerFunctionZip
+        - !Ref SecurityHubAnalyzerFunctionContainer
       Principal: events.amazonaws.com
       SourceArn: !GetAtt WeeklyAnalysisSchedule.Arn
 
+  # Permission for Config
   LambdaUpdateRulePermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref SecurityHubAnalyzerFunction
+      FunctionName: !If 
+        - UseLocalImage
+        - !Ref SecurityHubAnalyzerFunctionZip
+        - !Ref SecurityHubAnalyzerFunctionContainer
       Principal: config.amazonaws.com
 
 Outputs:
   SecurityHubAnalyzerFunctionArn:
     Description: ARN of the SecurityHub Analyzer Lambda function
-    Value: !GetAtt SecurityHubAnalyzerFunction.Arn
+    Value: !If 
+      - UseLocalImage
+      - !GetAtt SecurityHubAnalyzerFunctionZip.Arn
+      - !GetAtt SecurityHubAnalyzerFunctionContainer.Arn
   
   SecurityHubAnalyzerFunctionName:
     Description: Name of the SecurityHub Analyzer Lambda function
-    Value: !Ref SecurityHubAnalyzerFunction
+    Value: !If 
+      - UseLocalImage
+      - !Ref SecurityHubAnalyzerFunctionZip
+      - !Ref SecurityHubAnalyzerFunctionContainer
   
   SecurityHubAnalyzerLogGroupName:
     Description: Name of the CloudWatch Log Group for the Lambda function
