@@ -52,7 +52,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m venv venv
           source venv/bin/activate
-          pip install --retries 5 --timeout 60 flake8 black isort
+          pip install --retries 5 --timeout 60 flake8 black isort cfn-lint
           
       - name: Lint with flake8
         run: |
@@ -68,60 +68,8 @@ jobs:
         run: |
           source venv/bin/activate
           isort --check-only --profile black . --skip venv --skip .git
-
-  build-and-deploy:
-    needs: [test, lint]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
           
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Validate CloudFormation templates
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          
-      - name: Deploy with SAM
-        run: |
-          python -m venv deploy-venv
-          source deploy-venv/bin/activate
-          pip install aws-sam-cli
-          
-          # Create AWS credentials file with proper profile
-          mkdir -p ~/.aws
-          cat > ~/.aws/credentials << EOF
-          [default]
-          aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region=${{ secrets.AWS_REGION }}
-          EOF
-          
-          # Deploy using SAM CLI
-          sam deploy --template-file template.yaml \
-            --stack-name securityhub-soc2-analyzer \
-            --capabilities CAPABILITY_IAM \
-            --parameter-overrides \
-              ImageRepository=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest \
-            --no-fail-on-empty-changeset 
+          source venv/bin/activate
+          cfn-lint template.yaml
