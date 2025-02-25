@@ -120,7 +120,7 @@ fi
 echo -e "${YELLOW}Deploying the application...${NC}"
 
 # Build SAM deployment command
-SAM_DEPLOY_CMD="sam deploy"
+SAM_DEPLOY_CMD="sam deploy --config-file=/dev/null"
 
 # Add guided mode if selected
 if [ "$GUIDED" = true ]; then
@@ -131,6 +131,9 @@ fi
 if [ -n "$IMAGE_REPO_PARAM" ]; then
     SAM_DEPLOY_CMD="$SAM_DEPLOY_CMD $IMAGE_REPO_PARAM"
 fi
+
+# Add stack name
+SAM_DEPLOY_CMD="$SAM_DEPLOY_CMD --stack-name securityhub-soc2-analyzer"
 
 # Execute the deployment
 echo "Running: $SAM_DEPLOY_CMD"
