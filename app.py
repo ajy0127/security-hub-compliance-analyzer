@@ -253,7 +253,7 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
         
         <h2>Analysis</h2>
         <div>
-            {analysis.replace('\\n', '<br>')}
+            {analysis.replace(r'\n', '<br>')}
         </div>
         
         <p>A detailed CSV report is attached with all findings mapped to SOC 2 controls.</p>
