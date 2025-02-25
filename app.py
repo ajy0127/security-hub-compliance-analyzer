@@ -124,7 +124,16 @@ def analyze_findings(findings, soc2_mapper):
         2. SOC 2 Impact: How these findings affect SOC 2 compliance
         3. Key Recommendations: Top 3-5 actions to address the most critical issues
         
-        Keep your response under 1000 words and focus on actionable insights.
+        Then, add a section titled "Auditor's Perspective" written from the perspective of a seasoned SOC 2 auditor with 15+ years of experience. This narrative should:
+        1. Evaluate the severity of these findings in the context of a SOC 2 audit
+        2. Explain the different impacts these findings would have on SOC 2 Type 1 vs Type 2 audits
+        3. Provide specific remediation and mitigation advice that would satisfy an auditor's requirements
+        4. Include language and terminology that a professional auditor would use
+        5. Offer a professional opinion on the timeline and effort required to address these issues before an audit
+        
+        The auditor's perspective should be written in first person and should sound authoritative but constructive.
+        
+        Keep your total response under 1500 words and focus on actionable insights.
         """
 
         # Call Bedrock
@@ -134,7 +143,7 @@ def analyze_findings(findings, soc2_mapper):
             body=json.dumps(
                 {
                     "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": 1000,
+                    "max_tokens": 1500,
                     "messages": [{"role": "user", "content": prompt}],
                 }
             ),
@@ -240,6 +249,18 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
             .critical {{ color: #d13212; }}
             .high {{ color: #ff9900; }}
             .medium {{ color: #d9b43c; }}
+            .auditor-perspective {{ 
+                background-color: #f0f7ff; 
+                padding: 20px; 
+                border-left: 5px solid #0073bb; 
+                margin: 20px 0; 
+                border-radius: 5px;
+                font-style: italic;
+            }}
+            .auditor-perspective h2 {{ 
+                color: #0073bb; 
+                margin-top: 0;
+            }}
         </style>
     </head>
     <body>
