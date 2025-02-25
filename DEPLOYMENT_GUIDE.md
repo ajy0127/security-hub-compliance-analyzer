@@ -54,79 +54,54 @@ SecurityHub is AWS's security findings service that we'll use as our data source
 
 > 💡 **GRC Insight**: In your portfolio, explain how centralized security findings repositories support continuous compliance monitoring.
 
-## Step 4: Verify an Email in Amazon SES (CRITICAL STEP)
+## Step 4: Verify Your Email in Amazon SES
 
-To send compliance reports, you MUST verify an email address in Amazon SES. This is a critical step - the solution will not work without a verified email address.
+⚠️ **CRITICAL STEP**: This solution sends email reports, which requires verified email addresses in Amazon SES.
 
-1. In the AWS search bar, type "SES" and select "Simple Email Service"
+1. In the AWS search bar, type "SES" and select "Amazon Simple Email Service"
 2. In the left navigation, click "Verified identities"
 3. Click "Create identity"
-4. Select "Email address" and enter your email
+4. Select "Email address" and enter your email address
 5. Click "Create identity"
-6. Check your email and click the verification link in the email from AWS
-7. Return to the SES console and confirm that your email shows "Verified" status
-8. **IMPORTANT**: By default, new AWS accounts are in the SES "sandbox" mode, which means you can only send emails to verified addresses. This means both the sender and recipient email addresses must be verified in SES.
+6. Check your email for a verification message from AWS
+7. Click the verification link in the email
 
-> ⚠️ **CRITICAL**: Both the sender and recipient email addresses must be verified in SES for the solution to work. If you want to send reports to a different email, you must verify that email address as well.
+> ⚠️ **Important**: Both the sender and recipient email addresses must be verified in SES. If you plan to send reports to a different email than your own, repeat this process for that email address as well.
 
-> 💡 **GRC Insight**: Document how email verification is an identity control that prevents unauthorized communications.
+> 💡 **GRC Insight**: Document this email verification process as part of your compliance controls implementation.
 
-## Step 5: Package and Deploy the Solution
+## Step 5: Deploy the Solution Using CloudFormation
 
-The deployment involves two steps: first packaging your code, then deploying via CloudFormation.
+Now we'll deploy the solution using AWS CloudFormation:
 
-### Step 5A: Package the Code for Deployment
+1. Download the CloudFormation template:
+   - Go to the [GitHub repository](https://github.com/ajy0127/securityhub_soc2analysis)
+   - Download the `cloudformation.yaml` file
+   - Download the `lambda-code.zip` file (or create it by zipping the Python files as described in the README)
 
-Before deploying with CloudFormation, we need to package the Lambda code and upload it to S3:
+2. Create an S3 bucket to store the Lambda code:
+   - In the AWS search bar, type "S3" and select it
+   - Click "Create bucket"
+   - Enter a unique bucket name (e.g., "securityhub-soc2-analyzer-[your-initials]")
+   - Keep all default settings and click "Create bucket"
+   - Upload the `lambda-code.zip` file to this bucket
 
-1. Clone or download this repository to your local machine
-2. Open a terminal/command prompt and navigate to the repository directory
-3. Run the packaging script with a unique S3 bucket name:
-   ```bash
-   ./package_for_cloudformation.sh --bucket your-unique-bucket-name
-   ```
-   (Note: S3 bucket names must be globally unique, so choose something specific like "your-name-securityhub-soc2-analyzer")
-4. The script will create the bucket if it doesn't exist, package the code, and upload it to S3
-5. Make note of the S3 bucket name, as you'll need it for deployment
-
-### Step 5B: Deploy Using CloudFormation
-
-Now that your code is packaged, deploy using CloudFormation:
-
-1. In the AWS search bar, type "CloudFormation" and select it
-2. Click "Create stack" and select "With new resources"
-3. Select "Upload a template file" and upload the template.yaml file from the repository
-4. Click "Next"
-5. Enter a Stack name: `securityhub-soc2-analyzer`
-6. Fill in the parameters:
-   - SenderEmail: Enter the email address you verified in Step 4
-   - RecipientEmail: Enter the same verified email address (or another verified email if you've verified multiple)
-   - FindingsHours: 24 (to look back 24 hours for findings)
-   - BedrockModelId: Use the default value
-   - ImageRepository: Leave empty for ZIP deployment
-   - S3BucketName: Enter the S3 bucket name you used in Step 5A
-7. Click "Next" twice, then check the acknowledgment box and click "Create stack"
-8. Wait approximately 5-10 minutes for deployment to complete
-
-### Alternative Deployment Using SAM CLI (For Technical Users)
-
-If you're comfortable with command-line tools, you can also deploy using the SAM CLI:
-
-1. Install the [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-2. Configure AWS credentials with the AWS CLI
-3. Create an AWS profile (e.g., "sandbox") if you want to deploy to a specific account
-4. Run the following commands:
-
-```bash
-# Create an S3 bucket for deployment (if it doesn't exist)
-aws s3 mb s3://aws-sam-cli-managed-sandbox-samclisourcebucket --profile sandbox --region us-east-1
-
-# Build the application
-sam build
-
-# Deploy the application
-sam deploy --profile sandbox --stack-name securityhub-soc2-analyzer-sandbox --config-env sandbox --resolve-image-repos
-```
+3. Deploy the CloudFormation stack:
+   - In the AWS search bar, type "CloudFormation" and select it
+   - Click "Create stack" > "With new resources"
+   - Select "Upload a template file"
+   - Click "Choose file" and select the `cloudformation.yaml` file you downloaded
+   - Click "Next"
+   - Enter a stack name (e.g., "securityhub-soc2-analyzer")
+   - Fill in the parameters:
+     - SenderEmail: Your verified email address
+     - RecipientEmail: Your verified email address (or another verified email)
+     - S3BucketName: The name of the bucket you created
+     - S3KeyName: "lambda-code.zip"
+   - Click "Next" twice
+   - Check the box acknowledging that CloudFormation might create IAM resources
+   - Click "Create stack"
+   - Wait for the stack creation to complete (this may take 5-10 minutes)
 
 > 💡 **GRC Insight**: This demonstrates infrastructure-as-code, a key concept in modern compliance automation.
 

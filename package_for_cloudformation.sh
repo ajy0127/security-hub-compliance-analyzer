@@ -1,105 +1,99 @@
 #!/bin/bash
+
+# Script to package Lambda code for CloudFormation deployment
+# Usage: ./package_for_cloudformation.sh --bucket your-bucket-name
+
 set -e
 
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-echo -e "${GREEN}SecurityHub SOC 2 Email Reporter - CloudFormation Packaging Script${NC}"
-echo "========================================================"
-
-# Check if AWS CLI is installed
-if ! command -v aws &> /dev/null; then
-    echo -e "${RED}Error: AWS CLI is not installed. Please install it first.${NC}"
-    exit 1
-fi
+# Default values
+S3_BUCKET=""
+REGION="us-east-1"
+ZIP_FILE="lambda-code.zip"
 
 # Parse command line arguments
-S3_BUCKET=""
-REGION=""
-AWS_PROFILE=""
-
 while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        --bucket)
-            S3_BUCKET="$2"
-            shift 2
-            ;;
-        --bucket=*)
-            S3_BUCKET="${1#*=}"
-            shift
-            ;;
-        --region)
-            REGION="$2"
-            shift 2
-            ;;
-        --region=*)
-            REGION="${1#*=}"
-            shift
-            ;;
-        --profile)
-            AWS_PROFILE="$2"
-            shift 2
-            ;;
-        --profile=*)
-            AWS_PROFILE="${1#*=}"
-            shift
-            ;;
-        *)
-            echo -e "${RED}Unknown option: $key${NC}"
-            echo "Usage: ./package_for_cloudformation.sh --bucket <s3-bucket-name> [--region <aws-region>] [--profile <aws-profile>]"
-            exit 1
-            ;;
-    esac
+  key="$1"
+  case $key in
+    --bucket)
+      S3_BUCKET="$2"
+      shift
+      shift
+      ;;
+    --region)
+      REGION="$2"
+      shift
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
 done
 
-# Check for required parameters
+# Check if bucket name is provided
 if [ -z "$S3_BUCKET" ]; then
-    echo -e "${RED}Error: S3 bucket name is required. Use --bucket parameter.${NC}"
-    echo "Usage: ./package_for_cloudformation.sh --bucket <s3-bucket-name> [--region <aws-region>] [--profile <aws-profile>]"
-    exit 1
+  echo "Error: S3 bucket name is required"
+  echo "Usage: ./package_for_cloudformation.sh --bucket your-bucket-name [--region your-region]"
+  exit 1
 fi
 
-# Set AWS profile if provided
-if [ -n "$AWS_PROFILE" ]; then
-    echo -e "${YELLOW}Using AWS profile: $AWS_PROFILE${NC}"
-    export AWS_PROFILE="$AWS_PROFILE"
+echo "Packaging Lambda code for CloudFormation deployment..."
+echo "S3 Bucket: $S3_BUCKET"
+echo "Region: $REGION"
+
+# Check if the bucket exists, create it if it doesn't
+if ! aws s3 ls "s3://$S3_BUCKET" 2>&1 > /dev/null; then
+  echo "Bucket does not exist. Creating bucket $S3_BUCKET..."
+  aws s3 mb "s3://$S3_BUCKET" --region "$REGION"
+else
+  echo "Bucket $S3_BUCKET already exists."
 fi
 
-# Set AWS region
-if [ -z "$REGION" ]; then
-    REGION=$(aws configure get region)
-    if [ -z "$REGION" ]; then
-        echo -e "${YELLOW}AWS region not found in config. Using us-east-1 as default.${NC}"
-        REGION="us-east-1"
-    fi
-    echo -e "${YELLOW}Using AWS region: $REGION${NC}"
-fi
+# Create a temporary directory for packaging
+TEMP_DIR=$(mktemp -d)
+echo "Created temporary directory: $TEMP_DIR"
 
-# Check if the S3 bucket exists
-echo -e "${YELLOW}Checking if S3 bucket exists...${NC}"
-if ! aws s3 ls "s3://$S3_BUCKET" &>/dev/null; then
-    echo -e "${YELLOW}S3 bucket does not exist. Creating it...${NC}"
-    aws s3 mb "s3://$S3_BUCKET" --region "$REGION"
-fi
+# Copy required files to the temporary directory
+echo "Copying files to temporary directory..."
+cp app.py utils.py soc2_mapper.py requirements.txt "$TEMP_DIR/"
 
-# Create a zip file of all code
-echo -e "${YELLOW}Creating Lambda code package...${NC}"
-zip -r lambda-code.zip . -x "*.git*" -x "*.zip" -x "venv/*"
+# Create a directory for mappings
+mkdir -p "$TEMP_DIR/config"
+cp config/mappings.json "$TEMP_DIR/config/"
 
-# Upload the zip file to S3
-echo -e "${YELLOW}Uploading Lambda code package to S3...${NC}"
-aws s3 cp lambda-code.zip "s3://$S3_BUCKET/lambda-code.zip"
+# Change to the temporary directory
+cd "$TEMP_DIR"
 
-echo -e "${GREEN}Package uploaded successfully!${NC}"
-echo "========================================================"
-echo -e "${GREEN}Now you can deploy using CloudFormation with these parameters:${NC}"
+# Install dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt -t .
+
+# Create the ZIP file
+echo "Creating ZIP file..."
+zip -r "$ZIP_FILE" .
+
+# Upload the ZIP file to S3
+echo "Uploading ZIP file to S3..."
+aws s3 cp "$ZIP_FILE" "s3://$S3_BUCKET/$ZIP_FILE"
+
+# Clean up
+cd -
+rm -rf "$TEMP_DIR"
+
+echo "Package uploaded to s3://$S3_BUCKET/$ZIP_FILE"
 echo ""
-echo -e "S3BucketName: ${YELLOW}$S3_BUCKET${NC}"
+echo "To deploy with CloudFormation, use the following parameters:"
+echo "  S3BucketName: $S3_BUCKET"
+echo "  S3KeyName: $ZIP_FILE"
 echo ""
-echo "Upload the template.yaml file to CloudFormation and provide the parameters."
-echo ""
-echo "Remember to verify your SES email addresses before deployment!"
+echo "Example CloudFormation deployment command:"
+echo "aws cloudformation create-stack \\"
+echo "  --stack-name securityhub-soc2-analyzer \\"
+echo "  --template-body file://cloudformation.yaml \\"
+echo "  --capabilities CAPABILITY_IAM \\"
+echo "  --parameters \\"
+echo "    ParameterKey=SenderEmail,ParameterValue=your-verified@email.com \\"
+echo "    ParameterKey=RecipientEmail,ParameterValue=your-verified@email.com \\"
+echo "    ParameterKey=S3BucketName,ParameterValue=$S3_BUCKET \\"
+echo "    ParameterKey=S3KeyName,ParameterValue=$ZIP_FILE"

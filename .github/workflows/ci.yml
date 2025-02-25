@@ -69,7 +69,7 @@ jobs:
           source venv/bin/activate
           isort --check-only --profile black . --skip venv --skip .git
           
-      - name: Validate CloudFormation templates
+      - name: Validate CloudFormation template
         run: |
           source venv/bin/activate
-          cfn-lint template.yaml
+          cfn-lint cloudformation.yaml

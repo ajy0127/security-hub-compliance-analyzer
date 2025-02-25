@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS SecurityHub SOC 2 Analyzer - Maps findings to SOC 2 controls and sends email reports
+
+Parameters:
+  SenderEmail:
+    Type: String
+    Default: ''
+    Description: Email address to send reports from (must be verified in SES)
+  
+  RecipientEmail:
+    Type: String
+    Default: ''
+    Description: Email address to send reports to
+  
+  FindingsHours:
+    Type: String
+    Default: '24'
+    Description: Number of hours to look back for findings
+  
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-3-sonnet
+    Description: Amazon Bedrock model ID to use for analysis
+  
+  S3BucketName:
+    Type: String
+    Description: S3 bucket name where the Lambda code is stored
+    Default: 'securityhub-soc2-template-bucket'
+    MinLength: 3
+    
+  S3KeyName:
+    Type: String
+    Description: S3 key name for the Lambda code zip file
+    Default: 'lambda-code.zip'
+
+Resources:
+  # Explicit Log Group for main function
+  SecurityHubAnalyzerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-SecurityHubAnalyzer"
+      RetentionInDays: 30
+
+  # Lambda execution role
+  SecurityHubAnalyzerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SecurityHubAnalyzerPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - securityhub:GetFindings
+                  - securityhub:BatchImportFindings
+                  - securityhub:BatchUpdateFindings
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: 'arn:aws:logs:*:*:*'
+
+  # Lambda function
+  SecurityHubAnalyzerFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: SecurityHubAnalyzerLogGroup
+    Properties:
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: !Ref S3KeyName
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt SecurityHubAnalyzerRole.Arn
+      MemorySize: 256
+      Timeout: 300
+      Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
+      FunctionName: !Sub "${AWS::StackName}-SecurityHubAnalyzer"
+      Environment:
+        Variables:
+          SENDER_EMAIL: !Ref SenderEmail
+          RECIPIENT_EMAIL: !Ref RecipientEmail
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          FINDINGS_HOURS: !Ref FindingsHours
+
+  # Weekly Schedule
+  WeeklyAnalysisSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Triggers the SecurityHub SOC 2 analyzer weekly on Monday 9 AM UTC
+      ScheduleExpression: cron(0 9 ? * MON *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
+          Id: SecurityHubAnalyzerTarget
+
+  # Permission for EventBridge
+  WeeklyAnalysisPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SecurityHubAnalyzerFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WeeklyAnalysisSchedule.Arn
+
+  # Permission for Config
+  LambdaUpdateRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SecurityHubAnalyzerFunction
+      Principal: config.amazonaws.com
+
+Outputs:
+  SecurityHubAnalyzerFunctionArn:
+    Description: ARN of the SecurityHub Analyzer Lambda function
+    Value: !GetAtt SecurityHubAnalyzerFunction.Arn
+  
+  SecurityHubAnalyzerFunctionName:
+    Description: Name of the SecurityHub Analyzer Lambda function
+    Value: !Ref SecurityHubAnalyzerFunction
+  
+  SecurityHubAnalyzerLogGroupName:
+    Description: Name of the CloudWatch Log Group for the Lambda function
+    Value: !Ref SecurityHubAnalyzerLogGroup 

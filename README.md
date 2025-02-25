@@ -56,10 +56,26 @@ See the [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions on ema
 ### For Technical Users (Advanced Deployment)
 1. Clone this repository
 2. **Verify your email addresses in Amazon SES** (required)
-3. Use the SAM CLI to deploy the CloudFormation stack
-4. Configure SecurityHub in your AWS account
+3. Package the Lambda code:
+   ```
+   zip -r lambda-code.zip app.py utils.py soc2_mapper.py requirements.txt
+   ```
+4. Upload the `lambda-code.zip` file to an S3 bucket
+5. Deploy the CloudFormation stack:
+   ```
+   aws cloudformation create-stack \
+     --stack-name securityhub-soc2-analyzer \
+     --template-body file://cloudformation.yaml \
+     --capabilities CAPABILITY_IAM \
+     --parameters \
+       ParameterKey=SenderEmail,ParameterValue=your-verified@email.com \
+       ParameterKey=RecipientEmail,ParameterValue=your-verified@email.com \
+       ParameterKey=S3BucketName,ParameterValue=your-bucket-name \
+       ParameterKey=S3KeyName,ParameterValue=lambda-code.zip
+   ```
+6. Configure SecurityHub in your AWS account
 
-**Note:** Deployment is handled manually through CloudFormation rather than through the CI/CD pipeline. The CI/CD pipeline only validates code quality and tests.
+**Note:** The CI/CD pipeline only validates code quality and tests.
 
 ## Sample Deliverables for Your Portfolio
 
