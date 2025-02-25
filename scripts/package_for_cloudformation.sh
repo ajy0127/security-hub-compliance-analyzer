@@ -56,11 +56,11 @@ echo "Created temporary directory: $TEMP_DIR"
 
 # Copy required files to the temporary directory
 echo "Copying files to temporary directory..."
-cp app.py utils.py soc2_mapper.py requirements.txt "$TEMP_DIR/"
+cp ../src/app.py ../src/utils.py ../src/soc2_mapper.py ../src/requirements.txt "$TEMP_DIR/"
 
 # Create a directory for mappings
 mkdir -p "$TEMP_DIR/config"
-cp config/mappings.json "$TEMP_DIR/config/"
+cp ../deployment/config/mappings.json "$TEMP_DIR/config/"
 
 # Change to the temporary directory
 cd "$TEMP_DIR"
@@ -90,7 +90,7 @@ echo ""
 echo "Example CloudFormation deployment command:"
 echo "aws cloudformation create-stack \\"
 echo "  --stack-name securityhub-soc2-analyzer \\"
-echo "  --template-body file://cloudformation.yaml \\"
+echo "  --template-body file://deployment/cloudformation.yaml \\"
 echo "  --capabilities CAPABILITY_IAM \\"
 echo "  --parameters \\"
 echo "    ParameterKey=SenderEmail,ParameterValue=your-verified@email.com \\"
