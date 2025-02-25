@@ -11,7 +11,9 @@ import boto3
 
 def test_credentials(profile=None):
     """Test AWS credentials by listing S3 buckets."""
-    print(f"Testing AWS credentials" + (f" using profile: {profile}" if profile else ""))
+    print(
+        f"Testing AWS credentials" + (f" using profile: {profile}" if profile else "")
+    )
 
     try:
         session = boto3.Session(profile_name=profile) if profile else boto3.Session()
