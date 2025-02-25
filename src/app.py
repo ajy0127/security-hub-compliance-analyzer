@@ -382,7 +382,8 @@ def lambda_handler(event, context):
 
     # Check if this is a test email request
     if event.get("test_email"):
-        recipient_email = event.get("test_email")
+        # Get recipient email from either the event or environment variables
+        recipient_email = event.get("recipient_email", os.environ.get("RECIPIENT_EMAIL"))
         if not recipient_email:
             return {
                 "statusCode": 400,

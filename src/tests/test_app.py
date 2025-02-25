@@ -73,7 +73,7 @@ class TestApp(unittest.TestCase):
         self.sample_event = {"email": "test@example.com", "hours": 24}
 
         # Sample test event for testing
-        self.sample_test_event = {"test_email": "test@example.com"}
+        self.sample_test_event = {"test_email": True, "recipient_email": "test@example.com"}
 
     @patch("app.boto3.client")
     def test_get_findings(self, mock_boto3_client):
