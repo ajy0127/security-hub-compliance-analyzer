@@ -34,22 +34,27 @@ fi
 
 echo -e "${YELLOW}Testing AWS credentials with profile: $PROFILE${NC}"
 
+# Get the script directory and project root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+SRC_DIR="$PROJECT_ROOT/src"
+
 # Test AWS credentials using the Python script
 echo -e "${YELLOW}Running test_credentials.py with profile: $PROFILE${NC}"
-python3 test_credentials.py --profile "$PROFILE"
+python3 "$SRC_DIR/test_credentials.py" --profile "$PROFILE"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}AWS credential test failed. Please check the errors above.${NC}"
     exit 1
 fi
 
-# Test SAM CLI with the profile
-echo -e "${YELLOW}Testing SAM CLI with profile: $PROFILE${NC}"
+# Test CloudFormation with the profile
+echo -e "${YELLOW}Testing CloudFormation with profile: $PROFILE${NC}"
 export AWS_PROFILE="$PROFILE"
 
 # Validate the template
 echo -e "${YELLOW}Validating CloudFormation template...${NC}"
-sam validate --template template.yaml
+aws cloudformation validate-template --template-body file://"$PROJECT_ROOT/deployment/cloudformation.yaml"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Template validation failed. Please check the errors above.${NC}"
@@ -58,20 +63,37 @@ fi
 
 echo -e "${GREEN}Template validation successful!${NC}"
 
-# Test SAM build
-echo -e "${YELLOW}Testing SAM build...${NC}"
-sam build --use-container
+# Check if cfn-lint is installed
+if command -v cfn-lint &> /dev/null; then
+    echo -e "${YELLOW}Running CloudFormation linting...${NC}"
+    cfn-lint "$PROJECT_ROOT/deployment/cloudformation.yaml"
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}CloudFormation linting failed. Please check the errors above.${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}CloudFormation linting successful!${NC}"
+else
+    echo -e "${YELLOW}cfn-lint not installed, skipping linting.${NC}"
+fi
+
+# Test Lambda code packaging
+echo -e "${YELLOW}Testing Lambda code packaging...${NC}"
+cd "$PROJECT_ROOT"
+source "$PROJECT_ROOT/venv/bin/activate" 2>/dev/null || python3 -m venv "$PROJECT_ROOT/venv" && source "$PROJECT_ROOT/venv/bin/activate"
+pip install -r "$SRC_DIR/requirements.txt"
 
 if [ $? -ne 0 ]; then
-    echo -e "${RED}SAM build failed. Please check the errors above.${NC}"
+    echo -e "${RED}Dependency installation failed. Please check the errors above.${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}SAM build successful!${NC}"
+echo -e "${GREEN}Lambda code dependencies installed successfully!${NC}"
 
 echo -e "${GREEN}All tests passed successfully!${NC}"
 echo "========================================================"
 echo -e "${YELLOW}Next steps:${NC}"
-echo "1. Run the deployment script with: ./deploy.sh --profile $PROFILE"
-echo "2. For container deployment, add --docker flag: ./deploy.sh --profile $PROFILE --docker"
+echo "1. Run the deployment script with: ./scripts/deploy.sh --profile $PROFILE --sender-email your-email@example.com --recipient-email your-email@example.com"
+echo "2. After deployment, you can test the Lambda function by running: ./scripts/test_lambda_locally.sh $PROFILE"
 echo "========================================================" 

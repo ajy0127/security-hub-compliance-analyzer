@@ -15,25 +15,29 @@ os.environ["RECIPIENT_EMAIL"] = "your-email@example.com"
 os.environ["BEDROCK_MODEL_ID"] = "anthropic.claude-3-sonnet"
 os.environ["FINDINGS_HOURS"] = "24"
 
+# Add the src directory to the Python path
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+
 # Import the Lambda handler
 try:
     from app import lambda_handler
 except ImportError:
-    print("Error: Could not import lambda_handler from app.py")
-    print("Make sure you're running this script from the project root directory.")
+    print("Error: Could not import lambda_handler from src/app.py")
+    print("Make sure the project structure is correct and this script is in the scripts directory.")
     sys.exit(1)
 
 
 def load_test_event():
-    """Load test event from test-event.json or create a default one."""
+    """Load test event from examples/test-event.json or create a default one."""
+    test_event_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "examples", "test-event.json")
     try:
-        with open("test-event.json", "r") as f:
+        with open(test_event_path, "r") as f:
             return json.load(f)
     except FileNotFoundError:
-        print("Warning: test-event.json not found, using default test event")
+        print(f"Warning: {test_event_path} not found, using default test event")
         return {"test_email": True}
     except json.JSONDecodeError:
-        print("Error: test-event.json is not valid JSON")
+        print(f"Error: {test_event_path} is not valid JSON")
         sys.exit(1)
 
 
