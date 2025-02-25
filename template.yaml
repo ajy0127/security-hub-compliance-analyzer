@@ -31,13 +31,12 @@ Parameters:
   S3BucketName:
     Type: String
     Description: S3 bucket name where the Lambda code is stored
-    Default: ''
-    MinLength: 1
+    Default: 'securityhub-soc2-template-bucket'
+    MinLength: 3
 
 Conditions:
   UseLocalImage: !Equals [!Ref ImageRepository, '']
   UseContainerImage: !Not [!Equals [!Ref ImageRepository, '']]
-  UseCustomS3Bucket: !Not [!Equals [!Ref S3BucketName, '']]
 
 Resources:
   # Explicit Log Group for main function
@@ -54,6 +53,7 @@ Resources:
     DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
       PackageType: Zip
+      # Use direct S3 location for Lambda code
       CodeUri: 
         Bucket: !Ref S3BucketName
         Key: lambda-code.zip
