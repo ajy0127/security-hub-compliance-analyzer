@@ -76,25 +76,26 @@ This guide provides detailed instructions for setting up, configuring, and using
 
 4. **Deploy with SAM**
 
-   You can deploy to either staging or production environment:
+   We recommend using the simplified deployment process to avoid common deployment issues:
 
-   **For staging environment:**
    ```bash
+   # Build the application
    sam build
-   sam deploy --template-file deployment/environments/staging.yaml --stack-name soc2-analyzer-staging --guided
-   ```
-
-   **For production environment:**
-   ```bash
-   sam build
-   sam deploy --template-file deployment/environments/production.yaml --stack-name soc2-analyzer-prod --guided
-   ```
-
-   **For a simple deployment:**
-   ```bash
-   sam build
+   
+   # Deploy with guided setup (recommended for first-time deployment)
    sam deploy --template-file template.yaml --stack-name soc2-analyzer --guided
    ```
+
+   The deployment will:
+   - Create the necessary CloudWatch log groups
+   - Deploy the Lambda function with appropriate permissions
+   - Set up EventBridge rules for scheduled executions
+   - Create required IAM roles and policies
+   
+   **Deployment Notes**:
+   - The application uses a static version number (1.0.0) defined in the template
+   - No custom versioning is used to simplify deployment and avoid race conditions
+   - If you need to update the version, you can modify the FUNCTION_VERSION environment variable in the template
 
 ## Configuration
 

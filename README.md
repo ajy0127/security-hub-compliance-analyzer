@@ -99,23 +99,15 @@ The **SecurityHub SOC 2 Compliance Analyzer** is a specialized tool that automat
 
 4. Deploy using AWS SAM:
 
-   **For staging environment:**
    ```bash
+   # Build the application
    sam build
-   sam deploy --template-file deployment/environments/staging.yaml --stack-name soc2-analyzer-staging --guided
-   ```
-
-   **For production environment:**
-   ```bash
-   sam build
-   sam deploy --template-file deployment/environments/production.yaml --stack-name soc2-analyzer-prod --guided
-   ```
-
-   **For a simple deployment:**
-   ```bash
-   sam build
+   
+   # Deploy with guided setup - recommended for first-time deployment
    sam deploy --template-file template.yaml --stack-name soc2-analyzer --guided
    ```
+   
+   **Note**: The deployment process has been simplified to avoid race conditions and dependency issues. The application now uses a static version number instead of dynamic versioning.
 
 ## Configuration
 
