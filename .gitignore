@@ -10,6 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+lib/
 lib64/
 parts/
 sdist/
@@ -24,26 +25,33 @@ venv/
 ENV/
 env/
 
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+coverage.xml
+*.cover
+
+# AWS SAM
+.aws-sam/
+samconfig.toml
+packaged.yaml
+
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# AWS SAM
-.aws-sam/
-packaged.yaml
-
-# Coverage
-.coverage
-coverage.xml
-htmlcov/
-
-# Data files
-*.csv
-soc2_findings_*.csv
-
-# Misc
+# OS
 .DS_Store
-.env
-*.log .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+*.csv
+!config/mappings.json

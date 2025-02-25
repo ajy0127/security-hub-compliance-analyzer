@@ -1,42 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: AWS SecurityHub SOC 2 Compliance Analyzer
+Description: AWS SecurityHub SOC 2 Analyzer - Maps findings to SOC 2 controls and sends email reports
 
 Parameters:
-  RecipientsConfig:
+  SenderEmail:
     Type: String
-    Description: JSON configuration for report recipients and frequencies
-    Default: |
-      {
-        "recipients": [
-          {
-            "email": "default@example.com",
-            "frequency": "weekly",
-            "report_type": ["detailed", "summary"]
-          }
-        ]
-      }
-
+    Default: ''
+    Description: Email address to send reports from (must be verified in SES)
+  
+  RecipientEmail:
+    Type: String
+    Default: ''
+    Description: Email address to send reports to
+  
   FindingsHours:
-    Type: Number
-    Default: 24
+    Type: String
+    Default: '24'
     Description: Number of hours to look back for findings
-
+  
   BedrockModelId:
     Type: String
     Default: anthropic.claude-3-sonnet
     Description: Amazon Bedrock model ID to use for analysis
+  
+  ImageRepository:
+    Type: String
+    Description: ECR repository for the Docker image
+    Default: ''
 
-Globals:
-  Function:
-    Runtime: python3.12
-    Timeout: 300
-    MemorySize: 256
-    Environment:
-      Variables:
-        FINDINGS_HOURS: !Ref FindingsHours
-        BEDROCK_MODEL_ID: !Ref BedrockModelId
-        RECIPIENTS_CONFIG: !Ref RecipientsConfig
+Conditions:
+  UseLocalImage: !Equals [!Ref ImageRepository, '']
 
 Resources:
   # Explicit Log Group for main function
@@ -51,95 +44,57 @@ Resources:
     Type: AWS::Serverless::Function
     DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
-      CodeUri: src/
-      Handler: handlers.securityhub_handler.lambda_handler
+      PackageType: !If [UseLocalImage, Zip, Image]
+      ImageUri: !If [UseLocalImage, !Ref AWS::NoValue, !Sub "${ImageRepository}:latest"]
+      CodeUri: !If [UseLocalImage, './', !Ref AWS::NoValue]
+      Handler: !If [UseLocalImage, 'app.lambda_handler', !Ref AWS::NoValue]
+      Runtime: !If [UseLocalImage, 'python3.12', !Ref AWS::NoValue]
+      MemorySize: 256
+      Timeout: 300
       Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
       FunctionName: !Sub "${AWS::StackName}-SecurityHubAnalyzer"
-      # We'll use a simple version number for tracking - updated manually on significant changes
       Environment:
         Variables:
-          FUNCTION_VERSION: "1.0.0"
+          SENDER_EMAIL: !Ref SenderEmail
+          RECIPIENT_EMAIL: !Ref RecipientEmail
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          FINDINGS_HOURS: !Ref FindingsHours
       Policies:
         - Version: '2012-10-17'
           Statement:
-            # CloudWatch Logs permissions
+            - Effect: Allow
+              Action:
+                - securityhub:GetFindings
+                - securityhub:BatchImportFindings
+                - securityhub:BatchUpdateFindings
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: '*'
             - Effect: Allow
               Action:
                 - logs:CreateLogGroup
                 - logs:CreateLogStream
                 - logs:PutLogEvents
-              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
-            # SES permissions
-            - Effect: Allow
-              Action:
-                - ses:SendRawEmail
-              Resource: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*'
-            # Bedrock permissions
-            - Effect: Allow
-              Action:
-                - bedrock:InvokeModel
-              Resource: !Sub 'arn:aws:bedrock:${AWS::Region}::foundation-model/${BedrockModelId}'
-            # SecurityHub permissions
-            - Effect: Allow
-              Action:
-                - securityhub:GetFindings
-                - securityhub:GetInsights
-              Resource: '*'
-            # SSM Parameter permissions
-            - Effect: Allow
-              Action:
-                - ssm:GetParameter
-              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/securityhub/recipients'
-              
-  # We'll define the EventBridge rules here
+              Resource: 'arn:aws:logs:*:*:*'
 
-  # Weekly Schedule
   WeeklyAnalysisSchedule:
     Type: AWS::Events::Rule
     Properties:
-      Description: Weekly SecurityHub SOC 2 analysis
-      ScheduleExpression: cron(30 5 ? * MON *)
+      Description: Triggers the SecurityHub SOC 2 analyzer weekly on Monday 9 AM UTC
+      ScheduleExpression: cron(0 9 ? * MON *)
       State: ENABLED
       Targets:
         - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
-          Id: WeeklyAnalysis
-          Input: !Sub |
-            {
-              "frequency": "weekly"
-            }
+          Id: SecurityHubAnalyzerTarget
 
-  # Bi-Weekly Schedule
-  BiWeeklyAnalysisSchedule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: Bi-weekly SecurityHub SOC 2 analysis
-      ScheduleExpression: cron(30 5 ? * MON/2 *)
-      State: ENABLED
-      Targets:
-        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
-          Id: BiWeeklyAnalysis
-          Input: !Sub |
-            {
-              "frequency": "biweekly"
-            }
-
-  # Monthly Schedule
-  MonthlyAnalysisSchedule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: Monthly SecurityHub SOC 2 analysis
-      ScheduleExpression: cron(30 5 1 * ? *)
-      State: ENABLED
-      Targets:
-        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
-          Id: MonthlyAnalysis
-          Input: !Sub |
-            {
-              "frequency": "monthly"
-            }
-
-  # EventBridge Permissions
-  WeeklySchedulePermission:
+  WeeklyAnalysisPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -147,50 +102,22 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt WeeklyAnalysisSchedule.Arn
 
-  BiWeeklySchedulePermission:
+  LambdaUpdateRulePermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref SecurityHubAnalyzerFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt BiWeeklyAnalysisSchedule.Arn
-
-  MonthlySchedulePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref SecurityHubAnalyzerFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt MonthlyAnalysisSchedule.Arn
-
-  # Recipients Configuration Parameter
-  RecipientsParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: /securityhub/recipients
-      Type: String
-      Value: !Ref RecipientsConfig
-      Description: Configuration for SecurityHub report recipients and frequencies
-
-  SecurityHubAnalyzerLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub /aws/lambda/${SecurityHubAnalyzerFunction}
-      RetentionInDays: 30
+      Principal: config.amazonaws.com
 
 Outputs:
   SecurityHubAnalyzerFunctionArn:
     Description: ARN of the SecurityHub Analyzer Lambda function
     Value: !GetAtt SecurityHubAnalyzerFunction.Arn
-    
+  
   SecurityHubAnalyzerFunctionName:
     Description: Name of the SecurityHub Analyzer Lambda function
     Value: !Ref SecurityHubAnalyzerFunction
-
-  RecipientsParameterName:
-    Description: SSM Parameter name for recipients configuration
-    Value: !Ref RecipientsParameter
-
+  
   SecurityHubAnalyzerLogGroupName:
     Description: Name of the CloudWatch Log Group for the Lambda function
     Value: !Ref SecurityHubAnalyzerLogGroup
