@@ -36,37 +36,30 @@ Think of it as an automated compliance assistant that helps you monitor SOC 2 re
 
 ## ⚠️ Important Email Verification Requirement
 
-**Before deploying this solution, you MUST verify your email address in Amazon SES.**
+Before deploying this solution, you **must verify email addresses in Amazon SES**:
 
-This is a critical requirement because:
-1. The solution sends compliance reports via email
-2. AWS requires email verification to prevent unauthorized use
-3. New AWS accounts are in the "SES sandbox" mode, which only allows sending to verified email addresses
+* This solution sends compliance reports via email, requiring verified sender and recipient addresses
+* AWS requires email verification to prevent unauthorized use of email sending capabilities
+* New AWS accounts are in "SES sandbox" mode, which only allows sending to verified email addresses
 
-Both the sender and recipient email addresses must be verified in SES for the solution to work properly. See the [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions on email verification.
+See the [Deployment Guide](DEPLOYMENT_GUIDE.md) for detailed instructions on email verification.
 
-## Getting Started (For Non-Technical Users)
+## Getting Started
 
-This lab is designed to be accessible even if you have limited technical experience. You have two options:
+### For Non-Technical Users
+1. Follow the step-by-step [Deployment Guide](DEPLOYMENT_GUIDE.md) which includes:
+   - Setting up your AWS account
+   - **Verifying your email addresses in Amazon SES** (critical step)
+   - Deploying the solution using CloudFormation
+   - Configuring and testing the solution
 
-### Option 1: Follow the Deployment Guide (Recommended)
-
-We've created a step-by-step guide that walks you through the project:
-
-1. Follow our [Deployment Guide for GRC Professionals](DEPLOYMENT_GUIDE.md)
-2. Pay special attention to the email verification step (Step 4)
-3. Use the CloudFormation template to deploy the solution
-4. Test the deployment by sending a test email
-5. Generate your first compliance report
-
-### Option 2: Advanced Deployment (For Technical Users)
-
-If you're comfortable with command-line tools:
-
+### For Technical Users (Advanced Deployment)
 1. Clone this repository
-2. Verify your email address in Amazon SES
-3. Use the SAM CLI to deploy the solution
-4. Follow the instructions in the [Deployment Guide](DEPLOYMENT_GUIDE.md) under "Alternative Deployment Using SAM CLI"
+2. **Verify your email addresses in Amazon SES** (required)
+3. Use the SAM CLI to deploy the CloudFormation stack
+4. Configure SecurityHub in your AWS account
+
+**Note:** Deployment is handled manually through CloudFormation rather than through the CI/CD pipeline. The CI/CD pipeline only validates code quality and tests.
 
 ## Sample Deliverables for Your Portfolio
 

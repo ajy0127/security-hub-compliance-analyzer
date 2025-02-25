@@ -71,24 +71,42 @@ To send compliance reports, you MUST verify an email address in Amazon SES. This
 
 > 💡 **GRC Insight**: Document how email verification is an identity control that prevents unauthorized communications.
 
-## Step 5: Deploy the Solution Using CloudFormation
+## Step 5: Package and Deploy the Solution
 
-AWS CloudFormation lets us deploy the entire solution with a few clicks:
+The deployment involves two steps: first packaging your code, then deploying via CloudFormation.
+
+### Step 5A: Package the Code for Deployment
+
+Before deploying with CloudFormation, we need to package the Lambda code and upload it to S3:
 
 1. Clone or download this repository to your local machine
-2. In the AWS search bar, type "CloudFormation" and select it
-3. Click "Create stack" and select "With new resources"
-4. Select "Upload a template file" and upload the template.yaml file from the repository
-5. Click "Next"
-6. Enter a Stack name: `securityhub-soc2-analyzer`
-7. Fill in the parameters:
+2. Open a terminal/command prompt and navigate to the repository directory
+3. Run the packaging script with a unique S3 bucket name:
+   ```bash
+   ./package_for_cloudformation.sh --bucket your-unique-bucket-name
+   ```
+   (Note: S3 bucket names must be globally unique, so choose something specific like "your-name-securityhub-soc2-analyzer")
+4. The script will create the bucket if it doesn't exist, package the code, and upload it to S3
+5. Make note of the S3 bucket name, as you'll need it for deployment
+
+### Step 5B: Deploy Using CloudFormation
+
+Now that your code is packaged, deploy using CloudFormation:
+
+1. In the AWS search bar, type "CloudFormation" and select it
+2. Click "Create stack" and select "With new resources"
+3. Select "Upload a template file" and upload the template.yaml file from the repository
+4. Click "Next"
+5. Enter a Stack name: `securityhub-soc2-analyzer`
+6. Fill in the parameters:
    - SenderEmail: Enter the email address you verified in Step 4
    - RecipientEmail: Enter the same verified email address (or another verified email if you've verified multiple)
    - FindingsHours: 24 (to look back 24 hours for findings)
    - BedrockModelId: Use the default value
    - ImageRepository: Leave empty for ZIP deployment
-8. Click "Next" twice, then check the acknowledgment box and click "Create stack"
-9. Wait approximately 5-10 minutes for deployment to complete
+   - S3BucketName: Enter the S3 bucket name you used in Step 5A
+7. Click "Next" twice, then check the acknowledgment box and click "Create stack"
+8. Wait approximately 5-10 minutes for deployment to complete
 
 ### Alternative Deployment Using SAM CLI (For Technical Users)
 

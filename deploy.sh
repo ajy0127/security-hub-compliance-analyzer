@@ -26,6 +26,7 @@ fi
 USE_DOCKER=false
 GUIDED=true
 AWS_PROFILE=""
+RESOLVE_S3=false
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -38,6 +39,10 @@ while [[ $# -gt 0 ]]; do
             GUIDED=false
             shift
             ;;
+        --resolve-s3)
+            RESOLVE_S3=true
+            shift
+            ;;
         --profile)
             AWS_PROFILE="$2"
             shift 2
@@ -48,7 +53,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo -e "${RED}Unknown option: $key${NC}"
-            echo "Usage: ./deploy.sh [--docker] [--no-guided] [--profile <aws-profile>]"
+            echo "Usage: ./deploy.sh [--docker] [--no-guided] [--resolve-s3] [--profile <aws-profile>]"
             exit 1
             ;;
     esac
@@ -62,7 +67,7 @@ fi
 
 # Build the application
 echo -e "${YELLOW}Building the application...${NC}"
-sam build
+sam build --use-container
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Build failed. Please check the errors above.${NC}"
@@ -119,21 +124,39 @@ fi
 # Deploy the application
 echo -e "${YELLOW}Deploying the application...${NC}"
 
-# Build SAM deployment command
-SAM_DEPLOY_CMD="sam deploy"
+# Create a temporary S3 bucket for packaging if it doesn't exist
+S3_BUCKET_NAME="securityhub-soc2-analyzer-$(date +%s)-deployment"
+echo -e "${YELLOW}Creating temporary S3 bucket for deployment: $S3_BUCKET_NAME${NC}"
+aws s3 mb s3://$S3_BUCKET_NAME --region $(aws configure get region) || {
+    echo -e "${RED}Failed to create S3 bucket. Using guided deployment instead.${NC}"
+    GUIDED=true
+}
 
-# Add guided mode if selected
+# Package the application first
+if [ "$GUIDED" = false ]; then
+    echo -e "${YELLOW}Packaging the application...${NC}"
+    sam package --s3-bucket $S3_BUCKET_NAME --output-template-file packaged.yaml || {
+        echo -e "${RED}Packaging failed. Falling back to guided deployment.${NC}"
+        GUIDED=true
+    }
+fi
+
+# Build SAM deployment command
 if [ "$GUIDED" = true ]; then
-    SAM_DEPLOY_CMD="$SAM_DEPLOY_CMD --guided"
+    # For guided deployment
+    SAM_DEPLOY_CMD="sam deploy --guided"
+else
+    # For non-guided deployment with packaging
+    SAM_DEPLOY_CMD="sam deploy --template-file packaged.yaml --no-fail-on-empty-changeset"
+    
+    # Add stack name
+    SAM_DEPLOY_CMD="$SAM_DEPLOY_CMD --stack-name securityhub-soc2-analyzer"
 fi
 
 # Add image repository parameter if Docker is used
 if [ -n "$IMAGE_REPO_PARAM" ]; then
     SAM_DEPLOY_CMD="$SAM_DEPLOY_CMD $IMAGE_REPO_PARAM"
 fi
-
-# Add stack name
-SAM_DEPLOY_CMD="$SAM_DEPLOY_CMD --stack-name securityhub-soc2-analyzer"
 
 # Execute the deployment
 echo "Running: $SAM_DEPLOY_CMD"

@@ -27,10 +27,17 @@ Parameters:
     Type: String
     Description: ECR repository for the Docker image
     Default: ''
+    
+  S3BucketName:
+    Type: String
+    Description: S3 bucket name where the Lambda code is stored
+    Default: ''
+    MinLength: 1
 
 Conditions:
   UseLocalImage: !Equals [!Ref ImageRepository, '']
   UseContainerImage: !Not [!Equals [!Ref ImageRepository, '']]
+  UseCustomS3Bucket: !Not [!Equals [!Ref S3BucketName, '']]
 
 Resources:
   # Explicit Log Group for main function
@@ -47,7 +54,9 @@ Resources:
     DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
       PackageType: Zip
-      CodeUri: ./
+      CodeUri: 
+        Bucket: !Ref S3BucketName
+        Key: lambda-code.zip
       Handler: app.lambda_handler
       Runtime: python3.12
       MemorySize: 256
