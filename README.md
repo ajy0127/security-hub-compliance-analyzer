@@ -147,7 +147,6 @@ After you've completed this lab, consider these next steps for your GRC portfoli
 ## Resources for GRC Professionals
 
 - [SOC 2 Control Mapping Guide](docs/SOC2_MAPPING_GUIDE.md)
-- [AWS SecurityHub for Compliance Professionals](https://example.com/securityhub-guide) (Coming soon)
 - [Sample Portfolio Write-up Template](docs/PORTFOLIO_TEMPLATE.md)
 - [Example SOC 2 Compliance Report](examples/example-report-email.md)
 
@@ -156,8 +155,6 @@ After you've completed this lab, consider these next steps for your GRC portfoli
 Join our community of GRC professionals building their technical portfolios:
 
 - [Connect on LinkedIn](https://www.linkedin.com/in/ajyawn/)
-- [Monthly Webinars](https://example.com/webinars)
-- [Q&A Forum](https://example.com/forum)
 
 ## Acknowledgments
 
