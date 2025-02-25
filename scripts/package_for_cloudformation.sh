@@ -62,6 +62,9 @@ cp ../src/app.py ../src/utils.py ../src/soc2_mapper.py ../src/requirements.txt "
 mkdir -p "$TEMP_DIR/config"
 cp ../deployment/config/mappings.json "$TEMP_DIR/config/"
 
+# Make sure we're using the correct directory structure for Lambda
+echo "Ensuring proper directory structure for Lambda..."
+
 # Change to the temporary directory
 cd "$TEMP_DIR"
 
