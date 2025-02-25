@@ -74,23 +74,58 @@ SecurityHub is AWS's security findings service that we'll use as our data source
 
 Now we'll deploy the solution using AWS CloudFormation:
 
-1. Download the CloudFormation template:
-   - Go to the [GitHub repository](https://github.com/ajy0127/security-hub-compliance-analyzer)
-   - Download the `cloudformation.yaml` file
-   - Download the `lambda-code.zip` file (or create it by zipping the Python files as described in the README)
+1. Create the Lambda Deployment Package:
 
-2. Create an S3 bucket to store the Lambda code:
-   - In the AWS search bar, type "S3" and select it
-   - Click "Create bucket"
-   - Enter a unique bucket name (e.g., "security-hub-compliance-analyzer-[your-initials]")
-   - Keep all default settings and click "Create bucket"
-   - Upload the `lambda-code.zip` file to this bucket
+   **Option A: Create the ZIP file manually:**
+   - Navigate to the project directory
+   - Run the following command to create the Lambda deployment package:
+     ```bash
+     zip -r lambda-code.zip src/app.py src/utils.py src/soc2_mapper.py src/requirements.txt
+     ```
+   - This will create a ZIP file containing the necessary code files
 
-3. Deploy the CloudFormation stack:
+   **Option B: Use the provided script:**
+   - Navigate to the project directory
+   - Run the packaging script:
+     ```bash
+     ./scripts/package_for_cloudformation.sh
+     ```
+   - This will create the deployment package in the correct format
+
+2. Set Up Deployment Resources Using AWS CLI:
+
+   ```bash
+   # Create an S3 bucket to store the Lambda code
+   aws s3 mb s3://security-hub-compliance-analyzer-$(date +%s)
+   
+   # Store the bucket name in a variable for later use
+   BUCKET_NAME=security-hub-compliance-analyzer-$(date +%s)
+   
+   # Upload the Lambda code ZIP file to the bucket
+   aws s3 cp lambda-code.zip s3://$BUCKET_NAME/
+   
+   # Deploy the CloudFormation stack
+   aws cloudformation create-stack \
+     --stack-name security-hub-compliance-analyzer \
+     --template-body file://deployment/cloudformation.yaml \
+     --capabilities CAPABILITY_IAM \
+     --parameters \
+       ParameterKey=SenderEmail,ParameterValue=your-verified@email.com \
+       ParameterKey=RecipientEmail,ParameterValue=your-verified@email.com \
+       ParameterKey=S3BucketName,ParameterValue=$BUCKET_NAME \
+       ParameterKey=S3KeyName,ParameterValue=lambda-code.zip
+   
+   # Check stack creation status
+   aws cloudformation describe-stacks --stack-name security-hub-compliance-analyzer
+   ```
+
+   **Important:** Replace `your-verified@email.com` with your actual verified email addresses.
+
+3. Alternatively, Deploy Using the AWS Console:
    - In the AWS search bar, type "CloudFormation" and select it
    - Click "Create stack" > "With new resources"
    - Select "Upload a template file"
-   - Click "Choose file" and select the `cloudformation.yaml` file you downloaded
+   - Click "Choose file" and select the `deployment/cloudformation.yaml` file
    - Click "Next"
    - Enter a stack name (e.g., "security-hub-compliance-analyzer")
    - Fill in the parameters:
