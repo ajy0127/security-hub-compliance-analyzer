@@ -137,14 +137,14 @@ def group_by_severity(findings):
 def group_by_control(findings, soc2_mapper):
     """
     Group a list of findings by their associated SOC2 controls.
-    
+
     This provides a compliance-oriented view of findings, showing which
     SOC2 controls are impacted by security issues.
-    
+
     Args:
         findings (list): A list of SecurityHub finding dictionaries
         soc2_mapper (SOC2Mapper): An instance of SOC2Mapper to map findings to controls
-        
+
     Returns:
         dict: A dictionary where keys are SOC2 control IDs and values are
               lists of findings associated with that control

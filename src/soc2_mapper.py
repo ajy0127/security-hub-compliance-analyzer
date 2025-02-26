@@ -20,11 +20,11 @@ logger = logging.getLogger()
 class SOC2Mapper:
     """
     Maps AWS SecurityHub findings to their corresponding SOC2 controls.
-    
+
     This class provides functionality to translate technical security findings
     from AWS SecurityHub into SOC2 compliance language by mapping them to the
     appropriate SOC2 controls based on finding type and content.
-    
+
     The mapping is performed using pattern matching against predefined mappings
     that can be loaded from a configuration file or fall back to default mappings.
     """

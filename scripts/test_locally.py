@@ -49,7 +49,7 @@ except ImportError:
 def load_test_event(event_type=None, custom_path=None):
     """
     Load a test event from a file or create one based on the specified type.
-    
+
     Args:
         event_type (str, optional): Type of test event to create:
             - "test_email": Create a test email event
@@ -57,7 +57,7 @@ def load_test_event(event_type=None, custom_path=None):
             - "report_7d": Create a 7-day findings report event
             - None: Load from examples/test-event.json
         custom_path (str, optional): Path to a custom test event JSON file
-        
+
     Returns:
         dict: The test event data
     """
@@ -72,7 +72,7 @@ def load_test_event(event_type=None, custom_path=None):
         except json.JSONDecodeError:
             print(f"Error: Custom event file {custom_path} is not valid JSON")
             sys.exit(1)
-    
+
     # If a specific event type is requested, create that event
     if event_type:
         if event_type == "test_email":
@@ -81,7 +81,7 @@ def load_test_event(event_type=None, custom_path=None):
             return {}  # Default is 24 hours
         elif event_type == "report_7d":
             return {"hours": 168}  # 7 days * 24 hours
-    
+
     # Otherwise, try to load from the default location
     default_path = os.path.join(project_root, "examples", "test-event.json")
     try:
@@ -98,12 +98,12 @@ def load_test_event(event_type=None, custom_path=None):
 def setup_environment(sender_email=None, recipient_email=None, interactive=True):
     """
     Setup environment variables for testing.
-    
+
     Args:
         sender_email (str, optional): Email address to use as sender
         recipient_email (str, optional): Email address to use as recipient
         interactive (bool): Whether to prompt for email addresses if not provided
-        
+
     Returns:
         None
     """
@@ -112,37 +112,37 @@ def setup_environment(sender_email=None, recipient_email=None, interactive=True)
         os.environ["SENDER_EMAIL"] = sender_email
     if recipient_email:
         os.environ["RECIPIENT_EMAIL"] = recipient_email
-    
+
     # Print current environment configuration
     print("\nCurrent environment configuration:")
     print(f"  SENDER_EMAIL: {os.environ.get('SENDER_EMAIL')}")
     print(f"  RECIPIENT_EMAIL: {os.environ.get('RECIPIENT_EMAIL')}")
     print(f"  BEDROCK_MODEL_ID: {os.environ.get('BEDROCK_MODEL_ID')}")
     print(f"  FINDINGS_HOURS: {os.environ.get('FINDINGS_HOURS')}")
-    
+
     # Check if default values are being used and warn user
     if os.environ.get("SENDER_EMAIL") == "your-verified-email@example.com":
         print("\nWARNING: Using default SENDER_EMAIL.")
         print("This email must be verified in Amazon SES for the test to work.")
-        
+
     if os.environ.get("RECIPIENT_EMAIL") == "your-email@example.com":
         print("\nWARNING: Using default RECIPIENT_EMAIL.")
         print("This email must be verified in Amazon SES for the test to work.")
-    
+
     # If in interactive mode, offer to update environment variables
     if interactive and (
-        os.environ.get("SENDER_EMAIL") == "your-verified-email@example.com" or
-        os.environ.get("RECIPIENT_EMAIL") == "your-email@example.com"
+        os.environ.get("SENDER_EMAIL") == "your-verified-email@example.com"
+        or os.environ.get("RECIPIENT_EMAIL") == "your-email@example.com"
     ):
         if input("\nWould you like to update the email environment variables? (y/n): ").lower() == "y":
             sender = input("Enter sender email (must be verified in SES): ")
             recipient = input("Enter recipient email (must be verified in SES): ")
-            
+
             if sender:
                 os.environ["SENDER_EMAIL"] = sender
             if recipient:
                 os.environ["RECIPIENT_EMAIL"] = recipient
-                
+
             print("\nUpdated environment configuration:")
             print(f"  SENDER_EMAIL: {os.environ.get('SENDER_EMAIL')}")
             print(f"  RECIPIENT_EMAIL: {os.environ.get('RECIPIENT_EMAIL')}")

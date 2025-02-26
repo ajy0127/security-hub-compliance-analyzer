@@ -180,35 +180,35 @@ def analyze_findings(findings, soc2_mapper):
 
         # Construct prompt for AI to generate professional compliance analysis
         prompt = f"""
-        You are a SOC 2 compliance expert analyzing AWS SecurityHub findings. 
-        
+        You are a SOC 2 compliance expert analyzing AWS SecurityHub findings.
+
         Here are the statistics of the findings:
         - Total findings: {stats['total']}
         - Critical findings: {stats['critical']}
         - High findings: {stats['high']}
         - Medium findings: {stats['medium']}
         - Low findings: {stats['low']}
-        
+
         Here are the top findings mapped to SOC 2 controls:
         {json.dumps(mapped_findings[:20], indent=2)}
-        
+
         Here are the findings grouped by SOC 2 control:
         {json.dumps({k: len(v) for k, v in control_findings.items()}, indent=2)}
-        
+
         Please provide a concise analysis of these findings with the following sections:
         1. Executive Summary: A brief overview of the security posture
         2. SOC 2 Impact: How these findings affect SOC 2 compliance
         3. Key Recommendations: Top 3-5 actions to address the most critical issues
-        
+
         Then, add a section titled "Auditor's Perspective" written from the perspective of a seasoned SOC 2 auditor with 15+ years of experience. This narrative should:
         1. Evaluate the severity of these findings in the context of a SOC 2 audit
         2. Explain the different impacts these findings would have on SOC 2 Type 1 vs Type 2 audits
         3. Provide specific remediation and mitigation advice that would satisfy an auditor's requirements
         4. Include language and terminology that a professional auditor would use
         5. Offer a professional opinion on the timeline and effort required to address these issues before an audit
-        
+
         The auditor's perspective should be written in first person and should sound authoritative but constructive.
-        
+
         Keep your total response under 1500 words and focus on actionable insights.
         """
 
@@ -239,13 +239,13 @@ def analyze_findings(findings, soc2_mapper):
         return (
             f"""
         ## SecurityHub Findings Summary
-        
+
         Total findings: {stats['total']}
         - Critical: {stats['critical']}
         - High: {stats['high']}
         - Medium: {stats['medium']}
         - Low: {stats['low']}
-        
+
         Please review the attached CSV for details on all findings.
         """,
             stats,
@@ -386,7 +386,7 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
     <body>
         <h1>AWS SecurityHub SOC 2 Compliance Report</h1>
         <p>Report generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
-        
+
         <div class="summary">
             <h2>Finding Summary</h2>
             <p><strong>Total Findings:</strong> {stats['total']}</p>
@@ -394,12 +394,12 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
             <p><strong class="high">High:</strong> {stats['high']}</p>
             <p><strong class="medium">Medium:</strong> {stats['medium']}</p>
         </div>
-        
+
         <h2>Analysis</h2>
         <div>
             {formatted_analysis}
         </div>
-        
+
         <p>A detailed CSV report is attached with all findings mapped to SOC 2 controls.</p>
     </body>
     </html>
@@ -479,13 +479,13 @@ def send_test_email(recipient_email):
     </head>
     <body>
         <h1>AWS SecurityHub SOC 2 Analyzer - Test Email</h1>
-        
+
         <div class="box">
             <h2>Configuration Test Successful</h2>
             <p>This email confirms that your SecurityHub SOC 2 Analyzer is properly configured for email delivery.</p>
             <p>Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
         </div>
-        
+
         <p>The analyzer will send reports according to the configured schedule.</p>
     </body>
     </html>
