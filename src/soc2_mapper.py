@@ -13,7 +13,9 @@ class SOC2Mapper:
 
     def __init__(self, mappings_file=None):
         """Initialize the SOC2Mapper with control mappings."""
-        self.mappings_file = mappings_file or os.path.join(os.path.dirname(__file__), "config", "mappings.json")
+        self.mappings_file = mappings_file or os.path.join(
+            os.path.dirname(__file__), "config", "mappings.json"
+        )
         self.mappings = self._load_mappings()
 
     def _load_mappings(self):
@@ -40,7 +42,11 @@ class SOC2Mapper:
                 "Software and Configuration Checks": ["CC6.1", "CC6.8", "CC7.1"],
                 "Vulnerabilities": ["CC7.1", "CC8.1"],
                 "Effects": ["CC7.1", "CC7.2"],
-                "Software and Configuration Checks/Industry and Regulatory Standards": ["CC1.3", "CC2.2", "CC2.3"],
+                "Software and Configuration Checks/Industry and Regulatory Standards": [
+                    "CC1.3",
+                    "CC2.2",
+                    "CC2.3",
+                ],
                 "Sensitive Data Identifications": ["CC6.1", "CC6.5"],
                 "Network Reachability": ["CC6.6", "CC6.7"],
                 "Unusual Behaviors": ["CC7.2", "CC7.3"],
@@ -102,9 +108,14 @@ class SOC2Mapper:
             "Severity": severity,
             "Type": finding_type,
             "ResourceId": resource_id,
-            "Description": description[:200] + "..." if len(description) > 200 else description,
+            "Description": (
+                description[:200] + "..." if len(description) > 200 else description
+            ),
             "SOC2Controls": controls,
-            "ControlDescriptions": [self.mappings["control_descriptions"].get(control, "") for control in controls],
+            "ControlDescriptions": [
+                self.mappings["control_descriptions"].get(control, "")
+                for control in controls
+            ],
         }
 
         return mapped_finding

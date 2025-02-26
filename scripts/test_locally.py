@@ -23,7 +23,9 @@ try:
     from app import lambda_handler
 except ImportError:
     print("Error: Could not import lambda_handler from src/app.py")
-    print("Make sure the project structure is correct and this script is in the scripts directory.")
+    print(
+        "Make sure the project structure is correct and this script is in the scripts directory."
+    )
     sys.exit(1)
 
 
@@ -91,7 +93,12 @@ def setup_environment(sender_email=None, recipient_email=None, interactive=True)
     sender_default = os.environ.get("SENDER_EMAIL") == "your-verified-email@example.com"
     recipient_default = os.environ.get("RECIPIENT_EMAIL") == "your-email@example.com"
     if interactive and (sender_default or recipient_default):
-        if input("\nWould you like to update the email environment variables? (y/n): ").lower() == "y":
+        if (
+            input(
+                "\nWould you like to update the email environment variables? (y/n): "
+            ).lower()
+            == "y"
+        ):
             sender = input("Enter sender email (must be verified in SES): ")
             recipient = input("Enter recipient email (must be verified in SES): ")
 
@@ -108,37 +115,51 @@ def setup_environment(sender_email=None, recipient_email=None, interactive=True)
 def main():
     """Run the Lambda handler with a test event."""
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Test AWS SecurityHub SOC2 Compliance Analyzer locally")
-    parser.add_argument("--event-type", choices=["test_email", "report_24h", "report_7d"], help="Type of test event to create")
-    parser.add_argument("--event-file", help="Path to a JSON file containing a custom test event")
-    parser.add_argument("--sender", help="Sender email address (must be verified in SES)")
-    parser.add_argument("--recipient", help="Recipient email address (must be verified in SES)")
-    parser.add_argument("--non-interactive", action="store_true", help="Run without interactive prompts")
+    parser = argparse.ArgumentParser(
+        description="Test AWS SecurityHub SOC2 Compliance Analyzer locally"
+    )
+    parser.add_argument(
+        "--event-type",
+        choices=["test_email", "report_24h", "report_7d"],
+        help="Type of test event to create",
+    )
+    parser.add_argument(
+        "--event-file", help="Path to a JSON file containing a custom test event"
+    )
+    parser.add_argument(
+        "--sender", help="Sender email address (must be verified in SES)"
+    )
+    parser.add_argument(
+        "--recipient", help="Recipient email address (must be verified in SES)"
+    )
+    parser.add_argument(
+        "--non-interactive", action="store_true", help="Run without interactive prompts"
+    )
     args = parser.parse_args()
-    
+
     # Print header information
     print("=" * 80)
     print(f"AWS SecurityHub SOC2 Compliance Analyzer - Local Test")
     print(f"Started at {datetime.now().isoformat()}")
     print("=" * 80)
-    
+
     # Setup environment variables
     setup_environment(
         sender_email=args.sender,
         recipient_email=args.recipient,
-        interactive=not args.non_interactive
+        interactive=not args.non_interactive,
     )
-    
+
     # Load test event
     event = load_test_event(args.event_type, args.event_file)
     print(f"\nTest event: {json.dumps(event, indent=2)}")
-    
+
     # Ask for confirmation if in interactive mode
     if not args.non_interactive:
         if input("\nReady to run the test? (y/n): ").lower() != "y":
             print("Test cancelled")
             return
-    
+
     # Run the Lambda handler
     print("\nRunning Lambda handler...")
     try:
@@ -148,6 +169,7 @@ def main():
     except Exception as e:
         print(f"\nError: {str(e)}")
         import traceback
+
         traceback.print_exc()
         print("\nTest failed!")
         sys.exit(1)

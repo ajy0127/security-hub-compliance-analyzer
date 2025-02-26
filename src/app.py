@@ -24,18 +24,18 @@ logger.setLevel(logging.INFO)
 def get_findings(hours):
     """
     Retrieve security findings from AWS SecurityHub for a specified time period.
-    
-    This function queries the AWS SecurityHub API to get active, failed compliance 
+
+    This function queries the AWS SecurityHub API to get active, failed compliance
     findings that have been updated within the specified time window. It filters
     for findings that:
     - Have a ComplianceStatus of "FAILED" (indicating non-compliance)
     - Are in an "ACTIVE" RecordState (not archived)
     - Have a "NEW" WorkflowStatus (not yet addressed)
     - Were updated within the specified time window
-    
+
     Args:
         hours (int or str): Number of hours to look back for findings
-        
+
     Returns:
         list: A list of SecurityHub finding dictionaries or an empty list if no findings
               or if an error occurs
@@ -77,18 +77,18 @@ def get_findings(hours):
 def analyze_findings(findings, soc2_mapper):
     """
     Analyze SecurityHub findings and generate an expert compliance analysis using AI.
-    
+
     This function:
     1. Maps raw SecurityHub findings to relevant SOC2 controls
     2. Generates summary statistics by severity level
     3. Groups findings by SOC2 control
     4. Uses Amazon Bedrock's Claude model to generate a professional compliance analysis
     5. Provides a fallback basic analysis if Bedrock is unavailable
-    
+
     Args:
         findings (list): List of SecurityHub finding dictionaries
         soc2_mapper (SOC2Mapper): Instance of SOC2Mapper for mapping findings to controls
-        
+
     Returns:
         tuple: (analysis_text, statistics_dict)
             - analysis_text: String containing the detailed analysis
@@ -214,19 +214,19 @@ Please review the attached CSV for details on all findings.""",
 def generate_csv(findings, soc2_mapper):
     """
     Generate a CSV report containing all findings mapped to SOC2 controls.
-    
-    Creates a CSV-formatted string with detailed information about each finding, 
+
+    Creates a CSV-formatted string with detailed information about each finding,
     including their mapped SOC2 controls for easy analysis and documentation.
     This CSV can be used for:
     - Detailed audit evidence
     - Compliance tracking
     - Issue remediation planning
     - Historical record-keeping
-    
+
     Args:
         findings (list): List of SecurityHub finding dictionaries
         soc2_mapper (SOC2Mapper): Instance of SOC2Mapper to map findings to controls
-        
+
     Returns:
         str: CSV-formatted string containing all findings with their details
     """
@@ -251,7 +251,7 @@ def generate_csv(findings, soc2_mapper):
     for finding in findings:
         # Map the finding to SOC2 controls
         mapped_finding = soc2_mapper.map_finding(finding)
-        
+
         # Format the controls as a comma-separated string
         controls = mapped_finding.get("SOC2Controls", "Unknown")
         if isinstance(controls, list):
@@ -278,22 +278,22 @@ def generate_csv(findings, soc2_mapper):
 def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
     """
     Send a professional email report with findings analysis and CSV attachment.
-    
+
     Creates and sends a formatted HTML email containing:
     - Summary statistics of security findings by severity
     - Detailed AI-generated analysis with compliance impact assessment
     - CSV attachment with all findings for detailed review
-    
+
     The email uses professional formatting with security-focused color coding
     and styling to make the report easy to read and interpret.
-    
+
     Args:
         recipient_email (str): Email address to send the report to
         findings (list): List of SecurityHub finding dictionaries
         analysis (str): Text analysis of the findings (from analyze_findings)
         stats (dict): Statistics dictionary with counts by severity
         soc2_mapper (SOC2Mapper): Instance of SOC2Mapper to map findings to controls
-        
+
     Returns:
         bool: True if email sent successfully, False otherwise
     """
@@ -395,17 +395,17 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
 def send_test_email(recipient_email):
     """
     Send a test email to verify email configuration is working correctly.
-    
+
     This function is used to validate that:
     1. Both sender and recipient email addresses are verified in Amazon SES
     2. The Lambda function has proper SES permissions to send emails
     3. The email formatting and delivery process works as expected
-    
+
     It sends a simple formatted email with no attachments as a validation check.
-    
+
     Args:
         recipient_email (str): Email address to send the test email to
-        
+
     Returns:
         bool: True if test email sent successfully, False otherwise
     """
@@ -469,20 +469,20 @@ def send_test_email(recipient_email):
 def lambda_handler(event, context):
     """
     Main AWS Lambda function entry point for the SecurityHub SOC2 Analyzer.
-    
+
     This handler processes incoming Lambda events and orchestrates the entire analysis
     and reporting workflow. It supports two main operational modes:
-    
+
     1. Test Email Mode: When the event contains {"test_email": true}, it sends a
        test email to verify email delivery configuration is working correctly.
-       
+
     2. Analysis Mode: The default mode that:
        a. Retrieves SecurityHub findings for a specified time period
        b. Maps findings to SOC2 controls
        c. Generates AI-powered analysis using Amazon Bedrock
        d. Creates and sends professional email reports
        e. Optionally saves CSV data to a file
-    
+
     Args:
         event (dict): Lambda event data that can contain configuration parameters:
             - test_email (bool): When true, sends a test email instead of a full report
@@ -491,7 +491,7 @@ def lambda_handler(event, context):
             - email (str): Override the default recipient email for analysis mode
             - generate_csv (bool): Whether to save CSV data to a file in /tmp
         context (LambdaContext): AWS Lambda context object (not used)
-        
+
     Returns:
         dict: Response containing status code and message
               - statusCode: 200 for success, 400/500 for errors
@@ -573,20 +573,20 @@ def lambda_handler(event, context):
 def cli_handler():
     """
     Command-line interface handler for running the tool locally.
-    
+
     This function provides a command-line interface to the SecurityHub SOC2 Analyzer,
     allowing users to run the tool without deploying it as a Lambda function.
-    
+
     It supports two main commands:
     1. 'report' - Generate and optionally email a compliance report
     2. 'test-email' - Send a test email to verify email configuration
-    
+
     The CLI provides a user-friendly interface with interactive prompts and
     formatted console output for local testing and development.
-    
+
     Args:
         None - Arguments are parsed from the command line
-        
+
     Returns:
         None
     """
@@ -596,14 +596,27 @@ def cli_handler():
 
     # Configure 'report' subcommand and its arguments
     report_parser = subparsers.add_parser("report", help="Generate a compliance report")
-    report_parser.add_argument("--email", required=True, help="Email address to send the report to")
-    report_parser.add_argument("--hours", type=int, default=24, help="Number of hours to look back for findings")
-    report_parser.add_argument("--csv", action="store_true", help="Generate a CSV file with findings")
-    report_parser.add_argument("--csv-path", help="Path to save the CSV file (default: timestamped filename)")
+    report_parser.add_argument(
+        "--email", required=True, help="Email address to send the report to"
+    )
+    report_parser.add_argument(
+        "--hours",
+        type=int,
+        default=24,
+        help="Number of hours to look back for findings",
+    )
+    report_parser.add_argument(
+        "--csv", action="store_true", help="Generate a CSV file with findings"
+    )
+    report_parser.add_argument(
+        "--csv-path", help="Path to save the CSV file (default: timestamped filename)"
+    )
 
     # Configure 'test-email' subcommand and its arguments
     test_parser = subparsers.add_parser("test-email", help="Send a test email")
-    test_parser.add_argument("--email", required=True, help="Email address to send the test email to")
+    test_parser.add_argument(
+        "--email", required=True, help="Email address to send the test email to"
+    )
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -686,10 +699,14 @@ def cli_handler():
         success = send_test_email(args.email)
         if success:
             print(f"Test email sent successfully to {args.email}")
-            print("If you don't receive the email, check your spam folder and verify that the email is verified in SES.")
+            print(
+                "If you don't receive the email, check your spam folder and verify that the email is verified in SES."
+            )
         else:
             print(f"Failed to send test email to {args.email}")
-            print("Make sure the email address is verified in Amazon SES and your AWS credentials have SES permissions.")
+            print(
+                "Make sure the email address is verified in Amazon SES and your AWS credentials have SES permissions."
+            )
 
     # No valid command specified, show help
     else:
