@@ -1,28 +1,11 @@
 #!/usr/bin/env python3
-"""
-Python-based Test Script for AWS SecurityHub SOC2 Compliance Analyzer
-
-This script provides a Python-based alternative to the bash testing script,
-allowing you to run the SecurityHub SOC2 Compliance Analyzer locally. It 
-simulates the AWS Lambda environment and calls the handler function directly
-with configurable test events.
-
-It's particularly useful for:
-- Debugging complex issues
-- Testing without bash support
-- Integrating with Python-based test frameworks
-- Running custom test scenarios
-"""
+"""Test Script for AWS SecurityHub SOC2 Compliance Analyzer locally."""
 
 import json
 import os
 import sys
 import argparse
 from datetime import datetime
-
-# =========================================================================
-# Configuration and Setup
-# =========================================================================
 
 # Set default environment variables for testing
 os.environ["SENDER_EMAIL"] = "your-verified-email@example.com"
@@ -40,27 +23,12 @@ try:
     from app import lambda_handler
 except ImportError:
     print("Error: Could not import lambda_handler from src/app.py")
-    print(
-        "Make sure the project structure is correct and this script is in the scripts directory."
-    )
+    print("Make sure the project structure is correct and this script is in the scripts directory.")
     sys.exit(1)
 
 
 def load_test_event(event_type=None, custom_path=None):
-    """
-    Load a test event from a file or create one based on the specified type.
-
-    Args:
-        event_type (str, optional): Type of test event to create:
-            - "test_email": Create a test email event
-            - "report_24h": Create a 24-hour findings report event
-            - "report_7d": Create a 7-day findings report event
-            - None: Load from examples/test-event.json
-        custom_path (str, optional): Path to a custom test event JSON file
-
-    Returns:
-        dict: The test event data
-    """
+    """Load a test event from a file or create one based on the specified type."""
     # If a custom path is provided, load from that file
     if custom_path:
         try:
@@ -96,17 +64,7 @@ def load_test_event(event_type=None, custom_path=None):
 
 
 def setup_environment(sender_email=None, recipient_email=None, interactive=True):
-    """
-    Setup environment variables for testing.
-
-    Args:
-        sender_email (str, optional): Email address to use as sender
-        recipient_email (str, optional): Email address to use as recipient
-        interactive (bool): Whether to prompt for email addresses if not provided
-
-    Returns:
-        None
-    """
+    """Set up environment variables for testing."""
     # Update environment variables if provided via arguments
     if sender_email:
         os.environ["SENDER_EMAIL"] = sender_email
@@ -130,10 +88,9 @@ def setup_environment(sender_email=None, recipient_email=None, interactive=True)
         print("This email must be verified in Amazon SES for the test to work.")
 
     # If in interactive mode, offer to update environment variables
-    if interactive and (
-        os.environ.get("SENDER_EMAIL") == "your-verified-email@example.com"
-        or os.environ.get("RECIPIENT_EMAIL") == "your-email@example.com"
-    ):
+    sender_default = os.environ.get("SENDER_EMAIL") == "your-verified-email@example.com"
+    recipient_default = os.environ.get("RECIPIENT_EMAIL") == "your-email@example.com"
+    if interactive and (sender_default or recipient_default):
         if input("\nWould you like to update the email environment variables? (y/n): ").lower() == "y":
             sender = input("Enter sender email (must be verified in SES): ")
             recipient = input("Enter recipient email (must be verified in SES): ")
@@ -149,21 +106,14 @@ def setup_environment(sender_email=None, recipient_email=None, interactive=True)
 
 
 def main():
-    """
-    Main function to run the Lambda handler with a test event.
-    
-    Parses command line arguments, sets up the environment, loads a test event,
-    and invokes the Lambda handler function.
-    """
+    """Run the Lambda handler with a test event."""
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Test AWS SecurityHub SOC2 Compliance Analyzer locally")
-    parser.add_argument("--event-type", choices=["test_email", "report_24h", "report_7d"],
-                        help="Type of test event to create")
+    parser.add_argument("--event-type", choices=["test_email", "report_24h", "report_7d"], help="Type of test event to create")
     parser.add_argument("--event-file", help="Path to a JSON file containing a custom test event")
     parser.add_argument("--sender", help="Sender email address (must be verified in SES)")
     parser.add_argument("--recipient", help="Recipient email address (must be verified in SES)")
-    parser.add_argument("--non-interactive", action="store_true", 
-                        help="Run without interactive prompts")
+    parser.add_argument("--non-interactive", action="store_true", help="Run without interactive prompts")
     args = parser.parse_args()
     
     # Print header information

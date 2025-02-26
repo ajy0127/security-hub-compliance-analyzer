@@ -1,26 +1,4 @@
-"""
-MIT License
-
-Copyright (c) 2025 [Your Name or Organization]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
+"""MIT License for AWS SecurityHub SOC2 Compliance Analyzer."""
 
 import argparse
 import csv
@@ -37,21 +15,6 @@ import boto3
 
 from soc2_mapper import SOC2Mapper
 from utils import format_datetime, get_resource_id
-
-# =========================================================================
-# AWS SecurityHub SOC2 Compliance Analyzer
-# =========================================================================
-# This application analyzes AWS SecurityHub findings and maps them to SOC2 
-# controls to help GRC professionals monitor compliance. It can run as both
-# an AWS Lambda function or as a standalone CLI utility.
-#
-# Main functionality:
-# 1. Retrieves findings from AWS SecurityHub
-# 2. Maps findings to SOC2 controls using pattern matching
-# 3. Uses Amazon Bedrock to generate natural language analysis
-# 4. Creates and sends professional compliance reports via email
-# 5. Provides CLI functionality for local operation
-# ========================================================================= 
 
 # Configure logging for both Lambda and CLI environments
 logger = logging.getLogger()
@@ -179,38 +142,36 @@ def analyze_findings(findings, soc2_mapper):
         bedrock = boto3.client("bedrock-runtime")
 
         # Construct prompt for AI to generate professional compliance analysis
-        prompt = f"""
-        You are a SOC 2 compliance expert analyzing AWS SecurityHub findings.
+        prompt = f"""You are a SOC 2 compliance expert analyzing AWS SecurityHub findings.
 
-        Here are the statistics of the findings:
-        - Total findings: {stats['total']}
-        - Critical findings: {stats['critical']}
-        - High findings: {stats['high']}
-        - Medium findings: {stats['medium']}
-        - Low findings: {stats['low']}
+Here are the statistics of the findings:
+- Total findings: {stats['total']}
+- Critical findings: {stats['critical']}
+- High findings: {stats['high']}
+- Medium findings: {stats['medium']}
+- Low findings: {stats['low']}
 
-        Here are the top findings mapped to SOC 2 controls:
-        {json.dumps(mapped_findings[:20], indent=2)}
+Here are the top findings mapped to SOC 2 controls:
+{json.dumps(mapped_findings[:20], indent=2)}
 
-        Here are the findings grouped by SOC 2 control:
-        {json.dumps({k: len(v) for k, v in control_findings.items()}, indent=2)}
+Here are the findings grouped by SOC 2 control:
+{json.dumps({k: len(v) for k, v in control_findings.items()}, indent=2)}
 
-        Please provide a concise analysis of these findings with the following sections:
-        1. Executive Summary: A brief overview of the security posture
-        2. SOC 2 Impact: How these findings affect SOC 2 compliance
-        3. Key Recommendations: Top 3-5 actions to address the most critical issues
+Please provide a concise analysis of these findings with the following sections:
+1. Executive Summary: A brief overview of the security posture
+2. SOC 2 Impact: How these findings affect SOC 2 compliance
+3. Key Recommendations: Top 3-5 actions to address the most critical issues
 
-        Then, add a section titled "Auditor's Perspective" written from the perspective of a seasoned SOC 2 auditor with 15+ years of experience. This narrative should:
-        1. Evaluate the severity of these findings in the context of a SOC 2 audit
-        2. Explain the different impacts these findings would have on SOC 2 Type 1 vs Type 2 audits
-        3. Provide specific remediation and mitigation advice that would satisfy an auditor's requirements
-        4. Include language and terminology that a professional auditor would use
-        5. Offer a professional opinion on the timeline and effort required to address these issues before an audit
+Then, add a section titled "Auditor's Perspective" written from the perspective of a seasoned SOC 2 auditor with 15+ years of experience. This narrative should:
+1. Evaluate the severity of these findings in the context of a SOC 2 audit
+2. Explain the different impacts these findings would have on SOC 2 Type 1 vs Type 2 audits
+3. Provide specific remediation and mitigation advice that would satisfy an auditor's requirements
+4. Include language and terminology that a professional auditor would use
+5. Offer a professional opinion on the timeline and effort required to address these issues before an audit
 
-        The auditor's perspective should be written in first person and should sound authoritative but constructive.
+The auditor's perspective should be written in first person and should sound authoritative but constructive.
 
-        Keep your total response under 1500 words and focus on actionable insights.
-        """
+Keep your total response under 1500 words and focus on actionable insights."""
 
         # Call Bedrock API with the prompt
         logger.info(f"Calling Bedrock model {bedrock_model_id} for analysis")
@@ -237,17 +198,15 @@ def analyze_findings(findings, soc2_mapper):
         # Provide a simple fallback analysis if Bedrock call fails
         # This ensures the report generation doesn't fail completely
         return (
-            f"""
-        ## SecurityHub Findings Summary
+            f"""## SecurityHub Findings Summary
 
-        Total findings: {stats['total']}
-        - Critical: {stats['critical']}
-        - High: {stats['high']}
-        - Medium: {stats['medium']}
-        - Low: {stats['low']}
+Total findings: {stats['total']}
+- Critical: {stats['critical']}
+- High: {stats['high']}
+- Medium: {stats['medium']}
+- Low: {stats['low']}
 
-        Please review the attached CSV for details on all findings.
-        """,
+Please review the attached CSV for details on all findings.""",
             stats,
         )
 
@@ -359,51 +318,49 @@ def send_email(recipient_email, findings, analysis, stats, soc2_mapper):
 
     # Create HTML body with professional styling
     html_part = MIMEText(
-        f"""
-    <html>
-    <head>
-        <style>
-            body {{ font-family: Arial, sans-serif; margin: 20px; }}
-            h1, h2, h3 {{ color: #232f3e; }}
-            .summary {{ background-color: #f8f8f8; padding: 15px; border-radius: 5px; }}
-            .critical {{ color: #d13212; }}
-            .high {{ color: #ff9900; }}
-            .medium {{ color: #d9b43c; }}
-            .auditor-perspective {{ 
-                background-color: #f0f7ff; 
-                padding: 20px; 
-                border-left: 5px solid #0073bb; 
-                margin: 20px 0; 
-                border-radius: 5px;
-                font-style: italic;
-            }}
-            .auditor-perspective h2 {{ 
-                color: #0073bb; 
-                margin-top: 0;
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>AWS SecurityHub SOC 2 Compliance Report</h1>
-        <p>Report generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
+        f"""<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1, h2, h3 {{ color: #232f3e; }}
+        .summary {{ background-color: #f8f8f8; padding: 15px; border-radius: 5px; }}
+        .critical {{ color: #d13212; }}
+        .high {{ color: #ff9900; }}
+        .medium {{ color: #d9b43c; }}
+        .auditor-perspective {{ 
+            background-color: #f0f7ff; 
+            padding: 20px; 
+            border-left: 5px solid #0073bb; 
+            margin: 20px 0; 
+            border-radius: 5px;
+            font-style: italic;
+        }}
+        .auditor-perspective h2 {{ 
+            color: #0073bb; 
+            margin-top: 0;
+        }}
+    </style>
+</head>
+<body>
+    <h1>AWS SecurityHub SOC 2 Compliance Report</h1>
+    <p>Report generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
 
-        <div class="summary">
-            <h2>Finding Summary</h2>
-            <p><strong>Total Findings:</strong> {stats['total']}</p>
-            <p><strong class="critical">Critical:</strong> {stats['critical']}</p>
-            <p><strong class="high">High:</strong> {stats['high']}</p>
-            <p><strong class="medium">Medium:</strong> {stats['medium']}</p>
-        </div>
+    <div class="summary">
+        <h2>Finding Summary</h2>
+        <p><strong>Total Findings:</strong> {stats['total']}</p>
+        <p><strong class="critical">Critical:</strong> {stats['critical']}</p>
+        <p><strong class="high">High:</strong> {stats['high']}</p>
+        <p><strong class="medium">Medium:</strong> {stats['medium']}</p>
+    </div>
 
-        <h2>Analysis</h2>
-        <div>
-            {formatted_analysis}
-        </div>
+    <h2>Analysis</h2>
+    <div>
+        {formatted_analysis}
+    </div>
 
-        <p>A detailed CSV report is attached with all findings mapped to SOC 2 controls.</p>
-    </body>
-    </html>
-    """,
+    <p>A detailed CSV report is attached with all findings mapped to SOC 2 controls.</p>
+</body>
+</html>""",
         "html",
     )
 
@@ -468,28 +425,26 @@ def send_test_email(recipient_email):
 
     # Create HTML body with minimal styling for the test
     html_part = MIMEText(
-        f"""
-    <html>
-    <head>
-        <style>
-            body {{ font-family: Arial, sans-serif; margin: 20px; }}
-            h1, h2 {{ color: #232f3e; }}
-            .box {{ background-color: #f8f8f8; padding: 15px; border-radius: 5px; }}
-        </style>
-    </head>
-    <body>
-        <h1>AWS SecurityHub SOC 2 Analyzer - Test Email</h1>
+        f"""<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1, h2 {{ color: #232f3e; }}
+        .box {{ background-color: #f8f8f8; padding: 15px; border-radius: 5px; }}
+    </style>
+</head>
+<body>
+    <h1>AWS SecurityHub SOC 2 Analyzer - Test Email</h1>
 
-        <div class="box">
-            <h2>Configuration Test Successful</h2>
-            <p>This email confirms that your SecurityHub SOC 2 Analyzer is properly configured for email delivery.</p>
-            <p>Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
-        </div>
+    <div class="box">
+        <h2>Configuration Test Successful</h2>
+        <p>This email confirms that your SecurityHub SOC 2 Analyzer is properly configured for email delivery.</p>
+        <p>Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
+    </div>
 
-        <p>The analyzer will send reports according to the configured schedule.</p>
-    </body>
-    </html>
-    """,
+    <p>The analyzer will send reports according to the configured schedule.</p>
+</body>
+</html>""",
         "html",
     )
 
@@ -641,28 +596,14 @@ def cli_handler():
 
     # Configure 'report' subcommand and its arguments
     report_parser = subparsers.add_parser("report", help="Generate a compliance report")
-    report_parser.add_argument(
-        "--email", required=True, help="Email address to send the report to"
-    )
-    report_parser.add_argument(
-        "--hours",
-        type=int,
-        default=24,
-        help="Number of hours to look back for findings",
-    )
-    report_parser.add_argument(
-        "--csv", action="store_true", help="Generate a CSV file with findings"
-    )
-    report_parser.add_argument(
-        "--csv-path", 
-        help="Path to save the CSV file (default: timestamped filename)"
-    )
+    report_parser.add_argument("--email", required=True, help="Email address to send the report to")
+    report_parser.add_argument("--hours", type=int, default=24, help="Number of hours to look back for findings")
+    report_parser.add_argument("--csv", action="store_true", help="Generate a CSV file with findings")
+    report_parser.add_argument("--csv-path", help="Path to save the CSV file (default: timestamped filename)")
 
     # Configure 'test-email' subcommand and its arguments
     test_parser = subparsers.add_parser("test-email", help="Send a test email")
-    test_parser.add_argument(
-        "--email", required=True, help="Email address to send the test email to"
-    )
+    test_parser.add_argument("--email", required=True, help="Email address to send the test email to")
 
     # Parse command-line arguments
     args = parser.parse_args()

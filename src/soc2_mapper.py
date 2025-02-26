@@ -4,60 +4,20 @@ import os
 import re
 from pathlib import Path
 
-# =========================================================================
-# SOC2 Mapper - Maps AWS SecurityHub findings to SOC2 controls
-# =========================================================================
-# This module provides functionality to map AWS SecurityHub security findings
-# to relevant SOC2 controls based on predefined mappings. It uses pattern
-# matching on finding types and titles to determine which SOC2 controls
-# are most applicable to each security issue.
-# =========================================================================
-
 # Configure logging
 logger = logging.getLogger()
 
 
 class SOC2Mapper:
-    """
-    Maps AWS SecurityHub findings to their corresponding SOC2 controls.
-
-    This class provides functionality to translate technical security findings
-    from AWS SecurityHub into SOC2 compliance language by mapping them to the
-    appropriate SOC2 controls based on finding type and content.
-
-    The mapping is performed using pattern matching against predefined mappings
-    that can be loaded from a configuration file or fall back to default mappings.
-    """
+    """Maps AWS SecurityHub findings to their corresponding SOC2 controls."""
 
     def __init__(self, mappings_file=None):
-        """
-        Initialize the SOC2Mapper with control mappings.
-        
-        Args:
-            mappings_file (str, optional): Path to a JSON file containing custom
-                                          SOC2 control mappings. If None, will look
-                                          in the default config directory.
-        """
-        # Set mappings file path - either the provided path or the default location
-        self.mappings_file = mappings_file or os.path.join(
-            os.path.dirname(__file__), "config", "mappings.json"
-        )
-        # Load the mappings from file or use defaults
+        """Initialize the SOC2Mapper with control mappings."""
+        self.mappings_file = mappings_file or os.path.join(os.path.dirname(__file__), "config", "mappings.json")
         self.mappings = self._load_mappings()
 
     def _load_mappings(self):
-        """
-        Load SOC2 control mappings from a JSON file or use default mappings.
-        
-        Attempts to load mappings from the specified JSON file. If the file doesn't
-        exist or there's an error reading it, falls back to the default mappings.
-        
-        Returns:
-            dict: A dictionary containing the mapping configurations with three main sections:
-                  - type_mappings: Maps finding types to SOC2 controls
-                  - title_mappings: Maps keywords in finding titles to SOC2 controls
-                  - control_descriptions: Provides descriptions for each SOC2 control
-        """
+        """Load SOC2 control mappings from a JSON file or use default mappings."""
         try:
             # Try to load mappings from the specified file
             if os.path.exists(self.mappings_file):
@@ -73,33 +33,14 @@ class SOC2Mapper:
             return self._get_default_mappings()
 
     def _get_default_mappings(self):
-        """
-        Provide default SOC2 control mappings if configuration file is not available.
-        
-        This method contains a comprehensive set of default mappings between:
-        1. SecurityHub finding types and SOC2 controls
-        2. Keywords in finding titles and SOC2 controls
-        3. Descriptions of each SOC2 control for context
-        
-        These mappings are used when no external configuration file is found.
-        
-        Returns:
-            dict: Default mapping configuration with three sections:
-                 - type_mappings: Maps finding types to SOC2 controls
-                 - title_mappings: Maps keywords in finding titles to SOC2 controls
-                 - control_descriptions: Provides descriptions for each SOC2 control
-        """
+        """Provide default SOC2 control mappings if configuration file is not available."""
         return {
             # Map SecurityHub finding types to SOC2 controls
             "type_mappings": {
                 "Software and Configuration Checks": ["CC6.1", "CC6.8", "CC7.1"],
                 "Vulnerabilities": ["CC7.1", "CC8.1"],
                 "Effects": ["CC7.1", "CC7.2"],
-                "Software and Configuration Checks/Industry and Regulatory Standards": [
-                    "CC1.3",
-                    "CC2.2",
-                    "CC2.3",
-                ],
+                "Software and Configuration Checks/Industry and Regulatory Standards": ["CC1.3", "CC2.2", "CC2.3"],
                 "Sensitive Data Identifications": ["CC6.1", "CC6.5"],
                 "Network Reachability": ["CC6.6", "CC6.7"],
                 "Unusual Behaviors": ["CC7.2", "CC7.3"],
@@ -144,24 +85,7 @@ class SOC2Mapper:
         }
 
     def map_finding(self, finding):
-        """
-        Map an AWS SecurityHub finding to relevant SOC2 controls.
-        
-        This method extracts key information from a SecurityHub finding and matches
-        it to the appropriate SOC2 controls based on the finding type, title, and other
-        attributes. It creates a new enriched finding object that includes the
-        original finding details plus the SOC2 mapping information.
-        
-        Args:
-            finding (dict): A SecurityHub finding dictionary containing details
-                           about a security issue or vulnerability
-                           
-        Returns:
-            dict: An enriched finding object containing:
-                - Original finding information (title, severity, etc.)
-                - Mapped SOC2 controls that relate to the finding
-                - Descriptions of those SOC2 controls
-        """
+        """Map an AWS SecurityHub finding to relevant SOC2 controls."""
         # Extract relevant information from the finding
         finding_type = ", ".join(finding.get("Types", ["Unknown"]))
         title = finding.get("Title", "")
@@ -178,41 +102,15 @@ class SOC2Mapper:
             "Severity": severity,
             "Type": finding_type,
             "ResourceId": resource_id,
-            # Truncate long descriptions for readability
-            "Description": (
-                description[:200] + "..." if len(description) > 200 else description
-            ),
-            # Include the mapped SOC2 controls
+            "Description": description[:200] + "..." if len(description) > 200 else description,
             "SOC2Controls": controls,
-            # Include the descriptions of each mapped control for context
-            "ControlDescriptions": [
-                self.mappings["control_descriptions"].get(control, "")
-                for control in controls
-            ],
+            "ControlDescriptions": [self.mappings["control_descriptions"].get(control, "") for control in controls],
         }
 
         return mapped_finding
 
     def _map_to_controls(self, finding_type, title, description):
-        """
-        Map a finding to SOC2 controls based on its type, title, and description.
-        
-        This method implements the core mapping logic that associates security findings
-        with relevant SOC2 controls. It uses pattern matching to:
-        1. Check if the finding type matches any known type patterns
-        2. Check if the finding title contains any keywords mapped to SOC2 controls
-        
-        If no matches are found, it defaults to a generic security operations control.
-        
-        Args:
-            finding_type (str): The type of the security finding
-            title (str): The title of the security finding
-            description (str): The description of the security finding
-            
-        Returns:
-            list: List of SOC2 control identifiers (e.g., ["CC6.1", "CC7.2"])
-                 that are relevant to the finding
-        """
+        """Map a finding to SOC2 controls based on its type, title, and description."""
         # Use a set to avoid duplicate controls
         controls = set()
 
@@ -235,19 +133,7 @@ class SOC2Mapper:
         return list(controls)
 
     def _get_resource_id(self, finding):
-        """
-        Extract the affected resource ID from a SecurityHub finding.
-        
-        This helper method attempts to extract the AWS resource identifier 
-        that's affected by the security finding. This is typically an ARN or
-        resource name that can be used to locate the affected resource.
-        
-        Args:
-            finding (dict): The SecurityHub finding dictionary
-            
-        Returns:
-            str: The resource ID if found, or "Unknown" if not found
-        """
+        """Extract the affected resource ID from a SecurityHub finding."""
         # Check if the Resources list exists and has at least one entry
         if "Resources" in finding and finding["Resources"]:
             return finding["Resources"][0].get("Id", "Unknown")
