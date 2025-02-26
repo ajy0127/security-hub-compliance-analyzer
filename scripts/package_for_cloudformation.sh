@@ -1,11 +1,18 @@
 #!/bin/bash
+# =========================================================================
+# Lambda Packaging Script for AWS SecurityHub SOC2 Compliance Analyzer
+# =========================================================================
+# This script packages the Lambda function code for CloudFormation deployment.
+# It creates a ZIP file with all necessary source files and dependencies,
+# then uploads it to an S3 bucket for CloudFormation to access.
+#
+# Usage: 
+#   ./package_for_cloudformation.sh --bucket your-bucket-name [--region your-region]
+# =========================================================================
 
-# Script to package Lambda code for CloudFormation deployment
-# Usage: ./package_for_cloudformation.sh --bucket your-bucket-name
+set -e  # Exit immediately if a command exits with a non-zero status
 
-set -e
-
-# Default values
+# Default configuration values
 S3_BUCKET=""
 REGION="us-east-1"
 ZIP_FILE="lambda-code.zip"
@@ -31,7 +38,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Check if bucket name is provided
+# Validate required parameters
 if [ -z "$S3_BUCKET" ]; then
   echo "Error: S3 bucket name is required"
   echo "Usage: ./package_for_cloudformation.sh --bucket your-bucket-name [--region your-region]"
@@ -42,6 +49,7 @@ echo "Packaging Lambda code for CloudFormation deployment..."
 echo "S3 Bucket: $S3_BUCKET"
 echo "Region: $REGION"
 
+# === S3 Bucket Management ===
 # Check if the bucket exists, create it if it doesn't
 if ! aws s3 ls "s3://$S3_BUCKET" 2>&1 > /dev/null; then
   echo "Bucket does not exist. Creating bucket $S3_BUCKET..."
@@ -50,41 +58,47 @@ else
   echo "Bucket $S3_BUCKET already exists."
 fi
 
-# Create a temporary directory for packaging
+# === Temporary Build Directory Setup ===
+# Create a temporary directory for packaging the Lambda function
 TEMP_DIR=$(mktemp -d)
 echo "Created temporary directory: $TEMP_DIR"
 
-# Copy required files to the temporary directory
-echo "Copying files to temporary directory..."
+# === Source File Preparation ===
+# Copy all required source files to the temporary directory
+echo "Copying source files to temporary directory..."
 cp ../src/app.py ../src/utils.py ../src/soc2_mapper.py ../src/requirements.txt "$TEMP_DIR/"
 
-# Create a directory for mappings
+# Create a directory for the SOC2 control mappings configuration
+echo "Setting up configuration directory structure..."
 mkdir -p "$TEMP_DIR/config"
 cp ../deployment/config/mappings.json "$TEMP_DIR/config/"
 
-# Make sure we're using the correct directory structure for Lambda
-echo "Ensuring proper directory structure for Lambda..."
-
-# Change to the temporary directory
+# === Lambda Package Preparation ===
+# Change to the temporary directory to install dependencies and create zip
 cd "$TEMP_DIR"
 
-# Install dependencies
-echo "Installing dependencies..."
+# Install dependencies directly into the package directory
+echo "Installing Python dependencies..."
 pip install -r requirements.txt -t .
 
-# Create the ZIP file
-echo "Creating ZIP file..."
+# Create the ZIP file containing all code and dependencies
+echo "Creating Lambda deployment package (ZIP file)..."
 zip -r "$ZIP_FILE" .
 
-# Upload the ZIP file to S3
-echo "Uploading ZIP file to S3..."
+# === Upload to S3 ===
+# Upload the ZIP file to S3 for CloudFormation to access
+echo "Uploading Lambda package to S3 bucket..."
 aws s3 cp "$ZIP_FILE" "s3://$S3_BUCKET/$ZIP_FILE"
 
-# Clean up
+# === Cleanup ===
+# Return to the original directory and clean up temporary files
 cd -
 rm -rf "$TEMP_DIR"
+echo "Cleaned up temporary build directory"
 
-echo "Package uploaded to s3://$S3_BUCKET/$ZIP_FILE"
+# === Success Message ===
+echo "============================================================"
+echo "Package successfully uploaded to s3://$S3_BUCKET/$ZIP_FILE"
 echo ""
 echo "To deploy with CloudFormation, use the following parameters:"
 echo "  S3BucketName: $S3_BUCKET"
