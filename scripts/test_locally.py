@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Test Script for AWS SecurityHub SOC2 Compliance Analyzer locally."""
 
+import argparse
 import json
 import os
 import sys
-import argparse
 from datetime import datetime
 
 # Set default environment variables for testing

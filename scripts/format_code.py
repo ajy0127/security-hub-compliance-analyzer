@@ -3,8 +3,8 @@
 """Simple formatting script to fix Black formatting issues."""
 
 import os
-import sys
 import re
+import sys
 
 
 def fix_app_py(file_path):
