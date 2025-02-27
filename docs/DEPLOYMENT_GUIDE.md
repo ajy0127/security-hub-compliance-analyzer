@@ -203,16 +203,50 @@ You can also invoke the Lambda function manually using the AWS CLI. This is usef
    cat response.json
    ```
 
-3. **To generate a compliance report**:
+3. **To generate a compliance report for different frameworks**:
+
+   **SOC 2 Framework Report**:
    ```bash
-   # Create a report payload file
-   echo '{"email": "your-verified-email@example.com", "hours": 24}' > report_payload.json
+   # Create a SOC 2 report payload file
+   echo '{"email": "your-verified-email@example.com", "framework": "SOC2", "hours": 24}' > soc2_report.json
    
    # Invoke the Lambda function
    aws lambda invoke \
      --function-name security-hub-compliance-analyzer-SecurityHubAnalyzer \
      --cli-binary-format raw-in-base64-out \
-     --payload file://report_payload.json \
+     --payload file://soc2_report.json \
+     response.json
+   
+   # Check the response
+   cat response.json
+   ```
+
+   **NIST 800-53 Framework Report**:
+   ```bash
+   # Create a NIST 800-53 report payload file
+   echo '{"email": "your-verified-email@example.com", "framework": "NIST800-53", "hours": 24}' > nist_report.json
+   
+   # Invoke the Lambda function
+   aws lambda invoke \
+     --function-name security-hub-compliance-analyzer-SecurityHubAnalyzer \
+     --cli-binary-format raw-in-base64-out \
+     --payload file://nist_report.json \
+     response.json
+   
+   # Check the response
+   cat response.json
+   ```
+
+   **All Frameworks Combined Report**:
+   ```bash
+   # Create an all-frameworks report payload file
+   echo '{"email": "your-verified-email@example.com", "framework": "all", "hours": 24, "combined_analysis": true}' > all_frameworks_report.json
+   
+   # Invoke the Lambda function
+   aws lambda invoke \
+     --function-name security-hub-compliance-analyzer-SecurityHubAnalyzer \
+     --cli-binary-format raw-in-base64-out \
+     --payload file://all_frameworks_report.json \
      response.json
    
    # Check the response
@@ -223,26 +257,51 @@ You can also invoke the Lambda function manually using the AWS CLI. This is usef
 
 ## Step 7: Generate Your First Compliance Report
 
-Now let's generate a real compliance report:
+Now let's generate a real compliance report. You can choose which compliance framework to analyze:
 
 1. Return to the Lambda function from Step 6
-2. Create a new test event with:
+2. Create a new test event with one of the following:
+
+   **For SOC 2 Analysis (Default):**
    ```json
    {
      "email": "your-verified-email@example.com",
+     "framework": "SOC2",
      "hours": 24
    }
    ```
+
+   **For NIST 800-53 Analysis:**
+   ```json
+   {
+     "email": "your-verified-email@example.com",
+     "framework": "NIST800-53",
+     "hours": 24
+   }
+   ```
+
+   **For Analysis of All Frameworks:**
+   ```json
+   {
+     "email": "your-verified-email@example.com",
+     "framework": "all",
+     "hours": 24,
+     "combined_analysis": true
+   }
+   ```
+
 3. Click "Test"
 4. Check your email for the compliance report
    
 You should receive a detailed report that includes:
 - Summary of security findings
-- Analysis of SOC 2 impact
+- Analysis of framework-specific impact (SOC 2, NIST 800-53, or both)
 - Key recommendations
-- A CSV attachment mapping findings to SOC 2 controls
+- CSV attachments mapping findings to the selected framework controls
 
-> 💡 **GRC Insight**: The report maps technical findings to SOC 2 controls - a perfect example of translating technical details into compliance language.
+> ⚠️ **Important**: If you don't specify a framework, the system defaults to SOC 2.
+
+> 💡 **GRC Insight**: The report maps technical findings to compliance controls - a perfect example of translating technical details into compliance language.
 
 ## Step 8: Customize the SOC 2 Control Mappings
 
@@ -272,9 +331,27 @@ Let's set up a schedule for weekly reports:
 5. Click "Edit"
 6. Under "Schedule pattern", you can modify the schedule
 7. The default is Monday at 9 AM UTC - you can keep this or change it
-8. Click "Next" twice, then "Update rule"
 
-> 💡 **GRC Insight**: Regular reporting schedules are a key part of continuous compliance monitoring programs.
+8. **To specify which framework to analyze in scheduled reports**, click on "Input transformer" and update the template to include your preferred framework:
+
+   For SOC 2 only:
+   ```json
+   {"email": "<your-verified-email@example.com>", "framework": "SOC2", "hours": 24}
+   ```
+
+   For NIST 800-53 only:
+   ```json
+   {"email": "<your-verified-email@example.com>", "framework": "NIST800-53", "hours": 24}
+   ```
+   
+   For all frameworks with combined analysis:
+   ```json
+   {"email": "<your-verified-email@example.com>", "framework": "all", "hours": 24, "combined_analysis": true}
+   ```
+
+9. Click "Next" twice, then "Update rule"
+
+> 💡 **GRC Insight**: Regular reporting schedules are a key part of continuous compliance monitoring programs. Specifying the framework ensures you receive consistent reports for your compliance needs.
 
 ## Step 10: Document Your Work for Your Portfolio
 

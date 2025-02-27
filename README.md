@@ -37,7 +37,19 @@ This solution automatically:
 
 Think of it as an automated compliance assistant that helps you monitor security compliance across multiple frameworks in AWS.
 
-## ⚠️ Important Email Verification Requirement
+### Framework Selection
+
+**Important**: When using the tool, you must specify which compliance framework to analyze:
+
+- **SOC 2**: For analyzing against SOC 2 controls only
+- **NIST 800-53**: For analyzing against NIST 800-53 controls only
+- **All Frameworks**: To analyze against all configured frameworks
+
+If no framework is specified, the system defaults to SOC 2.
+
+## ⚠️ Important Requirements
+
+### Email Verification Requirement
 
 Before deploying this solution, you **must verify email addresses in Amazon SES**:
 
@@ -46,6 +58,20 @@ Before deploying this solution, you **must verify email addresses in Amazon SES*
 * New AWS accounts are in "SES sandbox" mode, which only allows sending to verified email addresses
 
 See the [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) for detailed instructions on email verification.
+
+### Framework Selection
+
+When triggering the compliance analyzer manually, specify the framework using the event payload:
+
+* Use `"framework": "SOC2"` for SOC 2 compliance analysis
+* Use `"framework": "NIST800-53"` for NIST 800-53 compliance analysis
+* Use `"framework": "all"` for analysis of all configured frameworks
+
+Example events for triggering the Lambda function can be found in the `examples/` directory:
+- `test-soc2-event.json` - Analyze using SOC 2 framework
+- `test-nist-event.json` - Analyze using NIST 800-53 framework
+- `test-all-frameworks-event.json` - Analyze using all frameworks with combined analysis
+- `default-nist-event.json` - Default template for NIST 800-53 analysis
 
 ## Getting Started
 

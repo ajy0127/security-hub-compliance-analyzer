@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS SecurityHub Compliance Analyzer - A multi-framework analysis tool supporting SOC 2 and NIST 800-53'
+
+Parameters:
+  SenderEmail:
+    Type: String
+    Description: The verified email address that will send compliance reports
+    
+  RecipientEmail:
+    Type: String
+    Description: The verified email address that will receive compliance reports
+
+  DefaultFramework:
+    Type: String
+    Description: The default compliance framework to analyze if none is specified
+    Default: SOC2
+    AllowedValues:
+      - SOC2
+      - NIST800-53
+      - all
+
+  S3BucketName:
+    Type: String
+    Description: The S3 bucket containing the Lambda code package
+    
+  S3KeyName:
+    Type: String
+    Description: The S3 key (filename) of the Lambda code package
+    Default: lambda-code.zip
+
+Resources:
+  # Other resources remain the same
+
+  SecurityHubAnalyzer:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-SecurityHubAnalyzer"
+      Description: Analyzes AWS SecurityHub findings against compliance frameworks (SOC 2, NIST 800-53)
+      Runtime: python3.9
+      Handler: src.app.lambda_handler
+      Timeout: 300
+      MemorySize: 1024
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          SENDER_EMAIL: !Ref SenderEmail
+          RECIPIENT_EMAIL: !Ref RecipientEmail
+          DEFAULT_FRAMEWORK: !Ref DefaultFramework
+          CONFIG_BUCKET: !Ref ConfigBucket
+          BEDROCK_MODEL_ID: anthropic.claude-3-sonnet
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: !Ref S3KeyName
+
+  # Other resources remain the same
