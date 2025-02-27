@@ -125,7 +125,14 @@ def main():
     )
     parser.add_argument(
         "--event-type",
-        choices=["test_email", "report_24h", "report_7d", "report_soc2", "report_nist", "report_all"],
+        choices=[
+            "test_email",
+            "report_24h",
+            "report_7d",
+            "report_soc2",
+            "report_nist",
+            "report_all",
+        ],
         help="Type of test event to create",
     )
     parser.add_argument(

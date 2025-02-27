@@ -11,7 +11,7 @@ class SOC2Mapper(FrameworkMapper):
 
     def __init__(self, mappings_file=None):
         """Initialize the SOC2Mapper with control mappings.
-        
+
         Args:
             mappings_file (str, optional): Path to the SOC2 mappings JSON file
         """
@@ -22,7 +22,7 @@ class SOC2Mapper(FrameworkMapper):
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "config",
                 "mappings",
-                "soc2_mappings.json"
+                "soc2_mappings.json",
             )
             mappings_file = default_mappings
 

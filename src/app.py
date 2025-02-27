@@ -14,6 +14,7 @@ from email.mime.text import MIMEText
 import boto3
 
 from soc2_mapper import SOC2Mapper  # Keep this for backward compatibility
+
 try:
     from framework_mapper import FrameworkMapper
     from mapper_factory import MapperFactory, load_frameworks
@@ -78,46 +79,52 @@ def get_findings(hours, framework_id=None):
             logger.info(
                 f"Querying SecurityHub for {framework['name']} findings between {start_time_str} and {end_time_str}"
             )
-            
+
             # Base filters that apply to all queries
             filters = {
                 "ComplianceStatus": [{"Value": "FAILED", "Comparison": "EQUALS"}],
                 "RecordState": [{"Value": "ACTIVE", "Comparison": "EQUALS"}],
                 "WorkflowStatus": [{"Value": "NEW", "Comparison": "EQUALS"}],
-                "UpdatedAt": [{"Start": start_time_str, "End": end_time_str}]
+                "UpdatedAt": [{"Start": start_time_str, "End": end_time_str}],
             }
-            
+
             # Add framework-specific filter using the ARN
             # Note: Security Hub uses Standards.Arn or StandardsArn depending on the API version
             # Try both patterns to ensure compatibility
             try:
                 # First try with StandardsArn (newer pattern)
                 framework_filter = {
-                    "StandardsArn": [{"Value": framework["arn"], "Comparison": "EQUALS"}]
+                    "StandardsArn": [
+                        {"Value": framework["arn"], "Comparison": "EQUALS"}
+                    ]
                 }
                 response = securityhub.get_findings(
                     Filters={**filters, **framework_filter},
-                    MaxResults=100  # Limit results to prevent oversized responses
+                    MaxResults=100,  # Limit results to prevent oversized responses
                 )
             except Exception as e:
                 if "ValidationException" in str(e):
                     # Fall back to Standards.Arn (older pattern)
                     framework_filter = {
-                        "Standards.Arn": [{"Value": framework["arn"], "Comparison": "EQUALS"}]
+                        "Standards.Arn": [
+                            {"Value": framework["arn"], "Comparison": "EQUALS"}
+                        ]
                     }
                     response = securityhub.get_findings(
                         Filters={**filters, **framework_filter},
-                        MaxResults=100  # Limit results to prevent oversized responses
+                        MaxResults=100,  # Limit results to prevent oversized responses
                     )
                 else:
                     # Re-raise if it's not a validation exception
                     raise
 
             framework_findings = response.get("Findings", [])
-            logger.info(f"Found {len(framework_findings)} findings for {framework['name']}")
-            
+            logger.info(
+                f"Found {len(framework_findings)} findings for {framework['name']}"
+            )
+
             all_findings[framework["id"]] = framework_findings
-            
+
         except Exception as e:
             logger.error(f"Error getting {framework['name']} findings: {str(e)}")
             all_findings[framework["id"]] = []
@@ -125,7 +132,7 @@ def get_findings(hours, framework_id=None):
     # If specific framework requested, return just those findings
     if framework_id and framework_id.upper() in all_findings:
         return all_findings[framework_id.upper()]
-    
+
     return all_findings
 
 
@@ -163,11 +170,11 @@ def analyze_findings(findings, mappers, framework_id=None, combined=False):
         # Convert single framework findings list to dict format
         framework_id = framework_id or "SOC2"  # Default to SOC2 if not specified
         findings = {framework_id: findings}
-        
+
         # Convert single mapper to dict format if needed
         if not isinstance(mappers, dict):
             mappers = {framework_id: mappers}
-    
+
     # Check if we have any findings
     if not findings or not any(findings.values()):
         return {"combined": "No findings to analyze."}, {}
@@ -201,16 +208,32 @@ def analyze_findings(findings, mappers, framework_id=None, combined=False):
         framework_stats = {
             "total": len(framework_findings),
             "critical": len(
-                [f for f in framework_findings if f.get("Severity", {}).get("Label") == "CRITICAL"]
+                [
+                    f
+                    for f in framework_findings
+                    if f.get("Severity", {}).get("Label") == "CRITICAL"
+                ]
             ),
             "high": len(
-                [f for f in framework_findings if f.get("Severity", {}).get("Label") == "HIGH"]
+                [
+                    f
+                    for f in framework_findings
+                    if f.get("Severity", {}).get("Label") == "HIGH"
+                ]
             ),
             "medium": len(
-                [f for f in framework_findings if f.get("Severity", {}).get("Label") == "MEDIUM"]
+                [
+                    f
+                    for f in framework_findings
+                    if f.get("Severity", {}).get("Label") == "MEDIUM"
+                ]
             ),
             "low": len(
-                [f for f in framework_findings if f.get("Severity", {}).get("Label") == "LOW"]
+                [
+                    f
+                    for f in framework_findings
+                    if f.get("Severity", {}).get("Label") == "LOW"
+                ]
             ),
         }
         stats[framework_id] = framework_stats
@@ -238,7 +261,9 @@ def analyze_findings(findings, mappers, framework_id=None, combined=False):
 
             # Get framework name from configuration
             frameworks = load_frameworks()
-            framework_name = next((f["name"] for f in frameworks if f["id"] == framework_id), framework_id)
+            framework_name = next(
+                (f["name"] for f in frameworks if f["id"] == framework_id), framework_id
+            )
 
             # Construct prompt for AI to generate professional compliance analysis
             prompt = f"""You are a {framework_name} compliance expert analyzing AWS SecurityHub findings.
@@ -273,7 +298,9 @@ The auditor's perspective should be written in first person and should sound aut
 Keep your total response under 1500 words and focus on actionable insights."""
 
             # Call Bedrock API with the prompt
-            logger.info(f"Calling Bedrock model {bedrock_model_id} for {framework_id} analysis")
+            logger.info(
+                f"Calling Bedrock model {bedrock_model_id} for {framework_id} analysis"
+            )
             response = bedrock.invoke_model(
                 modelId=bedrock_model_id,
                 body=json.dumps(
@@ -288,11 +315,15 @@ Keep your total response under 1500 words and focus on actionable insights."""
             # Parse the response from Bedrock
             response_body = json.loads(response["body"].read())
             analysis = response_body["content"][0]["text"]
-            logger.info(f"Successfully generated analysis for {framework_id} with Bedrock")
+            logger.info(
+                f"Successfully generated analysis for {framework_id} with Bedrock"
+            )
             analyses[framework_id] = analysis
 
         except Exception as e:
-            logger.error(f"Error generating analysis for {framework_id} with Bedrock: {str(e)}")
+            logger.error(
+                f"Error generating analysis for {framework_id} with Bedrock: {str(e)}"
+            )
 
             # Provide a simple fallback analysis if Bedrock call fails
             # This ensures the report generation doesn't fail completely
@@ -319,7 +350,10 @@ Please review the attached CSV for details on all findings."""
             for framework_id, framework_findings in findings.items():
                 framework_stats = stats[framework_id]
                 frameworks = load_frameworks()
-                framework_name = next((f["name"] for f in frameworks if f["id"] == framework_id), framework_id)
+                framework_name = next(
+                    (f["name"] for f in frameworks if f["id"] == framework_id),
+                    framework_id,
+                )
                 frameworks_summary.append(
                     f"{framework_name}: {framework_stats['total']} findings "
                     f"({framework_stats['critical']} critical, {framework_stats['high']} high, "
@@ -341,7 +375,9 @@ Please provide a concise cross-framework analysis with the following sections:
 Keep your response under 1500 words and focus on actionable insights that address requirements across frameworks."""
 
             # Call Bedrock API with the prompt
-            logger.info(f"Calling Bedrock model {bedrock_model_id} for combined framework analysis")
+            logger.info(
+                f"Calling Bedrock model {bedrock_model_id} for combined framework analysis"
+            )
             response = bedrock.invoke_model(
                 modelId=bedrock_model_id,
                 body=json.dumps(
@@ -361,12 +397,15 @@ Keep your response under 1500 words and focus on actionable insights that addres
 
         except Exception as e:
             logger.error(f"Error generating combined analysis with Bedrock: {str(e)}")
-            
+
             # Provide a simple fallback combined analysis
             framework_stats_text = []
             for framework_id, framework_stats in stats.items():
                 frameworks = load_frameworks()
-                framework_name = next((f["name"] for f in frameworks if f["id"] == framework_id), framework_id)
+                framework_name = next(
+                    (f["name"] for f in frameworks if f["id"] == framework_id),
+                    framework_id,
+                )
                 framework_stats_text.append(
                     f"## {framework_name} Summary\n\n"
                     f"Total findings: {framework_stats['total']}\n"
@@ -375,7 +414,7 @@ Keep your response under 1500 words and focus on actionable insights that addres
                     f"- Medium: {framework_stats['medium']}\n"
                     f"- Low: {framework_stats['low']}\n"
                 )
-            
+
             analyses["combined"] = (
                 "# Multi-Framework Compliance Summary\n\n"
                 "This report contains findings across multiple compliance frameworks.\n\n"
@@ -411,43 +450,45 @@ def generate_csv(findings, mappers, framework_id=None):
         # Convert single framework findings list to dict format
         framework_id = framework_id or "SOC2"  # Default to SOC2 if not specified
         findings = {framework_id: findings}
-        
+
         # Convert single mapper to dict format if needed
         if not isinstance(mappers, dict):
             mappers = {framework_id: mappers}
-    
+
     # If specific framework requested, only process that one
     if framework_id and framework_id in findings:
         frameworks_to_process = {framework_id: findings[framework_id]}
     else:
         frameworks_to_process = findings
-    
+
     # Dictionary to hold CSV data for each framework
     csv_data = {}
-    
+
     # Process each framework's findings
     for framework_id, framework_findings in frameworks_to_process.items():
         if not framework_findings:
             csv_data[framework_id] = ""
             continue
-            
+
         # Get appropriate mapper for this framework
         mapper = mappers.get(framework_id)
         if not mapper:
             logger.error(f"No mapper available for {framework_id}")
             continue
-            
+
         # Get framework name from configuration
         frameworks = load_frameworks()
-        framework_name = next((f["name"] for f in frameworks if f["id"] == framework_id), framework_id)
-        
+        framework_name = next(
+            (f["name"] for f in frameworks if f["id"] == framework_id), framework_id
+        )
+
         # Get control attribute name (e.g., "SOC2Controls", "NIST800-53Controls")
         control_attr = mapper.get_control_id_attribute()
-        
+
         # Create CSV for this framework
         output = io.StringIO()
         writer = csv.writer(output)
-        
+
         # Define CSV headers for the report
         writer.writerow(
             [
@@ -461,17 +502,17 @@ def generate_csv(findings, mappers, framework_id=None):
                 "Description",
             ]
         )
-        
+
         # Process each finding and write it to the CSV
         for finding in framework_findings:
             # Map the finding to framework controls
             mapped_finding = mapper.map_finding(finding)
-            
+
             # Format the controls as a comma-separated string
             controls = mapped_finding.get(control_attr, "Unknown")
             if isinstance(controls, list):
                 controls = ", ".join(controls)
-                
+
             # Write the finding details as a row in the CSV
             writer.writerow(
                 [
@@ -485,18 +526,26 @@ def generate_csv(findings, mappers, framework_id=None):
                     finding.get("Description", ""),
                 ]
             )
-            
+
         # Store the CSV data for this framework
         csv_data[framework_id] = output.getvalue()
-    
+
     # If specific framework requested, return just that CSV
     if framework_id and framework_id in csv_data:
         return csv_data[framework_id]
-        
+
     return csv_data
 
 
-def send_email(recipient_email, findings, analyses, stats, mappers, selected_framework=None, include_combined=True):
+def send_email(
+    recipient_email,
+    findings,
+    analyses,
+    stats,
+    mappers,
+    selected_framework=None,
+    include_combined=True,
+):
     """
     Send a professional email report with findings analysis and CSV attachments.
 
@@ -533,7 +582,7 @@ def send_email(recipient_email, findings, analyses, stats, mappers, selected_fra
         # Convert single framework findings list to dict format
         framework_id = selected_framework or "SOC2"  # Default to SOC2 if not specified
         findings = {framework_id: findings}
-        
+
         # Convert single mapper to dict format if needed
         if not isinstance(mappers, dict):
             mappers = {framework_id: mappers}
@@ -543,38 +592,41 @@ def send_email(recipient_email, findings, analyses, stats, mappers, selected_fra
         if selected_framework in findings:
             frameworks_to_include = [selected_framework]
         else:
-            logger.error(f"Selected framework {selected_framework} not found in findings")
+            logger.error(
+                f"Selected framework {selected_framework} not found in findings"
+            )
             return False
     else:
         frameworks_to_include = list(findings.keys())
 
     # Get framework names from configuration
     frameworks_config = load_frameworks()
-    framework_names = {
-        f["id"]: f["name"] for f in frameworks_config
-    }
+    framework_names = {f["id"]: f["name"] for f in frameworks_config}
 
     # Create the email message container
     msg = MIMEMultipart("mixed")
-    
+
     # Determine the email subject based on frameworks included
     if len(frameworks_to_include) == 1:
-        framework_name = framework_names.get(frameworks_to_include[0], frameworks_to_include[0])
+        framework_name = framework_names.get(
+            frameworks_to_include[0], frameworks_to_include[0]
+        )
         subject = f'AWS SecurityHub {framework_name} Compliance Report - {datetime.now().strftime("%Y-%m-%d")}'
     else:
         subject = f'AWS SecurityHub Multi-Framework Compliance Report - {datetime.now().strftime("%Y-%m-%d")}'
-    
+
     msg["Subject"] = subject
     msg["From"] = sender_email
     msg["To"] = recipient_email
 
     # Generate framework-specific sections
     framework_sections = []
-    
+
     # First add combined analysis if available and requested
     if "combined" in analyses and include_combined and len(frameworks_to_include) > 1:
         formatted_combined_analysis = analyses["combined"].replace("\n", "<br>")
-        framework_sections.append(f"""
+        framework_sections.append(
+            f"""
         <div id="combined-analysis">
             <h2>Cross-Framework Analysis</h2>
             <div class="analysis-content">
@@ -582,19 +634,25 @@ def send_email(recipient_email, findings, analyses, stats, mappers, selected_fra
             </div>
         </div>
         <hr>
-        """)
+        """
+        )
 
     # Add framework-specific sections
     for framework_id in frameworks_to_include:
         if framework_id not in findings or not findings[framework_id]:
             continue
-            
+
         framework_name = framework_names.get(framework_id, framework_id)
-        framework_stats = stats.get(framework_id, {"total": 0, "critical": 0, "high": 0, "medium": 0, "low": 0})
-        framework_analysis = analyses.get(framework_id, f"No analysis available for {framework_name}")
+        framework_stats = stats.get(
+            framework_id, {"total": 0, "critical": 0, "high": 0, "medium": 0, "low": 0}
+        )
+        framework_analysis = analyses.get(
+            framework_id, f"No analysis available for {framework_name}"
+        )
         formatted_analysis = framework_analysis.replace("\n", "<br>")
-        
-        framework_sections.append(f"""
+
+        framework_sections.append(
+            f"""
         <div id="{framework_id}-analysis" class="framework-section">
             <h2>{framework_name} Compliance Analysis</h2>
             
@@ -612,7 +670,8 @@ def send_email(recipient_email, findings, analyses, stats, mappers, selected_fra
             </div>
         </div>
         <hr>
-        """)
+        """
+        )
 
     # Create HTML body with professional styling
     html_part = MIMEText(
@@ -690,12 +749,12 @@ def send_email(recipient_email, findings, analyses, stats, mappers, selected_fra
 
     # Generate and attach CSV reports as attachments
     csv_data = generate_csv(findings, mappers)
-    
+
     # Add each framework's CSV as an attachment
     for framework_id in frameworks_to_include:
         if framework_id not in csv_data or not csv_data[framework_id]:
             continue
-            
+
         framework_name = framework_names.get(framework_id, framework_id)
         attachment = MIMEApplication(csv_data[framework_id].encode("utf-8"))
         attachment.add_header(
@@ -843,7 +902,7 @@ def lambda_handler(event, context):
               - body: Description of the result or error
     """
     logger.info(f"Event received: {json.dumps(event)}")
-    
+
     # === LIST FRAMEWORKS MODE ===
     # Check if this is a request to list supported frameworks
     if event.get("list_frameworks"):
@@ -851,12 +910,11 @@ def lambda_handler(event, context):
         frameworks = load_frameworks()
         return {
             "statusCode": 200,
-            "body": json.dumps({
-                "message": "Supported compliance frameworks",
-                "frameworks": frameworks
-            })
+            "body": json.dumps(
+                {"message": "Supported compliance frameworks", "frameworks": frameworks}
+            ),
         }
-    
+
     # === TEST EMAIL MODE ===
     # Check if this is a test email request ({"test_email": true})
     elif event.get("test_email"):
@@ -899,7 +957,10 @@ def lambda_handler(event, context):
     mappers = MapperFactory.get_all_mappers()
     if not mappers:
         logger.error("Failed to initialize framework mappers")
-        return {"statusCode": 500, "body": json.dumps("Failed to initialize framework mappers")}
+        return {
+            "statusCode": 500,
+            "body": json.dumps("Failed to initialize framework mappers"),
+        }
 
     # Retrieve SecurityHub findings for the specified time period and framework
     if framework_id.lower() == "all":
@@ -922,10 +983,12 @@ def lambda_handler(event, context):
 
     # Generate analysis of findings using AI
     analyses, stats = analyze_findings(
-        findings, 
+        findings,
         mappers,
         None,  # No need to specify framework_id since it's already filtered in findings
-        include_combined and len(findings) > 1  # Only do combined analysis if we have multiple frameworks
+        include_combined
+        and len(findings)
+        > 1,  # Only do combined analysis if we have multiple frameworks
     )
 
     # Generate CSV files if requested (for local saving or additional processing)
@@ -935,7 +998,7 @@ def lambda_handler(event, context):
         for framework_id, framework_csv in csv_data.items():
             if not framework_csv:
                 continue
-            
+
             csv_path = f"/tmp/{framework_id.lower()}_compliance_findings.csv"
             with open(csv_path, "w", encoding="utf-8") as f:
                 f.write(framework_csv)
@@ -943,13 +1006,13 @@ def lambda_handler(event, context):
 
     # Send email report with findings and analysis
     success = send_email(
-        recipient_email, 
-        findings, 
-        analyses, 
-        stats, 
+        recipient_email,
+        findings,
+        analyses,
+        stats,
         mappers,
         None,  # No need for selected_framework (it's already filtered)
-        include_combined
+        include_combined,
     )
 
     # Return result to caller
@@ -1019,8 +1082,10 @@ def cli_handler():
         "--email", required=True, help="Email address to send the test email to"
     )
 
-    # Configure 'list-frameworks' subcommand 
-    list_parser = subparsers.add_parser("list-frameworks", help="List supported compliance frameworks")
+    # Configure 'list-frameworks' subcommand
+    list_parser = subparsers.add_parser(
+        "list-frameworks", help="List supported compliance frameworks"
+    )
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -1033,7 +1098,7 @@ def cli_handler():
 
     # Load supported frameworks
     frameworks = load_frameworks()
-    
+
     # Initialize framework mappers
     mappers = MapperFactory.get_all_mappers()
 
@@ -1060,10 +1125,14 @@ def cli_handler():
 
         # Retrieve findings from SecurityHub
         if framework_id.lower() == "all":
-            print(f"Retrieving findings for all frameworks from the last {args.hours} hours...")
+            print(
+                f"Retrieving findings for all frameworks from the last {args.hours} hours..."
+            )
             findings = get_findings(args.hours)
         else:
-            print(f"Retrieving {framework_id} findings from the last {args.hours} hours...")
+            print(
+                f"Retrieving {framework_id} findings from the last {args.hours} hours..."
+            )
             framework_findings = get_findings(args.hours, framework_id)
             if isinstance(framework_findings, dict):
                 findings = framework_findings
@@ -1078,20 +1147,19 @@ def cli_handler():
         # Generate AI-powered analysis of findings
         print("Analyzing findings and generating report...")
         analyses, stats = analyze_findings(
-            findings, 
-            mappers,
-            None,
-            include_combined and len(findings) > 1
+            findings, mappers, None, include_combined and len(findings) > 1
         )
 
         # Print summary report to console with formatting
         if len(findings) == 1:
             # Single framework report
             framework_id = next(iter(findings.keys()))
-            framework_name = next((f["name"] for f in frameworks if f["id"] == framework_id), framework_id)
+            framework_name = next(
+                (f["name"] for f in frameworks if f["id"] == framework_id), framework_id
+            )
             framework_stats = stats[framework_id]
             framework_analysis = analyses[framework_id]
-            
+
             print(f"\nAWS SecurityHub {framework_name} Compliance Report")
             print(f"=" * 60)
             print(
@@ -1115,17 +1183,20 @@ def cli_handler():
             print(
                 f"Report generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC\n"
             )
-            
+
             # Print combined analysis if available
             if "combined" in analyses:
                 print("Cross-Framework Analysis:")
                 print("-" * 60)
                 print(analyses["combined"])
                 print("-" * 60)
-            
+
             # Print summary for each framework
             for framework_id, framework_stats in stats.items():
-                framework_name = next((f["name"] for f in frameworks if f["id"] == framework_id), framework_id)
+                framework_name = next(
+                    (f["name"] for f in frameworks if f["id"] == framework_id),
+                    framework_id,
+                )
                 print(f"\n{framework_name} Finding Summary:")
                 print(f"- Total Findings: {framework_stats['total']}")
                 print(f"- Critical: {framework_stats['critical']}")
@@ -1136,37 +1207,31 @@ def cli_handler():
         # Generate CSV file(s) if requested
         if args.csv:
             csv_data = generate_csv(findings, mappers)
-            
+
             # Determine base directory for CSV files
             csv_base_dir = args.csv_path or os.getcwd()
-            
+
             # Save each framework's CSV
             for framework_id, framework_csv in csv_data.items():
                 if not framework_csv:
                     continue
-                
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 csv_path = os.path.join(
                     csv_base_dir,
-                    f"{framework_id.lower()}_compliance_findings_{timestamp}.csv"
+                    f"{framework_id.lower()}_compliance_findings_{timestamp}.csv",
                 )
-                
+
                 with open(csv_path, "w", encoding="utf-8") as f:
                     f.write(framework_csv)
-                
+
                 print(f"\nCSV report for {framework_id} saved to: {csv_path}")
 
         # Prompt user for email confirmation
         if input("\nSend email report? (y/n): ").lower() == "y":
             print(f"Sending email to {args.email}...")
             success = send_email(
-                args.email, 
-                findings, 
-                analyses, 
-                stats, 
-                mappers,
-                None,
-                include_combined
+                args.email, findings, analyses, stats, mappers, None, include_combined
             )
             if success:
                 print(f"Email sent successfully to {args.email}")

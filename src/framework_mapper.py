@@ -15,7 +15,7 @@ class FrameworkMapper:
 
     def __init__(self, framework_id, mappings_file=None):
         """Initialize the FrameworkMapper with framework ID and control mappings.
-        
+
         Args:
             framework_id (str): The ID of the compliance framework (e.g., 'SOC2', 'NIST800-53')
             mappings_file (str, optional): Path to the mappings JSON file for this framework
@@ -42,18 +42,14 @@ class FrameworkMapper:
 
     def _get_default_mappings(self):
         """Provide default control mappings if configuration file is not available.
-        
+
         This method should be overridden by subclasses to provide framework-specific defaults.
         """
-        return {
-            "type_mappings": {},
-            "title_mappings": {},
-            "control_descriptions": {}
-        }
+        return {"type_mappings": {}, "title_mappings": {}, "control_descriptions": {}}
 
     def get_control_id_attribute(self):
         """Get the attribute name used for storing control IDs in mapped findings.
-        
+
         Returns:
             str: The attribute name (e.g., 'SOC2Controls', 'NIST800-53Controls')
         """
@@ -61,10 +57,10 @@ class FrameworkMapper:
 
     def map_finding(self, finding):
         """Map an AWS SecurityHub finding to relevant framework controls.
-        
+
         Args:
             finding (dict): The AWS SecurityHub finding to map
-            
+
         Returns:
             dict: Enhanced finding object with framework mapping information
         """
@@ -102,12 +98,12 @@ class FrameworkMapper:
 
     def _map_to_controls(self, finding_type, title, description):
         """Map a finding to framework controls based on its type, title, and description.
-        
+
         Args:
             finding_type (str): Type of the finding
             title (str): Finding title
             description (str): Finding description
-            
+
         Returns:
             list: Relevant control IDs for this framework
         """
@@ -134,9 +130,9 @@ class FrameworkMapper:
 
     def _get_default_control(self):
         """Get the default control ID for this framework when no mapping is found.
-        
+
         This method should be overridden by subclasses to provide framework-specific defaults.
-        
+
         Returns:
             str: Default control ID or None
         """

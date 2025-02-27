@@ -11,7 +11,7 @@ class NIST80053Mapper(FrameworkMapper):
 
     def __init__(self, mappings_file=None):
         """Initialize the NIST800-53Mapper with control mappings.
-        
+
         Args:
             mappings_file (str, optional): Path to the NIST 800-53 mappings JSON file
         """
@@ -22,7 +22,7 @@ class NIST80053Mapper(FrameworkMapper):
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "config",
                 "mappings",
-                "nist800_53_mappings.json"
+                "nist800_53_mappings.json",
             )
             mappings_file = default_mappings
 
@@ -37,11 +37,15 @@ class NIST80053Mapper(FrameworkMapper):
                 "Software and Configuration Checks": ["AC-3", "AC-6", "SI-2"],
                 "Vulnerabilities": ["RA-5", "SI-2", "SI-3"],
                 "Effects": ["SI-4", "SI-5"],
-                "Software and Configuration Checks/Industry and Regulatory Standards": ["CM-2", "CM-6", "CM-7"],
+                "Software and Configuration Checks/Industry and Regulatory Standards": [
+                    "CM-2",
+                    "CM-6",
+                    "CM-7",
+                ],
                 "Sensitive Data Identifications": ["SC-8", "SC-28", "MP-4"],
                 "Network Reachability": ["SC-7", "AC-4", "AC-17"],
                 "Unusual Behaviors": ["SI-4", "AU-6"],
-                "Policy": ["PL-1", "CA-1", "CM-1"]
+                "Policy": ["PL-1", "CA-1", "CM-1"],
             },
             # Map keywords in finding titles to NIST 800-53 controls
             "title_mappings": {
@@ -55,7 +59,7 @@ class NIST80053Mapper(FrameworkMapper):
                 "update": ["SI-2", "CM-3"],
                 "backup": ["CP-9", "CP-10"],
                 "logging": ["AU-2", "AU-6"],
-                "monitor": ["AU-6", "SI-4"]
+                "monitor": ["AU-6", "SI-4"],
             },
             # NIST 800-53 control descriptions for context and reporting
             "control_descriptions": {
@@ -87,7 +91,7 @@ class NIST80053Mapper(FrameworkMapper):
                 "SI-2": "Flaw Remediation - The organization identifies, reports, and corrects system flaws.",
                 "SI-3": "Malicious Code Protection - The system implements malicious code protection mechanisms.",
                 "SI-4": "Information System Monitoring - The organization monitors the system to detect attacks and potential indicators of compromise.",
-                "SI-5": "Security Alerts, Advisories, and Directives - The organization receives security alerts and advisories and takes appropriate actions."
+                "SI-5": "Security Alerts, Advisories, and Directives - The organization receives security alerts and advisories and takes appropriate actions.",
             },
         }
 
