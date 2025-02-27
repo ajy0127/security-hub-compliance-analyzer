@@ -84,6 +84,5 @@ jobs:
       - name: Validate CloudFormation template
         run: |
           source venv/bin/activate
-          # Ensure cfn-lint has access to new parameter values
-          sed -i 's/Default: '\''all'\''/Default: '\''all'\'', AllowedValues: ['\''all'\'', '\''SOC2'\'', '\''NIST800-53'\'']/' deployment/cloudformation.yaml || true
+          # No need to modify the template since it already has AllowedValues
           cfn-lint deployment/cloudformation.yaml
