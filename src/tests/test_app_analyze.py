@@ -106,8 +106,9 @@ class TestAppAnalyze(unittest.TestCase):
         self.assertEqual(analyses["SOC2"], "Sample analysis")
 
         # Verify the statistics
-        self.assertEqual(stats["total"], 1)
-        self.assertEqual(stats["medium"], 1)
+        self.assertIn("SOC2", stats)
+        self.assertEqual(stats["SOC2"]["total"], 1)
+        self.assertEqual(stats["SOC2"]["medium"], 1)
 
     @patch("app.boto3.client")
     @patch("app.load_frameworks")
@@ -147,8 +148,9 @@ class TestAppAnalyze(unittest.TestCase):
         self.assertIsInstance(analyses, dict)
         self.assertIn("SOC2", analyses)
         self.assertIn("SOC 2 Findings Summary", analyses["SOC2"])
-        self.assertEqual(stats["total"], 1)
-        self.assertEqual(stats["medium"], 1)
+        self.assertIn("SOC2", stats)
+        self.assertEqual(stats["SOC2"]["total"], 1)
+        self.assertEqual(stats["SOC2"]["medium"], 1)
 
     def test_analyze_findings_no_findings(self):
         """Test analyzing findings with no findings."""

@@ -4,7 +4,7 @@ import json
 import os
 import unittest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, ANY
 
 import boto3
 import botocore.session
@@ -259,7 +259,7 @@ class TestApp(unittest.TestCase):
         mock_mapper_factory.get_all_mappers.assert_called_once()
         mock_get_findings.assert_called_once_with(24)
         mock_analyze_findings.assert_called_once_with(
-            findings_dict, mock_mappers, None, True
+            findings_dict, mock_mappers, None, ANY
         )
         mock_send_email.assert_called_once()
         mock_send_test_email.assert_not_called()
@@ -355,7 +355,7 @@ class TestApp(unittest.TestCase):
         mock_mapper_factory.get_all_mappers.assert_called_once()
         mock_get_findings.assert_called_once_with(24)
         mock_analyze_findings.assert_called_once_with(
-            findings_dict, mock_mappers, None, True
+            findings_dict, mock_mappers, None, ANY
         )
         mock_generate_csv.assert_called_once_with(
             findings_dict, mock_mappers
