@@ -126,7 +126,6 @@ class TestAppHandler(unittest.TestCase):
         # This test is skipped until updated for multi-framework support
         pass
 
-
         # Verify environment variables were set correctly
         self.assertEqual(os.environ.get("RECIPIENT_EMAIL"), "test@example.com")
         self.assertEqual(os.environ.get("SENDER_EMAIL"), "test@example.com")
@@ -147,7 +146,6 @@ class TestAppHandler(unittest.TestCase):
         # This test is skipped until updated for multi-framework support
         pass
 
-
         # Verify environment variables were set correctly
         self.assertEqual(os.environ.get("RECIPIENT_EMAIL"), "test@example.com")
         self.assertEqual(os.environ.get("SENDER_EMAIL"), "test@example.com")
@@ -159,7 +157,6 @@ class TestAppHandler(unittest.TestCase):
         """Test CLI handler with no command."""
         # This test is skipped until updated for multi-framework support
         pass
-
 
     @unittest.skip("CLI test needs to be updated for multi-framework support")
     @patch("app.argparse.ArgumentParser")
@@ -176,7 +173,6 @@ class TestAppHandler(unittest.TestCase):
         """Test CLI handler with report command but no findings."""
         # This test is skipped until updated for multi-framework support
         pass
-
 
 
 if __name__ == "__main__":

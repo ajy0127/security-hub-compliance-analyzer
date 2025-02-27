@@ -88,14 +88,14 @@ class TestApp(unittest.TestCase):
 
         # Configure the mock to return sample findings
         mock_securityhub.get_findings.return_value = {"Findings": self.sample_findings}
-        
+
         # Mock the frameworks configuration
         mock_load_frameworks.return_value = [
             {
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
@@ -122,14 +122,17 @@ class TestApp(unittest.TestCase):
         }
 
         # Create a mock mapper dictionary
-        mock_mappers = {
-            "SOC2": MagicMock()
+        mock_mappers = {"SOC2": MagicMock()}
+        mock_mappers["SOC2"].map_finding.return_value = {
+            "SOC2Controls": ["CC6.1", "CC7.2"]
         }
-        mock_mappers["SOC2"].map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
         mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
 
         # Sample analyses and stats
-        analyses = {"SOC2": "Sample analysis text for SOC2", "combined": "Combined analysis"}
+        analyses = {
+            "SOC2": "Sample analysis text for SOC2",
+            "combined": "Combined analysis",
+        }
         stats = {
             "SOC2": {
                 "total": 1,
@@ -146,14 +149,14 @@ class TestApp(unittest.TestCase):
                 "low": 0,
             }
         }
-        
+
         # Mock the frameworks configuration
         mock_load_frameworks.return_value = [
             {
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
@@ -215,18 +218,16 @@ class TestApp(unittest.TestCase):
     ):
         """Test lambda_handler with normal operation."""
         # Configure mocks
-        mock_mappers = {
-            "SOC2": MagicMock()
-        }
+        mock_mappers = {"SOC2": MagicMock()}
         mock_mapper_factory.get_all_mappers.return_value = mock_mappers
-        
+
         # Mock the frameworks configuration
         mock_load_frameworks.return_value = [
             {
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
@@ -297,7 +298,7 @@ class TestApp(unittest.TestCase):
     @patch("app.load_frameworks")
     def test_lambda_handler_with_csv_generation(
         self,
-        mock_load_frameworks, 
+        mock_load_frameworks,
         mock_mapper_factory,
         mock_send_email,
         mock_get_findings,
@@ -306,18 +307,16 @@ class TestApp(unittest.TestCase):
     ):
         """Test lambda_handler with CSV generation."""
         # Configure mocks
-        mock_mappers = {
-            "SOC2": MagicMock()
-        }
+        mock_mappers = {"SOC2": MagicMock()}
         mock_mapper_factory.get_all_mappers.return_value = mock_mappers
-        
+
         # Mock the frameworks configuration
         mock_load_frameworks.return_value = [
             {
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
@@ -342,9 +341,7 @@ class TestApp(unittest.TestCase):
         mock_analyze_findings.return_value = (mock_analyses, mock_stats)
 
         mock_send_email.return_value = True
-        mock_generate_csv.return_value = {
-            "SOC2": "/tmp/findings_soc2.csv"
-        }
+        mock_generate_csv.return_value = {"SOC2": "/tmp/findings_soc2.csv"}
 
         # Call the function
         event_with_csv = self.sample_event.copy()
@@ -357,9 +354,7 @@ class TestApp(unittest.TestCase):
         mock_analyze_findings.assert_called_once_with(
             findings_dict, mock_mappers, None, ANY
         )
-        mock_generate_csv.assert_called_once_with(
-            findings_dict, mock_mappers
-        )
+        mock_generate_csv.assert_called_once_with(findings_dict, mock_mappers)
         mock_send_email.assert_called_once()
 
         # Verify the function returned the expected result

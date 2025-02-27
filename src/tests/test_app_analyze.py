@@ -59,7 +59,9 @@ class TestAppAnalyze(unittest.TestCase):
 
     @patch("app.boto3.client")
     @patch("app.load_frameworks")
-    def test_analyze_findings_with_bedrock(self, mock_load_frameworks, mock_boto3_client):
+    def test_analyze_findings_with_bedrock(
+        self, mock_load_frameworks, mock_boto3_client
+    ):
         """Test analyzing findings with Bedrock."""
         # Create a mock Bedrock client
         mock_bedrock = MagicMock()
@@ -75,19 +77,19 @@ class TestAppAnalyze(unittest.TestCase):
         mock_bedrock.invoke_model.return_value = {"body": mock_response_body}
 
         # Create a mock mapper dictionary
-        mock_mappers = {
-            "SOC2": MagicMock()
+        mock_mappers = {"SOC2": MagicMock()}
+        mock_mappers["SOC2"].map_finding.return_value = {
+            "SOC2Controls": ["CC6.1", "CC7.2"]
         }
-        mock_mappers["SOC2"].map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
         mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
-        
+
         # Mock the frameworks configuration
         mock_load_frameworks.return_value = [
             {
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
@@ -112,7 +114,9 @@ class TestAppAnalyze(unittest.TestCase):
 
     @patch("app.boto3.client")
     @patch("app.load_frameworks")
-    def test_analyze_findings_with_exception(self, mock_load_frameworks, mock_boto3_client):
+    def test_analyze_findings_with_exception(
+        self, mock_load_frameworks, mock_boto3_client
+    ):
         """Test analyzing findings with Bedrock exception."""
         # Create a mock Bedrock client
         mock_bedrock = MagicMock()
@@ -122,19 +126,19 @@ class TestAppAnalyze(unittest.TestCase):
         mock_bedrock.invoke_model.side_effect = Exception("Test exception")
 
         # Create a mock mapper dictionary
-        mock_mappers = {
-            "SOC2": MagicMock()
+        mock_mappers = {"SOC2": MagicMock()}
+        mock_mappers["SOC2"].map_finding.return_value = {
+            "SOC2Controls": ["CC6.1", "CC7.2"]
         }
-        mock_mappers["SOC2"].map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
         mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
-        
+
         # Mock the frameworks configuration
         mock_load_frameworks.return_value = [
             {
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
@@ -155,9 +159,7 @@ class TestAppAnalyze(unittest.TestCase):
     def test_analyze_findings_no_findings(self):
         """Test analyzing findings with no findings."""
         # Create a mock mapper dictionary
-        mock_mappers = {
-            "SOC2": MagicMock()
-        }
+        mock_mappers = {"SOC2": MagicMock()}
 
         # Call the function with empty findings dict
         analyses, stats = app.analyze_findings({}, mock_mappers)

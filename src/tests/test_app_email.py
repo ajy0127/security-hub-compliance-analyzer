@@ -96,26 +96,25 @@ class TestAppEmail(unittest.TestCase):
                 "id": "SOC2",
                 "name": "SOC 2",
                 "arn": "arn:aws:securityhub:::standards/aws-soc2",
-                "description": "SOC 2 Framework"
+                "description": "SOC 2 Framework",
             }
         ]
 
         # Create a mock mapper dictionary
-        mock_mappers = {
-            "SOC2": MagicMock()
-        }
+        mock_mappers = {"SOC2": MagicMock()}
         mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
 
         # Create findings dict for multi-framework format
         findings_dict = {"SOC2": self.sample_findings}
 
         # Create analyses dict for multi-framework format
-        analyses_dict = {"SOC2": "Sample analysis for SOC2", "combined": "Combined analysis"}
-        
-        # Stats dict for multi-framework format
-        stats_dict = {
-            "SOC2": self.sample_stats
+        analyses_dict = {
+            "SOC2": "Sample analysis for SOC2",
+            "combined": "Combined analysis",
         }
+
+        # Stats dict for multi-framework format
+        stats_dict = {"SOC2": self.sample_stats}
 
         # Set environment variables for testing
         os.environ["SENDER_EMAIL"] = "sender@example.com"
