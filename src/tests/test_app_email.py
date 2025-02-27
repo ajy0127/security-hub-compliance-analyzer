@@ -80,7 +80,8 @@ class TestAppEmail(unittest.TestCase):
         self.assertFalse(result)
 
     @patch("app.boto3.client")
-    def test_send_email_exception(self, mock_boto3_client):
+    @patch("app.load_frameworks")
+    def test_send_email_exception(self, mock_load_frameworks, mock_boto3_client):
         """Test sending email with exception."""
         # Create a mock SES client
         mock_ses = MagicMock()
@@ -89,16 +90,43 @@ class TestAppEmail(unittest.TestCase):
         # Configure the mock to raise an exception
         mock_ses.send_raw_email.side_effect = Exception("Test exception")
 
+        # Mock the frameworks configuration
+        mock_load_frameworks.return_value = [
+            {
+                "id": "SOC2",
+                "name": "SOC 2",
+                "arn": "arn:aws:securityhub:::standards/aws-soc2",
+                "description": "SOC 2 Framework"
+            }
+        ]
+
+        # Create a mock mapper dictionary
+        mock_mappers = {
+            "SOC2": MagicMock()
+        }
+        mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
+
+        # Create findings dict for multi-framework format
+        findings_dict = {"SOC2": self.sample_findings}
+
+        # Create analyses dict for multi-framework format
+        analyses_dict = {"SOC2": "Sample analysis for SOC2", "combined": "Combined analysis"}
+        
+        # Stats dict for multi-framework format
+        stats_dict = {
+            "SOC2": self.sample_stats
+        }
+
         # Set environment variables for testing
         os.environ["SENDER_EMAIL"] = "sender@example.com"
 
         # Call the function
         result = app.send_email(
             "test@example.com",
-            self.sample_findings,
-            "Sample analysis",
-            self.sample_stats,
-            MagicMock(),
+            findings_dict,
+            analyses_dict,
+            stats_dict,
+            mock_mappers,
         )
 
         # Verify the function returned False

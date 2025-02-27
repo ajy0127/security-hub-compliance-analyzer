@@ -58,7 +58,8 @@ class TestAppAnalyze(unittest.TestCase):
         ]
 
     @patch("app.boto3.client")
-    def test_analyze_findings_with_bedrock(self, mock_boto3_client):
+    @patch("app.load_frameworks")
+    def test_analyze_findings_with_bedrock(self, mock_load_frameworks, mock_boto3_client):
         """Test analyzing findings with Bedrock."""
         # Create a mock Bedrock client
         mock_bedrock = MagicMock()
@@ -73,25 +74,44 @@ class TestAppAnalyze(unittest.TestCase):
         # Configure the mock to return a successful response
         mock_bedrock.invoke_model.return_value = {"body": mock_response_body}
 
-        # Create a mock SOC2Mapper
-        mock_soc2_mapper = MagicMock()
-        mock_soc2_mapper.map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
+        # Create a mock mapper dictionary
+        mock_mappers = {
+            "SOC2": MagicMock()
+        }
+        mock_mappers["SOC2"].map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
+        mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
+        
+        # Mock the frameworks configuration
+        mock_load_frameworks.return_value = [
+            {
+                "id": "SOC2",
+                "name": "SOC 2",
+                "arn": "arn:aws:securityhub:::standards/aws-soc2",
+                "description": "SOC 2 Framework"
+            }
+        ]
+
+        # Create findings dict for multi-framework format
+        findings_dict = {"SOC2": self.sample_findings}
 
         # Call the function
-        analysis, stats = app.analyze_findings(self.sample_findings, mock_soc2_mapper)
+        analyses, stats = app.analyze_findings(findings_dict, mock_mappers)
 
         # Verify the function called Bedrock
         mock_bedrock.invoke_model.assert_called_once()
 
         # Verify the function returned the expected analysis
-        self.assertEqual(analysis, "Sample analysis")
+        self.assertIsInstance(analyses, dict)
+        self.assertIn("SOC2", analyses)
+        self.assertEqual(analyses["SOC2"], "Sample analysis")
 
         # Verify the statistics
         self.assertEqual(stats["total"], 1)
         self.assertEqual(stats["medium"], 1)
 
     @patch("app.boto3.client")
-    def test_analyze_findings_with_exception(self, mock_boto3_client):
+    @patch("app.load_frameworks")
+    def test_analyze_findings_with_exception(self, mock_load_frameworks, mock_boto3_client):
         """Test analyzing findings with Bedrock exception."""
         # Create a mock Bedrock client
         mock_bedrock = MagicMock()
@@ -100,28 +120,50 @@ class TestAppAnalyze(unittest.TestCase):
         # Configure the mock to raise an exception
         mock_bedrock.invoke_model.side_effect = Exception("Test exception")
 
-        # Create a mock SOC2Mapper
-        mock_soc2_mapper = MagicMock()
-        mock_soc2_mapper.map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
+        # Create a mock mapper dictionary
+        mock_mappers = {
+            "SOC2": MagicMock()
+        }
+        mock_mappers["SOC2"].map_finding.return_value = {"SOC2Controls": ["CC6.1", "CC7.2"]}
+        mock_mappers["SOC2"].get_control_id_attribute.return_value = "SOC2Controls"
+        
+        # Mock the frameworks configuration
+        mock_load_frameworks.return_value = [
+            {
+                "id": "SOC2",
+                "name": "SOC 2",
+                "arn": "arn:aws:securityhub:::standards/aws-soc2",
+                "description": "SOC 2 Framework"
+            }
+        ]
+
+        # Create findings dict for multi-framework format
+        findings_dict = {"SOC2": self.sample_findings}
 
         # Call the function
-        analysis, stats = app.analyze_findings(self.sample_findings, mock_soc2_mapper)
+        analyses, stats = app.analyze_findings(findings_dict, mock_mappers)
 
         # Verify the function returned fallback analysis and correct stats
-        self.assertIn("SecurityHub Findings Summary", analysis)
+        self.assertIsInstance(analyses, dict)
+        self.assertIn("SOC2", analyses)
+        self.assertIn("SOC 2 Findings Summary", analyses["SOC2"])
         self.assertEqual(stats["total"], 1)
         self.assertEqual(stats["medium"], 1)
 
     def test_analyze_findings_no_findings(self):
         """Test analyzing findings with no findings."""
-        # Create a mock SOC2Mapper
-        mock_soc2_mapper = MagicMock()
+        # Create a mock mapper dictionary
+        mock_mappers = {
+            "SOC2": MagicMock()
+        }
 
-        # Call the function with empty findings
-        analysis, stats = app.analyze_findings([], mock_soc2_mapper)
+        # Call the function with empty findings dict
+        analyses, stats = app.analyze_findings({}, mock_mappers)
 
         # Verify the function returned expected values
-        self.assertEqual(analysis, "No findings to analyze.")
+        self.assertIsInstance(analyses, dict)
+        self.assertIn("combined", analyses)
+        self.assertEqual(analyses["combined"], "No findings to analyze.")
         self.assertEqual(stats, {})
 
 
