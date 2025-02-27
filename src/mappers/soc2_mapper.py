@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from src.framework_mapper import FrameworkMapper
+from ..framework_mapper import FrameworkMapper
 
 
 class SOC2Mapper(FrameworkMapper):

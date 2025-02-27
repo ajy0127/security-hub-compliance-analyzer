@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 
 # Import all mappers
-from src.mappers.soc2_mapper import SOC2Mapper
-from src.mappers.nist_mapper import NIST80053Mapper
+from .mappers.soc2_mapper import SOC2Mapper
+from .mappers.nist_mapper import NIST80053Mapper
 
 # Configure logging
 logger = logging.getLogger()
