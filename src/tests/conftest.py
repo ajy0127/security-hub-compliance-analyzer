@@ -1,5 +1,4 @@
-"""
-conftest.py - Configures the test environment to fix import path issues.
+"""Configures the test environment to fix import path issues.
 
 This file adjusts the Python path to include the parent directory (src/)
 so that modules can be properly imported from the parent directory while
