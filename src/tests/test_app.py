@@ -4,7 +4,7 @@ import json
 import os
 import unittest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch, ANY
+from unittest.mock import ANY, MagicMock, patch
 
 import boto3
 import botocore.session
