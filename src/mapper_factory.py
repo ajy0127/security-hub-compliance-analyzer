@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 from .mappers.nist_mapper import NIST80053Mapper
+
 # Import all mappers
 from .mappers.soc2_mapper import SOC2Mapper
 
