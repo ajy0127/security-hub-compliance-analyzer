@@ -17,6 +17,15 @@ Parameters:
     Default: '24'
     Description: Number of hours to look back for findings
   
+  DefaultFramework:
+    Type: String
+    Default: 'all'
+    AllowedValues:
+      - 'all'
+      - 'SOC2'
+      - 'NIST800-53'
+    Description: Default compliance framework to analyze (all, SOC2, or NIST800-53)
+  
   BedrockModelId:
     Type: String
     Default: anthropic.claude-3-sonnet-20240229-v1:0
@@ -102,6 +111,7 @@ Resources:
           RECIPIENT_EMAIL: !Ref RecipientEmail
           BEDROCK_MODEL_ID: !Ref BedrockModelId
           FINDINGS_HOURS: !Ref FindingsHours
+          DEFAULT_FRAMEWORK: !Ref DefaultFramework
 
   # Weekly Schedule
   WeeklyAnalysisSchedule:

@@ -70,10 +70,13 @@ fi
 # Display test options and get user selection
 echo -e "${YELLOW}Select test option:${NC}"
 echo "1. Send test email"
-echo "2. Generate report with findings from the last 24 hours"
-echo "3. Generate report with findings from the last 7 days"
-echo "4. Custom event"
-read -p "Enter option (1-4): " option
+echo "2. Generate report with findings from the last 24 hours (all frameworks)"
+echo "3. Generate report with findings from the last 7 days (all frameworks)"
+echo "4. Generate SOC 2 only report (24 hours)"
+echo "5. Generate NIST 800-53 only report (24 hours)"
+echo "6. Generate multi-framework report with combined analysis (24 hours)"
+echo "7. Custom event"
+read -p "Enter option (1-7): " option
 
 # Configure test event based on selection
 case $option in
@@ -82,14 +85,26 @@ case $option in
         EVENT='{"test_email": true}'
         ;;
     2)
-        echo -e "${YELLOW}Invoking Lambda function to generate report (24 hours)...${NC}"
+        echo -e "${YELLOW}Invoking Lambda function to generate report (24 hours, all frameworks)...${NC}"
         EVENT='{}'
         ;;
     3)
-        echo -e "${YELLOW}Invoking Lambda function to generate report (7 days)...${NC}"
+        echo -e "${YELLOW}Invoking Lambda function to generate report (7 days, all frameworks)...${NC}"
         EVENT='{"hours": 168}'
         ;;
     4)
+        echo -e "${YELLOW}Invoking Lambda function to generate SOC 2 report...${NC}"
+        EVENT='{"framework": "SOC2"}'
+        ;;
+    5)
+        echo -e "${YELLOW}Invoking Lambda function to generate NIST 800-53 report...${NC}"
+        EVENT='{"framework": "NIST800-53"}'
+        ;;
+    6)
+        echo -e "${YELLOW}Invoking Lambda function to generate multi-framework report with combined analysis...${NC}"
+        EVENT='{"framework": "all", "combined_analysis": true}'
+        ;;
+    7)
         echo -e "${YELLOW}Enter custom event JSON:${NC}"
         read -p "Event JSON: " custom_event
         EVENT="$custom_event"
@@ -106,6 +121,7 @@ export SENDER_EMAIL="your-verified-email@example.com"
 export RECIPIENT_EMAIL="your-email@example.com"
 export BEDROCK_MODEL_ID="anthropic.claude-3-sonnet"
 export FINDINGS_HOURS="24"
+export DEFAULT_FRAMEWORK="all"
 
 # Prompt to update email environment variables with user values
 echo -e "${YELLOW}Would you like to set the email environment variables? (y/n)${NC}"
@@ -150,6 +166,7 @@ print('  SENDER_EMAIL:', os.environ.get('SENDER_EMAIL'))
 print('  RECIPIENT_EMAIL:', os.environ.get('RECIPIENT_EMAIL'))
 print('  BEDROCK_MODEL_ID:', os.environ.get('BEDROCK_MODEL_ID'))
 print('  FINDINGS_HOURS:', os.environ.get('FINDINGS_HOURS'))
+print('  DEFAULT_FRAMEWORK:', os.environ.get('DEFAULT_FRAMEWORK'))
 
 # Invoke the Lambda handler
 try:

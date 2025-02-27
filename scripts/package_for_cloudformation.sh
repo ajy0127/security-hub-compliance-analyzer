@@ -66,12 +66,33 @@ echo "Created temporary directory: $TEMP_DIR"
 # === Source File Preparation ===
 # Copy all required source files to the temporary directory
 echo "Copying source files to temporary directory..."
-cp ../src/app.py ../src/utils.py ../src/soc2_mapper.py ../src/requirements.txt "$TEMP_DIR/"
+cp ../src/app.py ../src/utils.py ../src/framework_mapper.py ../src/mapper_factory.py ../src/requirements.txt "$TEMP_DIR/"
 
-# Create a directory for the SOC2 control mappings configuration
+# Create directories for mappers module
+echo "Setting up mappers module structure..."
+mkdir -p "$TEMP_DIR/mappers"
+cp ../src/mappers/__init__.py ../src/mappers/soc2_mapper.py ../src/mappers/nist_mapper.py "$TEMP_DIR/mappers/"
+
+# Create a directory for configuration files
 echo "Setting up configuration directory structure..."
-mkdir -p "$TEMP_DIR/config"
-cp ../deployment/config/mappings.json "$TEMP_DIR/config/"
+mkdir -p "$TEMP_DIR/config/mappings"
+# Copy frameworks configuration
+if [ -f "../config/frameworks.json" ]; then
+    cp ../config/frameworks.json "$TEMP_DIR/config/"
+else
+    cp ../deployment/config/frameworks.json "$TEMP_DIR/config/" || echo "Warning: frameworks.json not found"
+fi
+# Copy mappings files
+if [ -f "../config/mappings/soc2_mappings.json" ]; then
+    cp ../config/mappings/soc2_mappings.json "$TEMP_DIR/config/mappings/"
+else
+    cp ../deployment/config/mappings.json "$TEMP_DIR/config/mappings/soc2_mappings.json" || echo "Warning: SOC2 mappings not found"
+fi
+if [ -f "../config/mappings/nist800_53_mappings.json" ]; then
+    cp ../config/mappings/nist800_53_mappings.json "$TEMP_DIR/config/mappings/"
+else
+    cp ../deployment/config/mappings/nist800_53_mappings.json "$TEMP_DIR/config/mappings/" || echo "Warning: NIST 800-53 mappings not found"
+fi
 
 # === Lambda Package Preparation ===
 # Change to the temporary directory to install dependencies and create zip

@@ -1,4 +1,5 @@
-# AWS SecurityHub SOC 2 Compliance Lab
+# AWS SecurityHub Multi-Framework Compliance Analyzer
+## Supporting SOC 2 and NIST 800-53 Frameworks
 
 [![CI/CD Pipeline](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml)
 
@@ -10,7 +11,7 @@ This lab project is designed specifically for Governance, Risk, and Compliance (
 
 As a GRC professional, demonstrating practical experience with cloud compliance tools is increasingly valuable. This project allows you to:
 
-- **Showcase SOC 2 Knowledge**: Demonstrate your understanding of SOC 2 controls in a practical context
+- **Showcase Compliance Framework Knowledge**: Demonstrate your understanding of SOC 2 and NIST 800-53 controls in a practical context
 - **Bridge the Technical Gap**: Build confidence working with cloud security tools without needing deep technical expertise
 - **Create Tangible Deliverables**: Generate professional compliance reports you can showcase to potential employers
 - **Learn AWS Security Basics**: Gain hands-on experience with AWS SecurityHub in a guided environment
@@ -20,7 +21,8 @@ As a GRC professional, demonstrating practical experience with cloud compliance 
 This lab will help you understand:
 
 1. **How AWS SecurityHub Works**: Learn how cloud security findings are generated and managed
-2. **SOC 2 Control Mapping**: See how technical findings map to SOC 2 compliance requirements
+2. **Compliance Control Mapping**: See how technical findings map to SOC 2 and NIST 800-53 compliance requirements
+3. **Multi-Framework Analysis**: Understand how security findings impact different compliance frameworks
 3. **Compliance Reporting**: Create professional reports suitable for auditors and executives
 4. **Basic Cloud Automation**: Experience how compliance monitoring can be automated
 
@@ -28,11 +30,12 @@ This lab will help you understand:
 
 This solution automatically:
 1. Collects security findings from AWS SecurityHub
-2. Maps those findings to relevant SOC 2 controls
-3. Uses AI to analyze the compliance impact
-4. Generates and emails professional reports
+2. Maps those findings to relevant SOC 2 and NIST 800-53 controls
+3. Uses AI to analyze the compliance impact for each framework
+4. Provides cross-framework analysis to identify common issues
+5. Generates and emails professional reports for single or multiple frameworks
 
-Think of it as an automated compliance assistant that helps you monitor SOC 2 requirements in AWS.
+Think of it as an automated compliance assistant that helps you monitor security compliance across multiple frameworks in AWS.
 
 ## ⚠️ Important Email Verification Requirement
 
@@ -91,9 +94,12 @@ After completing this lab, you'll have several artifacts to add to your professi
 This solution consists of several parts, explained in non-technical terms:
 
 1. **The Collector** (Lambda Function): Automatically gathers security findings on a schedule
-2. **The Mapper** (SOC2Mapper): Translates technical security findings into SOC 2 control language
-3. **The Analyzer** (AI Component): Reviews findings and generates compliance insights
-4. **The Reporter** (Email Component): Creates and delivers professional reports
+2. **The Framework Mappers**: Translate technical security findings into compliance control language for different frameworks
+   - SOC2Mapper: Maps findings to SOC 2 controls
+   - NIST800-53Mapper: Maps findings to NIST 800-53 controls
+3. **The Analyzer** (AI Component): Reviews findings and generates compliance insights for each framework
+4. **The Cross-Framework Analyzer**: Identifies common issues and priorities across multiple frameworks
+5. **The Reporter** (Email Component): Creates and delivers professional reports with framework-specific sections
 
 ## Repository Structure
 
@@ -111,7 +117,7 @@ This repository is organized into the following directories:
 
 You can customize this project to demonstrate your unique GRC expertise:
 
-1. **Modify Control Mappings**: Edit the deployment/config/mappings.json file to show your understanding of SOC 2 controls
+1. **Modify Control Mappings**: Edit the mapping files in the config/mappings/ directory to show your understanding of different compliance frameworks
 2. **Customize Report Format**: Adjust the email template to showcase your reporting style
 3. **Add Additional Controls**: Extend the project to include other compliance frameworks you're familiar with
 
@@ -139,7 +145,7 @@ A: The most common issue is not properly verifying both sender and recipient ema
 
 After you've completed this lab, consider these next steps for your GRC portfolio:
 
-1. **Add Multi-Framework Support**: Extend the project to map findings to other frameworks like NIST or ISO 27001
+1. **Add More Frameworks**: Extend the project to map findings to additional frameworks like ISO 27001, CIS Controls, or HIPAA
 2. **Create Executive Dashboards**: Design visual summaries of compliance status
 3. **Develop Remediation Workflows**: Outline processes for addressing compliance gaps
 4. **Document Your Journey**: Write a blog post or LinkedIn article about what you learned

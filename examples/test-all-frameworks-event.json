@@ -1,0 +1,7 @@
+{
+    "email": "your-verified-email@example.com",
+    "framework": "all",
+    "hours": 24,
+    "combined_analysis": true,
+    "generate_csv": true
+}

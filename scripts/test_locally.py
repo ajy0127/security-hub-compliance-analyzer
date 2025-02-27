@@ -13,14 +13,13 @@ os.environ["RECIPIENT_EMAIL"] = "your-email@example.com"
 os.environ["BEDROCK_MODEL_ID"] = "anthropic.claude-3-sonnet"
 os.environ["FINDINGS_HOURS"] = "24"
 
-# Add the src directory to the Python path for imports
+# Get the project root and add to Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-src_dir = os.path.join(project_root, "src")
-sys.path.append(src_dir)
+sys.path.append(project_root)
 
 # Import the Lambda handler function
 try:
-    from app import lambda_handler
+    from src.app import lambda_handler
 except ImportError:
     print("Error: Could not import lambda_handler from src/app.py")
     print(
@@ -51,6 +50,12 @@ def load_test_event(event_type=None, custom_path=None):
             return {}  # Default is 24 hours
         elif event_type == "report_7d":
             return {"hours": 168}  # 7 days * 24 hours
+        elif event_type == "report_soc2":
+            return {"framework": "SOC2"}
+        elif event_type == "report_nist":
+            return {"framework": "NIST800-53"}
+        elif event_type == "report_all":
+            return {"framework": "all", "combined_analysis": True}
 
     # Otherwise, try to load from the default location
     default_path = os.path.join(project_root, "examples", "test-event.json")
@@ -120,7 +125,7 @@ def main():
     )
     parser.add_argument(
         "--event-type",
-        choices=["test_email", "report_24h", "report_7d"],
+        choices=["test_email", "report_24h", "report_7d", "report_soc2", "report_nist", "report_all"],
         help="Type of test event to create",
     )
     parser.add_argument(
@@ -139,7 +144,7 @@ def main():
 
     # Print header information
     print("=" * 80)
-    print(f"AWS SecurityHub SOC2 Compliance Analyzer - Local Test")
+    print(f"AWS SecurityHub Multi-Framework Compliance Analyzer - Local Test")
     print(f"Started at {datetime.now().isoformat()}")
     print("=" * 80)
 
