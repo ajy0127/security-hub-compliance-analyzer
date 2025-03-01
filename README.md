@@ -1,34 +1,33 @@
 # AWS SecurityHub Multi-Framework Compliance Analyzer
-## Supporting SOC 2 and NIST 800-53 Frameworks with cATO Monitoring
+## A GRC Portfolio Playground for Cloud Compliance
 
 [![CI/CD Pipeline](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml)
 
 **⚠️ Verify Emails First!**  
 This tool requires sender and recipient emails verified in Amazon SES. See [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) before starting—skipping this breaks email reporting!
 
-## A Portfolio-Building Project for GRC Professionals
+## Welcome to Your Compliance Sandbox!
 
-This lab project is designed specifically for Governance, Risk, and Compliance (GRC) professionals who want to enhance their technical skills and build a practical portfolio demonstrating cloud security compliance expertise.
+Hey GRC folks! This is your sandbox to experiment with AWS SecurityHub compliance—think of it as a portfolio-building side quest. It's a work in progress, so dive in, play with it, and make it yours. You'll end up with professional compliance reports and legit cloud skills to showcase. No pressure, just adventure!
 
-## Why This Project Matters for Your GRC Portfolio
+## Why Tinker With This?
 
-As a GRC professional, demonstrating practical experience with cloud compliance tools is increasingly valuable. This project allows you to:
+- **Boost Your AWS Game**: Poke around with compliance frameworks without stress
+- **Score Easy Wins**: Snag some real compliance reports to show off in interviews
+- **Flex Your GRC Muscles**: Spot control gaps and map findings like a pro
+- **Have Fun with Cloud Tools**: Mess with Lambda and Bedrock—see what sticks!
+- **Build While You Learn**: Add this project to your portfolio while picking up practical skills
 
-- **Showcase Compliance Framework Knowledge**: Demonstrate your understanding of SOC 2 and NIST 800-53 controls in a practical context
-- **Bridge the Technical Gap**: Build confidence working with cloud security tools without needing deep technical expertise
-- **Create Tangible Deliverables**: Generate professional compliance reports you can showcase to potential employers
-- **Learn AWS Security Basics**: Gain hands-on experience with AWS SecurityHub in a guided environment
+## Skills You'll Pick Up
 
-## What You'll Learn
+Play with this sandbox and you'll get to:
 
-This lab will help you understand:
-
-1. **How AWS SecurityHub Works**: Learn how cloud security findings are generated and managed
-2. **Compliance Control Mapping**: See how technical findings map to SOC 2 and NIST 800-53 compliance requirements
-3. **Multi-Framework Analysis**: Understand how security findings impact different compliance frameworks
-4. **Compliance Reporting**: Create professional reports suitable for auditors and executives
-5. **cATO Monitoring**: Track continuous Authorization to Operate with NIST 800-53 control status reporting
-6. **Basic Cloud Automation**: Experience how compliance monitoring can be automated
+1. **Decode AWS SecurityHub**: See how cloud security findings are captured in the real world 
+2. **Map Techie Stuff to GRC-Speak**: Connect security findings to SOC 2 and NIST controls
+3. **Juggle Multiple Frameworks**: See how one security issue impacts different compliance frameworks
+4. **Craft Pro-Level Reports**: Make compliance reports that would impress auditors
+5. **Track cATO Status**: Monitor NIST 800-53 control status like the FedRAMP pros do
+6. **Automate Boring Stuff**: Let Lambda do the compliance work while you focus on the fun parts
 
 ## Project Overview (Non-Technical)
 
@@ -41,10 +40,10 @@ This solution automatically:
 
 Think of it as an automated compliance assistant that helps you monitor security compliance across multiple frameworks in AWS.
 
-### 3-Minute Setup
-1. **Verify Emails**: Confirm sender/recipient emails in SES ([Guide](docs/DEPLOYMENT_GUIDE.md#email-verification)).
-2. **Deploy**: Run `aws cloudformation create-stack --stack-name security-hub-compliance --template-body file://deployment/cloudformation.yaml --capabilities CAPABILITY_IAM --parameters ParameterKey=SenderEmail,ParameterValue=your-verified@email.com ParameterKey=RecipientEmail,ParameterValue=your-verified@email.com ParameterKey=S3BucketName,ParameterValue=your-bucket-name ParameterKey=S3KeyName,ParameterValue=lambda-code.zip`
-3. **Test**: Trigger with `test-soc2-event.json` from `examples/`.
+### Your First Adventure
+1. **Email Warm-Up**: Verify an email in SES (5 mins, see [this guide](docs/DEPLOYMENT_GUIDE.md#email-verification)).
+2. **Launch It**: Fire off the CloudFormation template [like this](docs/DEPLOYMENT_GUIDE.md)—boom, it's live!
+3. **Grab a Prize**: Run your first report with `test-soc2-event.json` and snag a shiny compliance report.
 
 ### Framework Selection
 
@@ -169,18 +168,19 @@ After completing this lab, you'll have several artifacts to add to your professi
 2. **Project Implementation**: Documentation of your deployment process
 3. **Risk Analysis**: Sample analysis of security findings and their compliance impact
 
-## Understanding the Components (Simplified)
+## Cool Features (So Far!)
 
-This solution consists of several parts, explained in non-technical terms:
+This solution packs a bunch of fun tools to play with:
 
-1. **The Collector** (Lambda Function): Automatically gathers security findings and control status on a schedule
-2. **The Framework Mappers**: Translate technical security findings into compliance control language for different frameworks
-   - SOC2Mapper: Maps findings to SOC 2 controls
-   - NIST800-53Mapper: Maps findings to NIST 800-53 controls
-3. **The Control Status Manager**: Directly retrieves NIST 800-53 control status for enhanced cATO reporting
-4. **The Analyzer** (AI Component): Reviews findings and generates compliance insights for each framework
-5. **The Cross-Framework Analyzer**: Identifies common issues and priorities across multiple frameworks
-6. **The Reporter** (Email Component): Creates and delivers professional reports with framework-specific sections
+1. **Compliance Matchmaker** (Lambda): Automatically hunts for security findings and matches them to compliance controls
+2. **Framework Translators**: Turns techie security speak into GRC language for different frameworks
+   - SOC2Mapper: Connects findings to SOC 2 controls (perfect for audits!)
+   - NIST800-53Mapper: Maps to NIST 800-53 controls (great for FedRAMP fans!)
+3. **Control Status Tracker**: Grabs NIST 800-53 control statuses directly for cATO reporting
+4. **AI Analysis Helper**: Uses Bedrock to review findings and generate insights (still tweaking this!)
+5. **Email Reporter**: Delivers shiny reports right to your inbox—fancy, right?
+
+*Note*: This is a growing toolkit—expect quirks and cool updates!
 
 ## Repository Structure
 
@@ -194,13 +194,14 @@ This repository is organized into the following directories:
 - **scripts/**: Utility scripts for package creation, deployment, and local testing
 - **examples/**: Example files including sample reports and test data
 
-## Customizing for Your Portfolio
+## Make It Your Own
 
-You can customize this project to demonstrate your unique GRC expertise:
+This is your playground—hack away!
 
-1. **Modify Control Mappings**: Edit the mapping files in the config/mappings/ directory to show your understanding of different compliance frameworks
-2. **Customize Report Format**: Adjust the email template to showcase your reporting style
-3. **Add Additional Controls**: Extend the project to include other compliance frameworks you're familiar with
+1. **Tweak the Mappings**: Dive into `config/mappings/` and add your expertise to the compliance mappings
+2. **Fancy Up the Reports**: Play with email templates in `deployment/config/` to showcase your style
+3. **Add Your Frameworks**: Extend with ISO 27001, HIPAA, or whatever frameworks you love
+4. **Share Your Story**: Blog your customizations—level up your portfolio!
 
 ## FAQ for GRC Professionals
 
@@ -253,5 +254,9 @@ This project was designed to bridge the gap between technical security implement
 
 This project was inspired by [AWS Security Hub Findings Summarizer with AI-Powered Analysis](https://github.com/aws-samples/analyze-securityhub-findings-with-bedrock), an AWS sample that demonstrates how to use Amazon Bedrock to analyze SecurityHub findings. While our project focuses specifically on SOC 2 compliance for GRC professionals, we appreciate the architectural patterns and concepts demonstrated in the original AWS sample.
 
+## Join the Journey
+
+Got ideas? Found a bug? Just wanna chat GRC adventures? Hit me up on [LinkedIn](https://www.linkedin.com/in/ajyawn/) or toss thoughts in GitHub Issues. This is a WIP—let's build it together!
+
 ## Related Projects
-Check out my other GRC tool: [aws_automated_access_review](https://github.com/ajy0127/aws_automated_access_review) for IAM-focused security audits!
+Check out my other GRC playground: [aws_automated_access_review](https://github.com/ajy0127/aws_automated_access_review) for IAM-focused security audits and access reviews!
