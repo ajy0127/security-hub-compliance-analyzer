@@ -157,7 +157,9 @@ class TestAppNIST:
         assert "failing_controls" in statistics
         assert statistics["failing_controls"] >= 1  # At minimum, the one from our test
         assert "not_applicable_controls" in statistics
-        assert statistics["not_applicable_controls"] >= 1  # At minimum, the one from our test
+        assert (
+            statistics["not_applicable_controls"] >= 1
+        )  # At minimum, the one from our test
 
         # Verify control families
         assert isinstance(control_families, dict)
@@ -165,5 +167,9 @@ class TestAppNIST:
         # Make the assertions more flexible
         assert "AC" in control_families  # Access Control family
         assert "CM" in control_families  # Configuration Management family
-        assert len(control_families["AC"]["controls"]) >= 2  # Should have at least 2 AC controls
-        assert len(control_families["CM"]["controls"]) >= 1  # Should have at least 1 CM control
+        assert (
+            len(control_families["AC"]["controls"]) >= 2
+        )  # Should have at least 2 AC controls
+        assert (
+            len(control_families["CM"]["controls"]) >= 1
+        )  # Should have at least 1 CM control

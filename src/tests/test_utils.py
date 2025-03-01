@@ -4,9 +4,16 @@ import unittest
 from datetime import datetime, timezone
 
 from soc2_mapper import SOC2Mapper
-from utils import (format_datetime, format_severity, get_account_id,
-                   get_region, get_resource_id, group_by_control,
-                   group_by_severity, truncate_text)
+from utils import (
+    format_datetime,
+    format_severity,
+    get_account_id,
+    get_region,
+    get_resource_id,
+    group_by_control,
+    group_by_severity,
+    truncate_text,
+)
 
 
 class TestUtils(unittest.TestCase):

@@ -18,19 +18,20 @@ import json
 import os
 from src.app import get_nist_control_status, generate_nist_cato_report
 
+
 def debug_email_html():
     """Generate and save the email HTML for debugging."""
     print("Debugging email HTML output")
-    
+
     # Get control status data
     print("Getting NIST 800-53 control status...")
     controls = get_nist_control_status()
     print(f"Retrieved {len(controls)} controls")
-    
+
     # Generate the report
     print("Generating cATO report...")
     report_text, stats, control_families = generate_nist_cato_report()
-    
+
     # Print report summary
     print(f"\nReport Statistics:")
     print(f"Total Controls: {stats.get('total', 0)}")
@@ -39,35 +40,49 @@ def debug_email_html():
     print(f"Unknown: {stats.get('unknown', 0)}")
     print(f"Compliance %: {stats.get('compliance_percentage', 0):.1f}%")
     print(f"\nControl Families: {len(control_families)}")
-    
+
     # Framework settings
     framework_id = "NIST800-53"
     framework_name = "NIST 800-53"
     frameworks_to_include = [framework_id]
-    subject = f'Test Agency Weekly cATO Update - 2025-02-28'
-    
+    subject = f"Test Agency Weekly cATO Update - 2025-02-28"
+
     # Process analysis for HTML
     analysis = report_text
-    formatted_analysis = analysis.replace('# ', '<h1>').replace('## ', '<h2>').replace('### ', '<h3>')
-    formatted_analysis = formatted_analysis.replace('\n\n', '</p><p>')
-    formatted_analysis = formatted_analysis.replace('**', '<strong>')
-    formatted_analysis = formatted_analysis.replace('*', '<em>')
-    
+    formatted_analysis = (
+        analysis.replace("# ", "<h1>").replace("## ", "<h2>").replace("### ", "<h3>")
+    )
+    formatted_analysis = formatted_analysis.replace("\n\n", "</p><p>")
+    formatted_analysis = formatted_analysis.replace("**", "<strong>")
+    formatted_analysis = formatted_analysis.replace("*", "<em>")
+
     # Make sure all tags are properly closed
-    for tag in ['h1', 'h2', 'h3', 'strong', 'em', 'p']:
-        count = formatted_analysis.count(f'<{tag}>')
-        if count > formatted_analysis.count(f'</{tag}>'):
-            formatted_analysis += f'</{tag}>'
-    
+    for tag in ["h1", "h2", "h3", "strong", "em", "p"]:
+        count = formatted_analysis.count(f"<{tag}>")
+        if count > formatted_analysis.count(f"</{tag}>"):
+            formatted_analysis += f"</{tag}>"
+
     # Determine if we have enhanced cATO stats
-    has_cato_stats = 'compliance_percentage' in stats
-    
+    has_cato_stats = "compliance_percentage" in stats
+
     # Set the cATO readiness percentage
     if has_cato_stats:
-        cato_readiness = stats['compliance_percentage']
+        cato_readiness = stats["compliance_percentage"]
     else:
-        cato_readiness = max(5, min(95, 100 - (stats.get('critical', 0) * 15 + stats.get('high', 0) * 10 + stats.get('medium', 0) * 5) / max(1, stats.get('total', 0))))
-    
+        cato_readiness = max(
+            5,
+            min(
+                95,
+                100
+                - (
+                    stats.get("critical", 0) * 15
+                    + stats.get("high", 0) * 10
+                    + stats.get("medium", 0) * 5
+                )
+                / max(1, stats.get("total", 0)),
+            ),
+        )
+
     # Create control family chart if we have the data
     control_family_html = ""
     if control_families:
@@ -83,13 +98,15 @@ def debug_email_html():
                     <th>Status</th>
                 </tr>
         """
-        
+
         # Sort control families by compliance percentage (ascending)
         sorted_families = sorted(
             control_families.items(),
-            key=lambda x: x[1]["compliance_percentage"] if "compliance_percentage" in x[1] else 0
+            key=lambda x: (
+                x[1]["compliance_percentage"] if "compliance_percentage" in x[1] else 0
+            ),
         )
-        
+
         # Add rows for each control family
         for family_id, family in sorted_families:
             if family.get("total", 0) > 0:
@@ -101,7 +118,7 @@ def debug_email_html():
                     color_class = "medium"
                 elif compliance >= 30:
                     color_class = "high"
-                    
+
                 control_family_html += f"""
                 <tr>
                     <td><strong>{family_id}</strong></td>
@@ -114,13 +131,13 @@ def debug_email_html():
                     </td>
                 </tr>
                 """
-        
+
         control_family_html += """
             </table>
             <p class="meter-label">Control families sorted by compliance level (lowest first)</p>
         </div>
         """
-    
+
     # Create framework section
     framework_section = f"""
     <div id="{framework_id}-analysis" class="framework-section">
@@ -182,7 +199,7 @@ def debug_email_html():
     </div>
     <hr>
     """
-    
+
     # Create CSS styles
     styles = """
     <style>
@@ -339,7 +356,7 @@ def debug_email_html():
         }
     </style>
     """
-    
+
     # Create full HTML
     html_content = f"""<!DOCTYPE html>
 <html>
@@ -356,13 +373,14 @@ def debug_email_html():
     <p>Detailed CSV reports are attached with all findings mapped to their respective framework controls.</p>
 </body>
 </html>"""
-    
+
     # Save HTML to file
-    with open('debug_email.html', 'w') as f:
+    with open("debug_email.html", "w") as f:
         f.write(html_content)
-    
+
     print("\nHTML output saved to debug_email.html")
     print("Open this file in a web browser to see how the email should look")
+
 
 if __name__ == "__main__":
     debug_email_html()

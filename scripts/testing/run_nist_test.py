@@ -17,7 +17,7 @@ event = {
     "hours": 24,  # Look for findings from the last 24 hours
     "email": os.environ["RECIPIENT_EMAIL"],  # Use the same email for sending/receiving
     "generate_csv": True,  # Generate CSV files for findings
-    "combined_analysis": False  # We only want NIST-specific analysis
+    "combined_analysis": False,  # We only want NIST-specific analysis
 }
 
 # Call the Lambda handler function

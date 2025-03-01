@@ -12,29 +12,26 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from datetime import datetime
 
+
 def send_nist_email(profile_name, sender_email, recipient_email):
     """Send a direct NIST 800-53 report email using AWS SES."""
     # Create a session with the specified profile
     session = boto3.Session(profile_name=profile_name)
-    
+
     # Create SES client
-    ses = session.client('ses')
-    
+    ses = session.client("ses")
+
     # Create message container
-    msg = MIMEMultipart('mixed')
-    msg['Subject'] = f'AWS SecurityHub NIST 800-53 Compliance Report - {datetime.now().strftime("%Y-%m-%d")}'
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
-    
+    msg = MIMEMultipart("mixed")
+    msg["Subject"] = (
+        f'AWS SecurityHub NIST 800-53 Compliance Report - {datetime.now().strftime("%Y-%m-%d")}'
+    )
+    msg["From"] = sender_email
+    msg["To"] = recipient_email
+
     # Sample findings statistics
-    stats = {
-        "total": 10,
-        "critical": 1,
-        "high": 3,
-        "medium": 5,
-        "low": 1
-    }
-    
+    stats = {"total": 10, "critical": 1, "high": 3, "medium": 5, "low": 1}
+
     # Sample analysis text
     analysis = """## Executive Summary
 
@@ -61,7 +58,7 @@ As a NIST 800-53 auditor with over 15 years of experience, I can confirm that th
 In my experience, organizations typically require 4-6 weeks to remediate these types of findings, starting with the critical and high-severity issues. I recommend developing a formal remediation plan with clear timelines and ownership assignments for each finding.
 
 For your NIST 800-53 assessment readiness, I would prioritize addressing the encryption findings first, as these align with multiple controls and represent the most straightforward path to improving your compliance posture."""
-    
+
     # Create HTML content
     css_style = """
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -80,16 +77,16 @@ For your NIST 800-53 assessment readiness, I would prioritize addressing the enc
             font-style: italic;
         }
     """
-    
+
     # Use raw string for CSS to avoid escape sequence issues
-    
+
     # Preprocess the analysis text to avoid f-string backslash issues
-    formatted_analysis = analysis.replace('##', '<h2>')
-    formatted_analysis = formatted_analysis.replace('\n\n', '</h2><p>')
-    formatted_analysis = formatted_analysis.replace('\n', '<br>')
-    formatted_analysis = formatted_analysis.replace('</h2><p>', '</h2><p>')
-    formatted_analysis = formatted_analysis + '</p>'
-    
+    formatted_analysis = analysis.replace("##", "<h2>")
+    formatted_analysis = formatted_analysis.replace("\n\n", "</h2><p>")
+    formatted_analysis = formatted_analysis.replace("\n", "<br>")
+    formatted_analysis = formatted_analysis.replace("</h2><p>", "</h2><p>")
+    formatted_analysis = formatted_analysis + "</p>"
+
     html_content = f"""<html>
 <head>
     <style>
@@ -116,28 +113,30 @@ For your NIST 800-53 assessment readiness, I would prioritize addressing the enc
     <p>Note: This is a direct test email to verify delivery of NIST 800-53 reports. A CSV report would normally be attached.</p>
 </body>
 </html>"""
-    
+
     # Attach HTML part
-    html_part = MIMEText(html_content, 'html')
+    html_part = MIMEText(html_content, "html")
     msg.attach(html_part)
-    
+
     # Create a sample CSV attachment
     csv_content = """Title,Severity,Finding Type,NIST 800-53 Controls,Resource ID,Account ID,Region,Description
 S3 buckets should have server-side encryption enabled,HIGH,Software and Configuration Checks,SC-28,arn:aws:s3:::example-bucket-123,123456789012,us-east-1,S3 bucket doesn't have encryption enabled
 IAM root user access key should not exist,CRITICAL,Software and Configuration Checks/Policy,AC-6,AWS::::Account:123456789012,123456789012,us-east-1,Root account has active access keys
 CloudTrail should have encryption at-rest enabled,MEDIUM,Software and Configuration Checks,SC-28,arn:aws:cloudtrail:us-east-1:123456789012:trail/management-events,123456789012,us-east-1,CloudTrail isn't encrypted"""
-    
+
     # Attach CSV
-    attachment = MIMEApplication(csv_content.encode('utf-8'))
-    attachment.add_header('Content-Disposition', 'attachment', filename='nist800-53_findings.csv')
+    attachment = MIMEApplication(csv_content.encode("utf-8"))
+    attachment.add_header(
+        "Content-Disposition", "attachment", filename="nist800-53_findings.csv"
+    )
     msg.attach(attachment)
-    
+
     # Send email
     try:
         response = ses.send_raw_email(
             Source=sender_email,
             Destinations=[recipient_email],
-            RawMessage={'Data': msg.as_string()}
+            RawMessage={"Data": msg.as_string()},
         )
         print(f"Email sent successfully: {response}")
         return True
@@ -145,12 +144,15 @@ CloudTrail should have encryption at-rest enabled,MEDIUM,Software and Configurat
         print(f"Error sending email: {str(e)}")
         return False
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Send direct NIST 800-53 report email via AWS SES")
+    parser = argparse.ArgumentParser(
+        description="Send direct NIST 800-53 report email via AWS SES"
+    )
     parser.add_argument("--profile", default="sandbox", help="AWS profile name to use")
     parser.add_argument("--sender", required=True, help="Verified sender email address")
     parser.add_argument("--recipient", required=True, help="Recipient email address")
-    
+
     args = parser.parse_args()
-    
+
     send_nist_email(args.profile, args.sender, args.recipient)

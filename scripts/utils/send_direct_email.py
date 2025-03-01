@@ -11,20 +11,21 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
+
 def send_direct_email(profile_name, sender_email, recipient_email):
     """Send a direct test email using AWS SES."""
     # Create a session with the specified profile
     session = boto3.Session(profile_name=profile_name)
-    
+
     # Create SES client
-    ses = session.client('ses')
-    
+    ses = session.client("ses")
+
     # Create message container
-    msg = MIMEMultipart('mixed')
-    msg['Subject'] = 'AWS SecurityHub NIST 800-53 Test Email (Direct)'
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
-    
+    msg = MIMEMultipart("mixed")
+    msg["Subject"] = "AWS SecurityHub NIST 800-53 Test Email (Direct)"
+    msg["From"] = sender_email
+    msg["To"] = recipient_email
+
     # Create HTML content
     html_content = f"""<html>
 <head>
@@ -46,17 +47,17 @@ def send_direct_email(profile_name, sender_email, recipient_email):
     <p>If you're receiving this email, it confirms that AWS SES is properly configured and can deliver emails to your address.</p>
 </body>
 </html>"""
-    
+
     # Attach HTML part
-    html_part = MIMEText(html_content, 'html')
+    html_part = MIMEText(html_content, "html")
     msg.attach(html_part)
-    
+
     # Send email
     try:
         response = ses.send_raw_email(
             Source=sender_email,
             Destinations=[recipient_email],
-            RawMessage={'Data': msg.as_string()}
+            RawMessage={"Data": msg.as_string()},
         )
         print(f"Email sent successfully: {response}")
         return True
@@ -64,12 +65,13 @@ def send_direct_email(profile_name, sender_email, recipient_email):
         print(f"Error sending email: {str(e)}")
         return False
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Send direct email via AWS SES")
     parser.add_argument("--profile", default="sandbox", help="AWS profile name to use")
     parser.add_argument("--sender", required=True, help="Verified sender email address")
     parser.add_argument("--recipient", required=True, help="Recipient email address")
-    
+
     args = parser.parse_args()
-    
+
     send_direct_email(args.profile, args.sender, args.recipient)

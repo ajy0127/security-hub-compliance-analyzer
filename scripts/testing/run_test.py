@@ -23,7 +23,7 @@ test_event = {
     "framework": "all",
     "combined_analysis": True,
     "hours": 24,
-    "email": "your-verified-email@example.com"
+    "email": "your-verified-email@example.com",
 }
 
 print("=" * 80)
@@ -42,15 +42,16 @@ print(f"  DEFAULT_FRAMEWORK: {os.environ.get('DEFAULT_FRAMEWORK')}")
 try:
     # Import lambda_handler after setting up environment
     from src.app import lambda_handler
-    
+
     # Call the lambda handler
     print("\nInvoking Lambda handler...")
     result = lambda_handler(test_event, {})
     print("\nResult:", json.dumps(result, indent=2))
     print("\nTest completed successfully!")
-    
+
 except Exception as e:
     import traceback
+
     print(f"\nError: {str(e)}")
     traceback.print_exc()
     print("\nTest failed!")

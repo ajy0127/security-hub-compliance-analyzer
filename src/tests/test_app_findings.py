@@ -129,7 +129,7 @@ class TestAppFindings:
             # assert "SOC2" in stats
             # assert isinstance(analyses["SOC2"], str)
             # assert isinstance(stats["SOC2"], dict)
-            # assert "total" in stats["SOC2"] 
+            # assert "total" in stats["SOC2"]
             # assert "critical" in stats["SOC2"]
 
     def test_analyze_findings_empty(self, sample_mappers):

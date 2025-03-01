@@ -39,7 +39,7 @@ mock_findings = [
             "StandardsGuideArn": "arn:aws:securityhub:us-east-1:123456789012:standards/aws-foundational-security-best-practices/v/1.0.0",
             "RecordState": "ACTIVE",
             "WorkflowStatus": "NEW",
-            "Compliance.Status": "FAILED"
+            "Compliance.Status": "FAILED",
         },
         "Resources": [
             {
@@ -50,11 +50,11 @@ mock_findings = [
                 "Details": {
                     "AwsS3Bucket": {
                         "Name": "example-bucket-123",
-                        "CreatedAt": "2023-01-01T00:00:00Z"
+                        "CreatedAt": "2023-01-01T00:00:00Z",
                     }
-                }
+                },
             }
-        ]
+        ],
     },
     {
         "SchemaVersion": "2018-10-08",
@@ -79,16 +79,16 @@ mock_findings = [
             "StandardsGuideArn": "arn:aws:securityhub:us-east-1:123456789012:standards/aws-foundational-security-best-practices/v/1.0.0",
             "RecordState": "ACTIVE",
             "WorkflowStatus": "NEW",
-            "Compliance.Status": "FAILED"
+            "Compliance.Status": "FAILED",
         },
         "Resources": [
             {
                 "Type": "AwsIamUser",
                 "Id": "AWS::::Account:123456789012",
                 "Partition": "aws",
-                "Region": "us-east-1"
+                "Region": "us-east-1",
             }
-        ]
+        ],
     },
     {
         "SchemaVersion": "2018-10-08",
@@ -113,7 +113,7 @@ mock_findings = [
             "StandardsGuideArn": "arn:aws:securityhub:us-east-1:123456789012:standards/aws-foundational-security-best-practices/v/1.0.0",
             "RecordState": "ACTIVE",
             "WorkflowStatus": "NEW",
-            "Compliance.Status": "FAILED"
+            "Compliance.Status": "FAILED",
         },
         "Resources": [
             {
@@ -124,12 +124,12 @@ mock_findings = [
                 "Details": {
                     "AwsCloudTrailTrail": {
                         "Name": "management-events",
-                        "IsMultiRegionTrail": True
+                        "IsMultiRegionTrail": True,
                     }
-                }
+                },
             }
-        ]
-    }
+        ],
+    },
 ]
 
 # Create a NIST 800-53 specific event
@@ -138,34 +138,39 @@ event = {
     "hours": 24,  # Look for findings from the last 24 hours
     "email": os.environ["RECIPIENT_EMAIL"],  # Use the same email for sending/receiving
     "generate_csv": True,  # Generate CSV files for findings
-    "combined_analysis": False  # We only want NIST-specific analysis
+    "combined_analysis": False,  # We only want NIST-specific analysis
 }
+
 
 def run_test_with_mocks():
     """Run test with mock data instead of actual SecurityHub API calls."""
-    
+
     # Initialize mappers
     mappers = MapperFactory.get_all_mappers()
-    
+
     # Mock the get_findings function to return our mock data
     with patch("src.app.get_findings", return_value={"NIST800-53": mock_findings}):
         # Mock the SES send_raw_email to prevent actual email sending
         with patch.object(boto3, "client") as mock_boto3_client:
             mock_ses = MagicMock()
             mock_bedrock = MagicMock()
-            
+
             # Set up mock SES response
             mock_ses.send_raw_email.return_value = {"MessageId": "mock-message-id"}
-            
+
             # Set up mock Bedrock response
-            mock_bedrock_response = {
-                "body": MagicMock()
-            }
-            mock_bedrock_response["body"].read.return_value = json.dumps({
-                "content": [{"text": "This is a mock NIST 800-53 analysis generated for testing purposes."}]
-            })
+            mock_bedrock_response = {"body": MagicMock()}
+            mock_bedrock_response["body"].read.return_value = json.dumps(
+                {
+                    "content": [
+                        {
+                            "text": "This is a mock NIST 800-53 analysis generated for testing purposes."
+                        }
+                    ]
+                }
+            )
             mock_bedrock.invoke_model.return_value = mock_bedrock_response
-            
+
             # Configure boto3.client to return our mocks
             def mock_client(service_name, **kwargs):
                 if service_name == "ses":
@@ -174,25 +179,26 @@ def run_test_with_mocks():
                     return mock_bedrock
                 else:
                     return MagicMock()
-            
+
             mock_boto3_client.side_effect = mock_client
-            
+
             # Call the lambda function
             response = lambda_handler(event, None)
-            
+
             # Print the response
             print(json.dumps(response, indent=2))
-            
+
             # Save mock findings to a file for reference
             with open("nist_report.json", "w") as f:
                 json.dump(mock_findings, f, indent=2)
-            
+
             # Save the response to a file
             with open("nist_response.json", "w") as f:
                 json.dump(response, f, indent=2)
-            
+
             print("Test completed with mock data. Response saved to nist_response.json")
             print("Mock findings saved to nist_report.json")
+
 
 if __name__ == "__main__":
     run_test_with_mocks()
