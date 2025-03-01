@@ -7,6 +7,7 @@ import re
 # Configure logging
 logger = logging.getLogger()
 
+
 class FrameworkMapper:
     """Base class for mapping AWS SecurityHub findings to compliance framework controls."""
 
@@ -23,17 +24,17 @@ class FrameworkMapper:
 
     def _load_mappings(self, mappings_file=None):
         """Load framework control mappings from a JSON file or use default mappings.
-        
+
         Args:
             mappings_file (str, optional): Override the instance mappings_file. Defaults to None.
-            
+
         Returns:
             dict: The loaded mappings or default mappings if file cannot be loaded
         """
         try:
             # Use the provided mappings_file or fall back to the instance variable
             file_path = mappings_file or self.mappings_file
-            
+
             # Try to load mappings from the specified file
             if file_path and os.path.exists(file_path):
                 with open(file_path, "r") as f:
@@ -101,8 +102,8 @@ class FrameworkMapper:
         # Check if the Resources list exists and has at least one entry
         if "Resources" in finding and finding["Resources"]:
             return finding["Resources"][0].get("Id", "Unknown")
-        return "Unknown" 
-        
+        return "Unknown"
+
     def map_finding(self, finding):
         """Map a SecurityHub finding to this compliance framework.
 
@@ -114,24 +115,24 @@ class FrameworkMapper:
         """
         # Create a copy of the finding to avoid modifying the original
         mapped_finding = finding.copy()
-        
+
         # Extract relevant fields for mapping
         finding_type = " ".join(finding.get("Types", ["Unknown"]))
         title = finding.get("Title", "")
         description = finding.get("Description", "")
-        
+
         # Map the finding to framework controls
         control_ids = self._map_to_controls(finding_type, title, description)
-        
+
         # Add control IDs to the mapped finding
         control_attr = self.get_control_id_attribute()
         mapped_finding[control_attr] = control_ids
-        
+
         # Extract and add resource ID for easier reference
         mapped_finding["ResourceId"] = self._get_resource_id(finding)
-        
+
         return mapped_finding
-        
+
     def get_control_id_attribute(self):
         """Get the attribute name used for storing control IDs in mapped findings.
 

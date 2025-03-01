@@ -7,6 +7,7 @@ from framework_mapper import FrameworkMapper
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
 class SOC2Mapper(FrameworkMapper):
     """
     Mapper for SOC2 compliance framework.
@@ -15,24 +16,24 @@ class SOC2Mapper(FrameworkMapper):
     def __init__(self, mappings_file=None):
         """
         Initialize the SOC2 Mapper.
-        
+
         Args:
             mappings_file (str, optional): Path to the mappings file. Defaults to None.
         """
         # Set default mappings file if not provided
         if mappings_file is None:
             mappings_file = os.path.join("config", "mappings", "soc2_mappings.json")
-            
+
         # Initialize parent class with framework_id
         super().__init__(framework_id="SOC2", mappings_file=mappings_file)
-        
+
         # The parent class already loads the mappings in its __init__ method
         # We don't need to reload them here
 
     def _get_default_mappings(self):
         """
         Get default mappings for SOC2 controls.
-        
+
         Returns:
             dict: Default mappings for SOC2 controls
         """
@@ -82,7 +83,7 @@ class SOC2Mapper(FrameworkMapper):
     def _get_default_control(self):
         """
         Get the default control ID for SOC2.
-        
+
         Returns:
             str: Default control ID
         """
@@ -91,7 +92,7 @@ class SOC2Mapper(FrameworkMapper):
     def get_control_id_attribute(self):
         """
         Get the attribute name for control IDs in mapped findings.
-        
+
         Returns:
             str: Attribute name for control IDs
         """
@@ -100,10 +101,10 @@ class SOC2Mapper(FrameworkMapper):
     def map_finding(self, finding):
         """
         Map a Security Hub finding to SOC2 controls.
-        
+
         Args:
             finding (dict): Security Hub finding
-            
+
         Returns:
             dict: Mapped finding with SOC2 controls
         """
@@ -112,14 +113,14 @@ class SOC2Mapper(FrameworkMapper):
         description = finding.get("Description", "")
         severity = finding.get("Severity", {}).get("Label", "INFORMATIONAL")
         finding_type = ""
-        
+
         # Extract finding type from Types array if available
         if "Types" in finding and finding["Types"]:
             finding_type = finding["Types"][0]
-        
+
         # Get resource ID
         resource_id = self._get_resource_id(finding)
-        
+
         # Create mapped finding
         mapped_finding = {
             "Title": title,
@@ -129,25 +130,28 @@ class SOC2Mapper(FrameworkMapper):
             "ResourceId": resource_id,
             "SOC2Controls": [],
         }
-        
+
         # Map to controls based on type
         controls = set()
-        
+
         # Check type mappings
         for type_pattern, type_controls in self.mappings["type_mappings"].items():
             if type_pattern in finding_type:
                 controls.update(type_controls)
-        
+
         # Check title mappings
         for title_pattern, title_controls in self.mappings["title_mappings"].items():
-            if title_pattern.lower() in title.lower() or title_pattern.lower() in description.lower():
+            if (
+                title_pattern.lower() in title.lower()
+                or title_pattern.lower() in description.lower()
+            ):
                 controls.update(title_controls)
-        
+
         # If no controls matched, use default
         if not controls:
             controls.add(self._get_default_control())
-        
+
         # Add controls to mapped finding
         mapped_finding["SOC2Controls"] = sorted(list(controls))
-        
-        return mapped_finding 
+
+        return mapped_finding
