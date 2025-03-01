@@ -1,8 +1,11 @@
 import json
 import os
-import pytest
 from unittest.mock import mock_open, patch
-from analyze_nist_controls import load_nist_mappings, analyze_control_families
+
+import pytest
+
+from analyze_nist_controls import analyze_control_families, load_nist_mappings
+
 
 class TestAnalyzeNISTControls:
     @pytest.fixture
@@ -13,7 +16,7 @@ class TestAnalyzeNISTControls:
                 "AC-2": "Account Management",
                 "AU-1": "Audit and Accountability Policy and Procedures",
                 "CM-1": "Configuration Management Policy and Procedures",
-                "SI-1": "System and Information Integrity Policy"
+                "SI-1": "System and Information Integrity Policy",
             }
         }
 
@@ -36,7 +39,9 @@ class TestAnalyzeNISTControls:
             assert result is None
 
     def test_analyze_control_families_with_mappings(self, sample_mappings, capsys):
-        with patch("analyze_nist_controls.load_nist_mappings", return_value=sample_mappings):
+        with patch(
+            "analyze_nist_controls.load_nist_mappings", return_value=sample_mappings
+        ):
             analyze_control_families()
             captured = capsys.readouterr()
             output = captured.out
@@ -60,8 +65,11 @@ class TestAnalyzeNISTControls:
             assert "Failed to load NIST 800-53 mappings." in captured.out
 
     def test_analyze_control_families_empty_mappings(self, capsys):
-        with patch("analyze_nist_controls.load_nist_mappings", return_value={"control_descriptions": {}}):
+        with patch(
+            "analyze_nist_controls.load_nist_mappings",
+            return_value={"control_descriptions": {}},
+        ):
             analyze_control_families()
             captured = capsys.readouterr()
             assert "Total Controls: 0" in captured.out
-            assert "Control Families: 0" in captured.out 
+            assert "Control Families: 0" in captured.out

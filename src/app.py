@@ -32,66 +32,73 @@ logger.setLevel(logging.INFO)
 def get_nist_control_status():
     """
     Retrieve NIST 800-53 control status directly from SecurityHub.
-    
+
     This function:
     1. Identifies the NIST 800-53 standard in enabled standards
     2. Retrieves all control details for the standard
     3. Collects status information for each control
-    
+
     Returns:
         dict: Dictionary containing control details with their status
               Empty if NIST 800-53 standard not found or if an error occurs
     """
     try:
         securityhub = boto3.client("securityhub")
-        
+
         # Step 1: Get list of enabled standards
         logger.info("Getting list of enabled Security Hub standards")
         standards_response = securityhub.get_enabled_standards()
-        
+
         # Find NIST 800-53 standard
         nist_standard = None
         for standard in standards_response.get("StandardsSubscriptions", []):
-            if "nist" in standard.get("StandardsArn", "").lower() and "800-53" in standard.get("StandardsArn", ""):
+            if "nist" in standard.get(
+                "StandardsArn", ""
+            ).lower() and "800-53" in standard.get("StandardsArn", ""):
                 nist_standard = standard
-                logger.info(f"Found NIST 800-53 standard: {nist_standard['StandardsArn']}")
+                logger.info(
+                    f"Found NIST 800-53 standard: {nist_standard['StandardsArn']}"
+                )
                 break
-                
+
         if not nist_standard:
             logger.warning("NIST 800-53 standard not found in enabled standards")
             return {}
-            
+
         # Step 2: Get control details for the NIST standard
-        logger.info(f"Getting controls for standard: {nist_standard['StandardsSubscriptionArn']}")
-        
+        logger.info(
+            f"Getting controls for standard: {nist_standard['StandardsSubscriptionArn']}"
+        )
+
         # Initialize for pagination
         next_token = None
         all_controls = {}
-        
+
         # Paginate through all controls
         while True:
             if next_token:
                 controls_response = securityhub.describe_standards_controls(
-                    StandardsSubscriptionArn=nist_standard['StandardsSubscriptionArn'],
-                    NextToken=next_token
+                    StandardsSubscriptionArn=nist_standard["StandardsSubscriptionArn"],
+                    NextToken=next_token,
                 )
             else:
                 controls_response = securityhub.describe_standards_controls(
-                    StandardsSubscriptionArn=nist_standard['StandardsSubscriptionArn']
+                    StandardsSubscriptionArn=nist_standard["StandardsSubscriptionArn"]
                 )
-                
+
             # Process controls in this batch
             for control in controls_response.get("Controls", []):
                 control_id = control.get("ControlId", "")
                 # Extract just the control identifier (e.g., "AC-1" from "NIST.800-53.r5-AC-1")
                 # This assumes a specific format - adjust the regex as needed
                 import re
+
                 match = re.search(r"([A-Z]+-\d+(?:\.\d+)?)", control_id)
                 if match:
                     short_id = match.group(1)
                 else:
                     short_id = control_id
-                    
+
                 # Map SecurityHub status to our simplified values
                 status = control.get("ControlStatus", "UNKNOWN").upper()
                 if status == "ENABLED":
@@ -102,7 +109,7 @@ def get_nist_control_status():
                         status = "FAILED"
                 elif status == "DISABLED":
                     status = "NOT_APPLICABLE"
-                
+
                 # Store control with its status
                 all_controls[short_id] = {
                     "id": control_id,
@@ -111,20 +118,21 @@ def get_nist_control_status():
                     "status": status,
                     "severity": control.get("SeverityRating", "MEDIUM"),
                     "disabled": control.get("DisabledReason", "") != "",
-                    "related_requirements": control.get("RelatedRequirements", [])
+                    "related_requirements": control.get("RelatedRequirements", []),
                 }
-            
+
             # Check if there are more controls
             next_token = controls_response.get("NextToken")
             if not next_token:
                 break
-                
+
         logger.info(f"Retrieved {len(all_controls)} NIST 800-53 controls")
         return all_controls
-        
+
     except Exception as e:
         logger.error(f"Error retrieving NIST 800-53 control status: {str(e)}")
         return {}
+
 
 def get_findings(hours, framework_id=None):
     """
@@ -236,13 +244,13 @@ def get_findings(hours, framework_id=None):
 def generate_nist_cato_report():
     """
     Generate a comprehensive cATO status report for NIST 800-53 controls.
-    
+
     This function:
     1. Retrieves NIST 800-53 control status directly from SecurityHub
     2. Aggregates controls by family (AC, CM, IA, etc.)
     3. Calculates compliance statistics and cATO readiness metrics
     4. Creates a detailed report suitable for cATO reporting
-    
+
     Returns:
         tuple: (report_text, statistics_dict, control_families_dict)
             - report_text: Markdown formatted report text
@@ -251,10 +259,10 @@ def generate_nist_cato_report():
     """
     # Get control status data
     controls = get_nist_control_status()
-    
+
     if not controls:
         return "No NIST 800-53 controls found or enabled.", {}, {}
-    
+
     # Initialize statistics
     statistics = {
         "total_controls": len(controls),
@@ -265,9 +273,15 @@ def generate_nist_cato_report():
         "high": len([c for c in controls.values() if c["severity"] == "HIGH"]),
         "medium": len([c for c in controls.values() if c["severity"] == "MEDIUM"]),
         "low": len([c for c in controls.values() if c["severity"] == "LOW"]),
-        "passing_controls": len([c for c in controls.values() if c["status"] == "PASSED"]),
-        "failing_controls": len([c for c in controls.values() if c["status"] == "FAILED"]),
-        "not_applicable_controls": len([c for c in controls.values() if c["status"] == "NOT_APPLICABLE"])
+        "passing_controls": len(
+            [c for c in controls.values() if c["status"] == "PASSED"]
+        ),
+        "failing_controls": len(
+            [c for c in controls.values() if c["status"] == "FAILED"]
+        ),
+        "not_applicable_controls": len(
+            [c for c in controls.values() if c["status"] == "NOT_APPLICABLE"]
+        ),
     }
 
     # Calculate compliance percentage
@@ -275,10 +289,10 @@ def generate_nist_cato_report():
     statistics["compliance_percentage"] = (
         (statistics["passed"] / total_enabled * 100) if total_enabled > 0 else 0
     )
-    
+
     # Initialize control families dictionary
     control_families = {}
-    
+
     # Process each control
     for control_id, control in controls.items():
         # Update status counts
@@ -291,14 +305,14 @@ def generate_nist_cato_report():
             statistics["disabled"] += 1
 
         # Extract control family from ID (e.g., "AC" from "AC-1")
-        if '-' in control_id:
-            family = control_id.split('-')[0]
-        elif '.' in control_id:
+        if "-" in control_id:
+            family = control_id.split("-")[0]
+        elif "." in control_id:
             # Handle AWS specific control IDs like ACM.1
-            family = control_id.split('.')[0]
+            family = control_id.split(".")[0]
         else:
             family = "OTHER"
-            
+
         # If the family is numeric or doesn't look like a control family, put it in OTHER
         if family.isdigit() or len(family) < 2:
             family = "OTHER"
@@ -312,7 +326,7 @@ def generate_nist_cato_report():
                 "passed": 0,
                 "failed": 0,
                 "disabled": 0,
-                "compliance_percentage": 0
+                "compliance_percentage": 0,
             }
 
         # Add control to its family
@@ -328,7 +342,9 @@ def generate_nist_cato_report():
             control_families[family]["disabled"] += 1
 
         # Calculate family compliance percentage
-        total_family_controls = control_families[family]["passed"] + control_families[family]["failed"]
+        total_family_controls = (
+            control_families[family]["passed"] + control_families[family]["failed"]
+        )
         if total_family_controls > 0:
             control_families[family]["compliance_percentage"] = (
                 control_families[family]["passed"] / total_family_controls * 100
@@ -336,16 +352,18 @@ def generate_nist_cato_report():
 
     # Calculate overall compliance percentage
     if statistics["total_controls"] > 0:
-        statistics["compliance_percentage"] = ((statistics["passed"] + statistics["disabled"]) / statistics["total_controls"]) * 100
+        statistics["compliance_percentage"] = (
+            (statistics["passed"] + statistics["disabled"])
+            / statistics["total_controls"]
+        ) * 100
     else:
         statistics["compliance_percentage"] = 0
-        
+
     # Sort families by compliance percentage (ascending, so less compliant families are first)
-    sorted_families = dict(sorted(
-        control_families.items(),
-        key=lambda x: x[1]["compliance_percentage"]
-    ))
-    
+    sorted_families = dict(
+        sorted(control_families.items(), key=lambda x: x[1]["compliance_percentage"])
+    )
+
     # Generate the cATO status report text
     report = f"""# NIST 800-53 Control Status for cATO
 
@@ -369,10 +387,10 @@ This report provides the current implementation status of NIST 800-53 controls f
         report += f"* **Compliance**: {family['compliance_percentage']:.1f}%\n"
         report += f"* **Passed**: {family['passed']}\n"
         report += f"* **Failed**: {family['failed']}\n\n"
-        
+
     # Add cATO specific recommendations based on compliance state
     report += "## cATO Recommendations\n\n"
-    
+
     if statistics["compliance_percentage"] < 50:
         report += """**Initial cATO Implementation Phase**
 
@@ -402,7 +420,7 @@ Your environment is well positioned for cATO. Focus on:
 3. Document successful cATO processes for auditors
 4. Verify integration with agency risk management systems
 """
-    
+
     return report, statistics, control_families
 
 
@@ -764,12 +782,20 @@ def generate_csv(findings, mappers, framework_id=None):
 
         # For NIST 800-53, add a cATO report header
         if framework_id == "NIST800-53":
-            writer.writerow(["Test Agency Continuous Authorization to Operate (cATO) Compliance Report"])
-            writer.writerow([f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC"])
+            writer.writerow(
+                [
+                    "Test Agency Continuous Authorization to Operate (cATO) Compliance Report"
+                ]
+            )
+            writer.writerow(
+                [f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC"]
+            )
             writer.writerow([])
         else:
             writer.writerow([f"AWS SecurityHub {framework_name} Compliance Report"])
-            writer.writerow([f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC"])
+            writer.writerow(
+                [f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC"]
+            )
             writer.writerow([])
 
         # Define CSV headers for the report
@@ -788,8 +814,14 @@ def generate_csv(findings, mappers, framework_id=None):
 
         # Process each finding and write it to the CSV
         control_family_count = {}  # Track findings by control family
-        severity_count = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0, "INFORMATIONAL": 0}  # Track findings by severity
-        
+        severity_count = {
+            "CRITICAL": 0,
+            "HIGH": 0,
+            "MEDIUM": 0,
+            "LOW": 0,
+            "INFORMATIONAL": 0,
+        }  # Track findings by severity
+
         for finding in framework_findings:
             # Map the finding to framework controls
             mapped_finding = mapper.map_finding(finding)
@@ -798,20 +830,24 @@ def generate_csv(findings, mappers, framework_id=None):
             controls = mapped_finding.get(control_attr, "Unknown")
             if isinstance(controls, list):
                 controls = ", ".join(controls)
-            
+
             # Extract severity for counting
             severity = finding.get("Severity", {}).get("Label", "INFORMATIONAL")
             if severity in severity_count:
                 severity_count[severity] += 1
-            
+
             # Extract control family for NIST tracking (uses first two letters of control ID)
-            if framework_id == "NIST800-53" and isinstance(mapped_finding.get(control_attr), list):
+            if framework_id == "NIST800-53" and isinstance(
+                mapped_finding.get(control_attr), list
+            ):
                 for control in mapped_finding.get(control_attr, []):
                     if "-" in control:
                         # Skip if not a standard control format
                         continue
                     family = control[:2] if len(control) >= 2 else "Unknown"
-                    control_family_count[family] = control_family_count.get(family, 0) + 1
+                    control_family_count[family] = (
+                        control_family_count.get(family, 0) + 1
+                    )
 
             # Write the finding details as a row in the CSV
             writer.writerow(
@@ -826,13 +862,13 @@ def generate_csv(findings, mappers, framework_id=None):
                     finding.get("Description", ""),
                 ]
             )
-        
+
         # For NIST 800-53, add chart visualizations to help with cATO reporting
         if framework_id == "NIST800-53":
             writer.writerow([])
             writer.writerow(["FINDINGS DISTRIBUTION CHARTS FOR cATO REPORTING"])
             writer.writerow([])
-            
+
             # Add severity distribution chart
             writer.writerow(["Findings by Severity Level (cATO Risk Assessment)"])
             max_count = max(severity_count.values()) if severity_count.values() else 0
@@ -844,30 +880,46 @@ def generate_csv(findings, mappers, framework_id=None):
                         writer.writerow([f"{severity}: {count} {bar}"])
             else:
                 writer.writerow(["No findings to display"])
-            
+
             writer.writerow([])
-            
+
             # Add control family distribution chart
             if control_family_count:
-                writer.writerow(["Findings by NIST 800-53 Control Family (cATO Control Coverage)"])
-                max_count = max(control_family_count.values()) if control_family_count.values() else 0
+                writer.writerow(
+                    ["Findings by NIST 800-53 Control Family (cATO Control Coverage)"]
+                )
+                max_count = (
+                    max(control_family_count.values())
+                    if control_family_count.values()
+                    else 0
+                )
                 if max_count > 0:
                     # Sort by count (descending)
-                    sorted_families = sorted(control_family_count.items(), key=lambda x: x[1], reverse=True)
+                    sorted_families = sorted(
+                        control_family_count.items(), key=lambda x: x[1], reverse=True
+                    )
                     for family, count in sorted_families:
                         bar_length = int(40 * count / max_count)
                         bar = "█" * bar_length
                         writer.writerow([f"{family}: {count} {bar}"])
                 else:
                     writer.writerow(["No control family data to display"])
-            
+
             writer.writerow([])
             writer.writerow(["cATO Implementation Recommendations:"])
-            writer.writerow(["1. Address critical findings immediately to maintain ATO status"])
-            writer.writerow(["2. Prioritize high-severity findings within the next 7 days"])
-            writer.writerow(["3. Update POA&M documentation with the findings in this report"])
-            writer.writerow(["4. Schedule automated controls testing based on this assessment"])
-        
+            writer.writerow(
+                ["1. Address critical findings immediately to maintain ATO status"]
+            )
+            writer.writerow(
+                ["2. Prioritize high-severity findings within the next 7 days"]
+            )
+            writer.writerow(
+                ["3. Update POA&M documentation with the findings in this report"]
+            )
+            writer.writerow(
+                ["4. Schedule automated controls testing based on this assessment"]
+            )
+
         # Store the CSV data for this framework
         csv_data[framework_id] = output.getvalue()
 
@@ -952,7 +1004,9 @@ def send_email(
 
     # Use the cATO-specific subject line for NIST 800-53 reports
     if len(frameworks_to_include) == 1 and frameworks_to_include[0] == "NIST800-53":
-        subject = f'Test Agency Weekly cATO Update - {datetime.now().strftime("%Y-%m-%d")}'
+        subject = (
+            f'Test Agency Weekly cATO Update - {datetime.now().strftime("%Y-%m-%d")}'
+        )
     elif len(frameworks_to_include) == 1:
         framework_name = framework_names.get(
             frameworks_to_include[0], frameworks_to_include[0]
@@ -972,19 +1026,27 @@ def send_email(
     if "combined" in analyses and include_combined and len(frameworks_to_include) > 1:
         # Process markdown formatting for better display
         formatted_combined_analysis = analyses["combined"]
-        formatted_combined_analysis = formatted_combined_analysis.replace('# ', '<h1>').replace('## ', '<h2>').replace('### ', '<h3>')
-        formatted_combined_analysis = formatted_combined_analysis.replace('\n\n', '</p><p>')
-        
+        formatted_combined_analysis = (
+            formatted_combined_analysis.replace("# ", "<h1>")
+            .replace("## ", "<h2>")
+            .replace("### ", "<h3>")
+        )
+        formatted_combined_analysis = formatted_combined_analysis.replace(
+            "\n\n", "</p><p>"
+        )
+
         # Handle bold and italic formatting
-        formatted_combined_analysis = formatted_combined_analysis.replace('**', '<strong>')
-        formatted_combined_analysis = formatted_combined_analysis.replace('*', '<em>')
-        
+        formatted_combined_analysis = formatted_combined_analysis.replace(
+            "**", "<strong>"
+        )
+        formatted_combined_analysis = formatted_combined_analysis.replace("*", "<em>")
+
         # Make sure all tags are properly closed
-        for tag in ['h1', 'h2', 'h3', 'strong', 'em']:
-            count = formatted_combined_analysis.count(f'<{tag}>')
-            if count > formatted_combined_analysis.count(f'</{tag}>'):
-                formatted_combined_analysis += f'</{tag}>'
-        
+        for tag in ["h1", "h2", "h3", "strong", "em"]:
+            count = formatted_combined_analysis.count(f"<{tag}>")
+            if count > formatted_combined_analysis.count(f"</{tag}>"):
+                formatted_combined_analysis += f"</{tag}>"
+
         framework_sections.append(
             f"""
         <div id="combined-analysis">
@@ -1009,35 +1071,51 @@ def send_email(
         framework_analysis = analyses.get(
             framework_id, f"No analysis available for {framework_name}"
         )
-        
+
         # Process markdown formatting for better display
         formatted_analysis = framework_analysis
-        formatted_analysis = formatted_analysis.replace('# ', '<h1>').replace('## ', '<h2>').replace('### ', '<h3>')
-        formatted_analysis = formatted_analysis.replace('\n\n', '</p><p>')
-        
+        formatted_analysis = (
+            formatted_analysis.replace("# ", "<h1>")
+            .replace("## ", "<h2>")
+            .replace("### ", "<h3>")
+        )
+        formatted_analysis = formatted_analysis.replace("\n\n", "</p><p>")
+
         # Handle bold and italic formatting
-        formatted_analysis = formatted_analysis.replace('**', '<strong>')
-        formatted_analysis = formatted_analysis.replace('*', '<em>')
-        
+        formatted_analysis = formatted_analysis.replace("**", "<strong>")
+        formatted_analysis = formatted_analysis.replace("*", "<em>")
+
         # Make sure all tags are properly closed
-        for tag in ['h1', 'h2', 'h3', 'strong', 'em', 'p']:
-            count = formatted_analysis.count(f'<{tag}>')
-            if count > formatted_analysis.count(f'</{tag}>'):
-                formatted_analysis += f'</{tag}>'
+        for tag in ["h1", "h2", "h3", "strong", "em", "p"]:
+            count = formatted_analysis.count(f"<{tag}>")
+            if count > formatted_analysis.count(f"</{tag}>"):
+                formatted_analysis += f"</{tag}>"
 
         # Create specialized content for NIST 800-53 with cATO focus
         if framework_id == "NIST800-53":
             # Custom cATO-focused content for NIST 800-53 with enhanced control family information
             # Determine if we have the enhanced cATO stats
-            has_cato_stats = 'compliance_percentage' in framework_stats
-            
+            has_cato_stats = "compliance_percentage" in framework_stats
+
             # Set the cATO readiness percentage
             if has_cato_stats:
-                cato_readiness = framework_stats['compliance_percentage']
+                cato_readiness = framework_stats["compliance_percentage"]
             else:
                 # Fallback to the original calculation based on findings
-                cato_readiness = max(5, min(95, 100 - (framework_stats['critical'] * 15 + framework_stats['high'] * 10 + framework_stats['medium'] * 5) / max(1, framework_stats['total'])))
-            
+                cato_readiness = max(
+                    5,
+                    min(
+                        95,
+                        100
+                        - (
+                            framework_stats["critical"] * 15
+                            + framework_stats["high"] * 10
+                            + framework_stats["medium"] * 5
+                        )
+                        / max(1, framework_stats["total"]),
+                    ),
+                )
+
             # Create control family chart if we have the data
             control_family_html = ""
             if nist_control_families:
@@ -1053,13 +1131,17 @@ def send_email(
                             <th>Status</th>
                         </tr>
                 """
-                
+
                 # Sort control families by compliance percentage (ascending)
                 sorted_families = sorted(
                     nist_control_families.items(),
-                    key=lambda x: x[1]["compliance_percentage"] if "compliance_percentage" in x[1] else 0
+                    key=lambda x: (
+                        x[1]["compliance_percentage"]
+                        if "compliance_percentage" in x[1]
+                        else 0
+                    ),
                 )
-                
+
                 # Add rows for each control family
                 for family_id, family in sorted_families:
                     if family.get("total", 0) > 0:
@@ -1071,7 +1153,7 @@ def send_email(
                             color_class = "medium"
                         elif compliance >= 30:
                             color_class = "high"
-                            
+
                         control_family_html += f"""
                         <tr>
                             <td><strong>{family_id}</strong></td>
@@ -1084,13 +1166,13 @@ def send_email(
                             </td>
                         </tr>
                         """
-                
+
                 control_family_html += """
                     </table>
                     <p class="meter-label">Control families sorted by compliance level (lowest first)</p>
                 </div>
                 """
-                
+
             # Create main NIST section
             framework_sections.append(
                 f"""
@@ -1489,7 +1571,7 @@ def lambda_handler(event, context):
 
     2. Test Email Mode: When the event contains {"test_email": true}, it sends a
        test email to verify email delivery configuration is working correctly.
-       
+
     3. Analysis Mode: The default mode that:
        a. Retrieves SecurityHub findings for a specified time period
        b. Maps findings to framework controls
@@ -1552,7 +1634,7 @@ def lambda_handler(event, context):
                 else "Failed to send test email"
             ),
         }
-    
+
     # === ANALYSIS MODE ===
     # Get configuration from event or environment variables
     hours = event.get("hours", os.environ.get("FINDINGS_HOURS", "24"))
@@ -1591,21 +1673,21 @@ def lambda_handler(event, context):
 
     # Special case for NIST 800-53 - we might have control status even with no findings
     if framework_id.upper() == "NIST800-53":
-        logger.info("NIST 800-53 requested - proceeding with control status even if no findings")
-        
+        logger.info(
+            "NIST 800-53 requested - proceeding with control status even if no findings"
+        )
+
         try:
             # Generate NIST 800-53 cATO report
             report_text, nist_stats, control_families = generate_nist_cato_report()
-            
+
             # Add extra logging to debug
             logger.info(f"Generated NIST report with stats: {json.dumps(nist_stats)}")
             logger.info(f"Control families: {len(control_families)}")
-            
+
             # Create special analysis for NIST 800-53
-            analyses = {
-                "NIST800-53": report_text
-            }
-            
+            analyses = {"NIST800-53": report_text}
+
             # Create stats dictionary in the format expected by the email function
             # Make sure we have default values for all required fields
             stats = {
@@ -1620,7 +1702,7 @@ def lambda_handler(event, context):
                     "failed": nist_stats.get("failed", 0),
                     "unknown": nist_stats.get("unknown", 0),
                     "not_applicable": nist_stats.get("not_applicable", 0),
-                    "compliance_percentage": nist_stats.get("compliance_percentage", 0)
+                    "compliance_percentage": nist_stats.get("compliance_percentage", 0),
                 }
             }
         except Exception as e:
@@ -1639,15 +1721,15 @@ def lambda_handler(event, context):
                     "failed": 0,
                     "unknown": 0,
                     "not_applicable": 0,
-                    "compliance_percentage": 0
+                    "compliance_percentage": 0,
                 }
             }
             control_families = {}
-        
+
         # If no findings, create empty placeholder
         if not findings or not any(findings.values()):
             findings = {"NIST800-53": []}
-        
+
         # Send email with control family data
         success = send_email(
             recipient_email,
@@ -1657,18 +1739,18 @@ def lambda_handler(event, context):
             mappers,
             None,
             include_combined,
-            nist_control_families=control_families
+            nist_control_families=control_families,
         )
-        
+
         return {
             "statusCode": 200 if success else 500,
             "body": json.dumps(
-                "NIST 800-53 control status report sent successfully" 
-                if success 
+                "NIST 800-53 control status report sent successfully"
+                if success
                 else "Failed to send NIST 800-53 control status report"
             ),
         }
-    
+
     # For other frameworks, check if we have any findings to process
     elif not findings or not any(findings.values()):
         logger.info("No findings found")
@@ -1699,10 +1781,13 @@ def lambda_handler(event, context):
 
     # Send email report with findings and analysis
     # Check if this is a NIST 800-53 report with control families
-    if framework_id.upper() == "NIST800-53" and "NIST800-53_CONTROL_FAMILIES" in findings:
+    if (
+        framework_id.upper() == "NIST800-53"
+        and "NIST800-53_CONTROL_FAMILIES" in findings
+    ):
         # Extract control families and remove from findings to avoid confusion
         control_families = findings.pop("NIST800-53_CONTROL_FAMILIES")
-        
+
         # Send email with enhanced NIST control data
         success = send_email(
             recipient_email,
@@ -1712,7 +1797,7 @@ def lambda_handler(event, context):
             mappers,
             None,  # No need for selected_framework (it's already filtered)
             include_combined,
-            nist_control_families=control_families  # Pass the control families for enhanced reporting
+            nist_control_families=control_families,  # Pass the control families for enhanced reporting
         )
     else:
         # Regular email without control families

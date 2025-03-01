@@ -1,13 +1,16 @@
 import json
-import pytest
-from unittest.mock import MagicMock, patch
 from datetime import datetime, timezone
-from app import get_nist_control_status, generate_nist_cato_report
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from app import generate_nist_cato_report, get_nist_control_status
+
 
 class TestAppNIST:
     @pytest.fixture
     def mock_securityhub(self):
-        with patch('boto3.client') as mock_client:
+        with patch("boto3.client") as mock_client:
             mock_sh = MagicMock()
             mock_client.return_value = mock_sh
             yield mock_sh
@@ -18,12 +21,12 @@ class TestAppNIST:
             "StandardsSubscriptions": [
                 {
                     "StandardsArn": "arn:aws:securityhub:::ruleset/cis-aws-foundations-benchmark/v/1.2.0",
-                    "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:123456789012:subscription/cis-aws-foundations-benchmark/v/1.2.0"
+                    "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:123456789012:subscription/cis-aws-foundations-benchmark/v/1.2.0",
                 },
                 {
                     "StandardsArn": "arn:aws:securityhub:us-east-1::standards/nist-800-53/v/5.0.0",
-                    "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:123456789012:subscription/nist-800-53/v/5.0.0"
-                }
+                    "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:123456789012:subscription/nist-800-53/v/5.0.0",
+                },
             ]
         }
 
@@ -39,7 +42,7 @@ class TestAppNIST:
                     "ComplianceStatus": "PASSED",
                     "SeverityRating": "HIGH",
                     "DisabledReason": "",
-                    "RelatedRequirements": ["SOC2 CC1.1"]
+                    "RelatedRequirements": ["SOC2 CC1.1"],
                 },
                 {
                     "ControlId": "NIST.800-53.r5-AC-2",
@@ -49,7 +52,7 @@ class TestAppNIST:
                     "ComplianceStatus": "FAILED",
                     "SeverityRating": "CRITICAL",
                     "DisabledReason": "",
-                    "RelatedRequirements": ["SOC2 CC1.2"]
+                    "RelatedRequirements": ["SOC2 CC1.2"],
                 },
                 {
                     "ControlId": "NIST.800-53.r5-CM-1",
@@ -59,15 +62,19 @@ class TestAppNIST:
                     "ComplianceStatus": "",
                     "SeverityRating": "MEDIUM",
                     "DisabledReason": "Not applicable for this environment",
-                    "RelatedRequirements": []
-                }
+                    "RelatedRequirements": [],
+                },
             ]
         }
 
-    def test_get_nist_control_status_success(self, mock_securityhub, sample_standards_response, sample_controls_response):
+    def test_get_nist_control_status_success(
+        self, mock_securityhub, sample_standards_response, sample_controls_response
+    ):
         # Setup mock responses
         mock_securityhub.get_enabled_standards.return_value = sample_standards_response
-        mock_securityhub.describe_standards_controls.return_value = sample_controls_response
+        mock_securityhub.describe_standards_controls.return_value = (
+            sample_controls_response
+        )
 
         # Call the function
         result = get_nist_control_status()
@@ -100,7 +107,7 @@ class TestAppNIST:
             "StandardsSubscriptions": [
                 {
                     "StandardsArn": "arn:aws:securityhub:::ruleset/cis-aws-foundations-benchmark/v/1.2.0",
-                    "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:123456789012:subscription/cis-aws-foundations-benchmark/v/1.2.0"
+                    "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:123456789012:subscription/cis-aws-foundations-benchmark/v/1.2.0",
                 }
             ]
         }
@@ -121,10 +128,14 @@ class TestAppNIST:
         # Verify empty result on error
         assert result == {}
 
-    def test_generate_nist_cato_report(self, mock_securityhub, sample_standards_response, sample_controls_response):
+    def test_generate_nist_cato_report(
+        self, mock_securityhub, sample_standards_response, sample_controls_response
+    ):
         # Setup mock responses
         mock_securityhub.get_enabled_standards.return_value = sample_standards_response
-        mock_securityhub.describe_standards_controls.return_value = sample_controls_response
+        mock_securityhub.describe_standards_controls.return_value = (
+            sample_controls_response
+        )
 
         # Call the function
         report_text, statistics, control_families = generate_nist_cato_report()
@@ -151,4 +162,4 @@ class TestAppNIST:
         assert "AC" in control_families  # Access Control family
         assert "CM" in control_families  # Configuration Management family
         assert len(control_families["AC"]["controls"]) == 2  # Two AC controls
-        assert len(control_families["CM"]["controls"]) == 1  # One CM control 
+        assert len(control_families["CM"]["controls"]) == 1  # One CM control
