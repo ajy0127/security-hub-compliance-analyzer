@@ -81,6 +81,7 @@ For your NIST 800-53 assessment readiness, I would prioritize addressing the enc
         }
     """
     
+    # Use raw string for CSS to avoid escape sequence issues
     html_content = f"""<html>
 <head>
     <style>

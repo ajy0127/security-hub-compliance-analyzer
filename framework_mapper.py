@@ -4,6 +4,9 @@ from abc import ABC, abstractmethod
 import os
 import re
 
+# Configure logging
+logger = logging.getLogger()
+
 class FrameworkMapper:
     """Base class for mapping AWS SecurityHub findings to compliance framework controls."""
 
