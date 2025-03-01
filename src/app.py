@@ -784,12 +784,14 @@ def cli_handler():
         "--output", type=str, default="report.csv", help="Output file path"
     )
     parser.add_argument("--email", type=str, help="Email recipient for report")
+    parser.add_argument("--no-email", action="store_true", help="Skip sending email")
 
     args = parser.parse_args()
     hours = args.hours
     framework_id = args.framework
     output_file = args.output
     recipient_email = args.email
+    skip_email = args.no_email
 
     # Get findings
     findings = get_findings(hours, framework_id)
@@ -798,8 +800,13 @@ def cli_handler():
     print(f"Found {len(findings)} findings")
     print(f"Generating report for {framework_id}...")
     print(f"Report saved to {output_file}")
-    if recipient_email:
+    
+    if recipient_email and not skip_email:
         print(f"Email sent to {recipient_email}")
+    elif recipient_email and skip_email:
+        print(f"Email sending skipped (--no-email flag used)")
+    else:
+        print("No email recipient specified")
 
 
 def lambda_handler(event, context):
@@ -846,9 +853,15 @@ def lambda_handler(event, context):
             # Default to text format
             output = "\n\n".join(analyses.values())
 
-        # Send email if requested
-        if email:
+        # Send email if requested and email sending is enabled
+        send_email_flag = event.get("send_email", True)  # Default to True for backward compatibility
+        if email and send_email_flag:
             send_email(email, "AWS Security Hub Compliance Report", output)
+            logger.info(f"Email sent to {email}")
+        elif email and not send_email_flag:
+            logger.info(f"Email sending skipped per request (send_email=False)")
+        elif not email:
+            logger.info("No email recipient specified")
 
         # Return response
         return {
