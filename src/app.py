@@ -102,9 +102,26 @@ def get_findings(hours, framework_id=None):
                     {"Value": framework_arn, "Comparison": "EQUALS"}
                 ]
 
-        # Get findings from Security Hub
-        response = securityhub.get_findings(Filters=filters, MaxResults=100)
-        findings = response.get("Findings", [])
+        # Get findings from Security Hub with pagination
+        findings = []
+        next_token = None
+        
+        while True:
+            # Prepare parameters for API call
+            params = {"Filters": filters, "MaxResults": 100}
+            if next_token:
+                params["NextToken"] = next_token
+                
+            # Call the API
+            response = securityhub.get_findings(**params)
+            findings.extend(response.get("Findings", []))
+            
+            # Check if there are more pages
+            next_token = response.get("NextToken")
+            if not next_token:
+                break
+                
+        logger.info(f"Retrieved {len(findings)} findings from Security Hub")
 
         # Process findings
         for finding in findings:
@@ -412,6 +429,11 @@ def generate_nist_cato_report(findings=None, output_file=None):
     report_text += f"Passing Controls: {statistics['passing_controls']} ({percentage(statistics['passing_controls'], statistics['total_controls'])}%)\n"
     report_text += f"Failing Controls: {statistics['failing_controls']} ({percentage(statistics['failing_controls'], statistics['total_controls'])}%)\n"
     report_text += f"Not Applicable Controls: {statistics['not_applicable_controls']} ({percentage(statistics['not_applicable_controls'], statistics['total_controls'])}%)\n\n"
+    
+    # Add note if we don't have all 288 controls
+    expected_controls = 288
+    if statistics['total_controls'] < expected_controls:
+        report_text += f"**Note**: Only {statistics['total_controls']} of {expected_controls} controls were retrieved from Security Hub. Others are marked as UNKNOWN.\n\n"
 
     # Control Family Status
     report_text += "## Control Family Status\n\n"
@@ -566,8 +588,14 @@ def get_nist_control_status(findings=None):
             logger.warning(f"Error retrieving controls from Security Hub: {e}")
             # Continue with the pre-initialized controls
 
-        # Ensure we return at least 288 controls
-        logger.info(f"Returning {len(control_status)} NIST 800-53 controls")
+        # Check if we have all expected controls (288 for NIST 800-53)
+        fetched_controls = len(control_status)
+        expected_controls = 288
+        
+        if fetched_controls < expected_controls:
+            logger.warning(f"Only {fetched_controls}/{expected_controls} NIST controls returned by Security Hub")
+            
+        logger.info(f"Returning {fetched_controls} NIST 800-53 controls")
         return control_status
 
     except Exception as e:

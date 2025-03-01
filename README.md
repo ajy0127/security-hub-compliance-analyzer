@@ -3,6 +3,9 @@
 
 [![CI/CD Pipeline](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml)
 
+**⚠️ Verify Emails First!**  
+This tool requires sender and recipient emails verified in Amazon SES. See [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) before starting—skipping this breaks email reporting!
+
 ## A Portfolio-Building Project for GRC Professionals
 
 This lab project is designed specifically for Governance, Risk, and Compliance (GRC) professionals who want to enhance their technical skills and build a practical portfolio demonstrating cloud security compliance expertise.
@@ -38,6 +41,11 @@ This solution automatically:
 
 Think of it as an automated compliance assistant that helps you monitor security compliance across multiple frameworks in AWS.
 
+### 3-Minute Setup
+1. **Verify Emails**: Confirm sender/recipient emails in SES ([Guide](docs/DEPLOYMENT_GUIDE.md#email-verification)).
+2. **Deploy**: Run `aws cloudformation create-stack --stack-name security-hub-compliance --template-body file://deployment/cloudformation.yaml --capabilities CAPABILITY_IAM --parameters ParameterKey=SenderEmail,ParameterValue=your-verified@email.com ParameterKey=RecipientEmail,ParameterValue=your-verified@email.com ParameterKey=S3BucketName,ParameterValue=your-bucket-name ParameterKey=S3KeyName,ParameterValue=lambda-code.zip`
+3. **Test**: Trigger with `test-soc2-event.json` from `examples/`.
+
 ### Framework Selection
 
 **Important**: When using the tool, you must specify which compliance framework to analyze:
@@ -57,6 +65,23 @@ The system now provides enhanced continuous Authorization to Operate (cATO) moni
 - **Compliance Percentages**: Calculates actual compliance percentages by family and overall
 - **cATO Readiness**: Provides visual indicators of cATO implementation progress
 - **Tailored Recommendations**: Suggests actions based on control status
+
+**Sample NIST cATO Report:**
+```
+## Control Family Status
+
+### AC: Access Control
+Total Controls: 25
+Passing: 20 (80%)
+Failing: 3 (12%)
+Not Applicable: 2 (8%)
+
+### CM: Configuration Management
+Total Controls: 22
+Passing: 18 (82%)
+Failing: 2 (9%)
+Not Applicable: 2 (9%)
+```
 
 #### Running NIST 800-53 cATO Reports
 
@@ -183,7 +208,7 @@ You can customize this project to demonstrate your unique GRC expertise:
 A: No! The step-by-step guide allows you to deploy and use the solution without writing code.
 
 **Q: Will this cost money to run?**  
-A: AWS offers a free tier that should cover most of your usage. We recommend setting up billing alerts.
+A: Free in AWS Free Tier for light use (e.g., 100 Lambda runs/month). Bedrock/SES may add ~$1-2/month—set billing alerts!
 
 **Q: Can I use this for actual compliance monitoring?**  
 A: This is designed as a learning tool. For production environments, additional security and reliability considerations would be needed.
@@ -227,3 +252,6 @@ Join our community of GRC professionals building their technical portfolios:
 This project was designed to bridge the gap between technical security implementations and GRC requirements, making cloud compliance more accessible to non-technical professionals.
 
 This project was inspired by [AWS Security Hub Findings Summarizer with AI-Powered Analysis](https://github.com/aws-samples/analyze-securityhub-findings-with-bedrock), an AWS sample that demonstrates how to use Amazon Bedrock to analyze SecurityHub findings. While our project focuses specifically on SOC 2 compliance for GRC professionals, we appreciate the architectural patterns and concepts demonstrated in the original AWS sample.
+
+## Related Projects
+Check out my other GRC tool: [aws_automated_access_review](https://github.com/ajy0127/aws_automated_access_review) for IAM-focused security audits!
