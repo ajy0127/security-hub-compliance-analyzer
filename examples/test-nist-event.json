@@ -1,6 +1,0 @@
-{
-    "email": "your-verified-email@example.com",
-    "framework": "NIST800-53",
-    "hours": 24,
-    "generate_csv": true
-}

@@ -1492,7 +1492,7 @@ def lambda_handler(event, context):
 
     2. Test Email Mode: When the event contains {"test_email": true}, it sends a
        test email to verify email delivery configuration is working correctly.
-       
+
     3. Analysis Mode: The default mode that:
        a. Retrieves SecurityHub findings for a specified time period
        b. Maps findings to framework controls
@@ -1555,7 +1555,7 @@ def lambda_handler(event, context):
                 else "Failed to send test email"
             ),
         }
-    
+
     # === ANALYSIS MODE ===
     # Get configuration from event or environment variables
     hours = event.get("hours", os.environ.get("FINDINGS_HOURS", "24"))

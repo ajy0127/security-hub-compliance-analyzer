@@ -99,7 +99,6 @@ My solution addresses these challenges by automating the collection, analysis, a
 ## Screenshots & Artifacts
 
 [Include sanitized screenshots of:]
-- AWS SecurityHub dashboard
 - Sample compliance report (with sensitive information removed)
 - Control mapping configuration
 - CloudFormation deployment
@@ -116,9 +115,9 @@ My solution addresses these challenges by automating the collection, analysis, a
 
 If this were implemented in a production environment, I would recommend:
 - Expanding the solution to cover additional compliance frameworks (NIST, ISO 27001)
-- Creating executive dashboards for real-time compliance visibility
 - Implementing automated remediation workflows for common findings
 - Enhancing the AI analysis to provide more detailed compliance insights
+- Developing custom reporting templates for different stakeholder groups
 
 ## Reflection
 

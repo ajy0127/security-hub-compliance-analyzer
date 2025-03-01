@@ -1,6 +1,19 @@
-# Deployment Guide for GRC Professionals
+# Deployment Guide: AWS SecurityHub Compliance Analyzer
 
-This guide will walk you through setting up the AWS SecurityHub SOC 2 Compliance Lab step-by-step, with minimal technical knowledge required. By the end, you'll have a working compliance reporting system that you can showcase in your professional portfolio.
+This guide walks you through setting up the SecurityHub Compliance Analyzer, a fully-automated compliance reporting system that you can showcase in your professional portfolio.
+
+## Deployment Overview
+
+Deploying this solution involves these main steps:
+
+1. **Verify your email** (critical first step)
+2. **Create an S3 bucket** for Lambda code
+3. **Package the Lambda code**
+4. **Deploy the CloudFormation stack**
+5. **Configure SecurityHub**
+6. **Test the solution**
+
+Let's walk through each step in detail.
 
 ## Before You Begin
 
@@ -68,7 +81,29 @@ SecurityHub is AWS's security findings service that we'll use as our data source
 
 > ⚠️ **Important**: Both the sender and recipient email addresses must be verified in SES. If you plan to send reports to a different email than your own, repeat this process for that email address as well.
 
+> ⚠️ **SES Sandbox Note**: New AWS accounts start in the SES "sandbox" mode, which means:
+> - You can only send to verified email addresses
+> - You have lower sending limits
+> - To move out of the sandbox, you need to request production access through the SES console
+
 > 💡 **GRC Insight**: Document this email verification process as part of your compliance controls implementation.
+
+### Understanding SES Limitations for Compliance Reports
+
+When setting up email delivery for compliance reports, be aware of these limitations:
+
+1. **Verification Requirements**: All recipient email addresses must be verified if your account is in SES sandbox mode
+2. **Spam Filtering**: Corporate email systems may filter compliance reports as spam due to:
+   - Content about security vulnerabilities
+   - Attachments with CSV data
+   - HTML formatting with security terminology
+3. **Best Practices**:
+   - Verify all recipient email addresses in advance
+   - Add the sender email to your address book/safe senders list
+   - Check spam folders if emails aren't appearing
+   - Consider requesting production access if sending to multiple stakeholders
+
+For detailed help with email delivery issues, see our [Email Troubleshooting Guide](EMAIL_TROUBLESHOOTING.md).
 
 ## Step 5: Deploy the Solution Using CloudFormation
 
@@ -372,16 +407,22 @@ Now that you have a working solution, document it for your portfolio:
 
 > 💡 **GRC Insight**: Documentation is a critical GRC skill - this demonstrates your ability to communicate complex compliance concepts.
 
-## Understanding What You've Built
+## System Architecture
 
-Let's break down what you've deployed in non-technical terms:
+The deployed solution consists of these components:
 
-1. **The Collector** (Lambda Function): A scheduled task that gathers security findings
-2. **The Mapper** (SOC2Mapper): A translator that converts technical findings into SOC 2 language
-3. **The Analyzer** (AI Component): An assistant that reviews findings and generates insights
-4. **The Reporter** (Email Component): A communication tool that creates and delivers reports
+1. **Lambda Function**: The main engine that processes security findings
+2. **EventBridge Rule**: Scheduled trigger that runs the Lambda on a regular basis
+3. **IAM Role**: Permissions for the Lambda to access SecurityHub and send emails
+4. **SES Configuration**: Email delivery mechanism for reports
+5. **SecurityHub**: AWS service that aggregates security findings from multiple sources
 
-This entire system runs automatically on your schedule, providing regular compliance insights without manual effort.
+The workflow operates as follows:
+
+1. **The Timer** (EventBridge): Triggers the Lambda function daily or on your specified schedule
+2. **The Analyzer** (Lambda): Collects security findings and maps them to compliance frameworks 
+3. **The Reporter** (Lambda): Generates a formatted HTML email report for each framework
+4. **The Delivery** (SES): Sends the report to your specified email address(es)
 
 ## Troubleshooting Common Issues
 
@@ -398,11 +439,21 @@ If you see an error like: "Error occurred while GetObject. S3 Error Code: NoSuch
 
 1. Check your spam folder
 2. **Verify both sender and recipient emails are correctly verified in SES**
+   - Run our `check_ses_status.sh` script if available
+   - Or check verification status in the SES Console
 3. Check if your AWS account is still in the SES sandbox (it most likely is)
    - In the SES console, look for "Account dashboard" in the left navigation
    - Under "Sending statistics", it will indicate if you're in the sandbox
    - While in the sandbox, you can only send to verified email addresses
-4. Check the CloudWatch logs for the Lambda function for specific error messages
+4. Verify the Lambda function has SES permissions
+   - In the Lambda console, go to the "Configuration" tab
+   - Click on "Permissions"
+   - Check that the execution role has the `ses:SendRawEmail` permission
+5. Check the CloudWatch logs for the Lambda function for specific error messages
+   - Common errors include "Email address is not verified" and "User is not authorized to perform ses:SendRawEmail"
+6. Try running the `test_ses_delivery.sh` script to test different email delivery methods
+
+For more comprehensive troubleshooting, refer to our [Email Troubleshooting Guide](EMAIL_TROUBLESHOOTING.md)
 
 ### No Findings in Report
 
@@ -425,9 +476,10 @@ If you see an error like: "Error occurred while GetObject. S3 Error Code: NoSuch
 After completing this lab, consider these portfolio-enhancing activities:
 
 1. **Map to Additional Frameworks**: Modify the solution to include NIST CSF or ISO 27001
-2. **Create an Executive Dashboard**: Design a visual summary of compliance status
+2. **Enhance Your QuickSight Dashboard**: Add custom visualizations and metrics to your cATO dashboard
 3. **Document Remediation Procedures**: Create playbooks for addressing common findings
-4. **Perform a Gap Analysis**: Compare SecurityHub coverage to complete SOC 2 requirements
+4. **Set Up Dashboard Sharing**: Configure scheduled dashboard snapshots for executive stakeholders
+5. **Perform a Gap Analysis**: Compare SecurityHub coverage to complete SOC 2 and NIST 800-53 requirements
 
 ## Getting Help
 

@@ -19,29 +19,51 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+.coverage
+coverage.xml
+htmlcov/
 
 # Virtual Environment
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-coverage.xml
-*.cover
-
-# AWS SAM
-.aws-sam/
-samconfig.toml
-packaged.yaml
+env.bak/
+venv.bak/
+*_venv/
+temp_venv/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# AWS
+.aws-sam/
+*.zip
+response.json
+*_response.json
+lambda-code*.zip
+
+# Project specific
+debug_email.html
+.pytest_cache/
+*.log
+temp/
+output*.json
+direct_*.json
+test_*.json
+nist_*.json
+cato_*.json
+frameworks_*.json
+
+# Keep
+!examples/*.json
+!config/*.json
+!deployment/config/*.json
 
 # OS
 .DS_Store

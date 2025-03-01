@@ -1,5 +1,5 @@
 # AWS SecurityHub Multi-Framework Compliance Analyzer
-## Supporting SOC 2 and NIST 800-53 Frameworks
+## Supporting SOC 2 and NIST 800-53 Frameworks with cATO Monitoring
 
 [![CI/CD Pipeline](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/ajy0127/security-hub-compliance-analyzer/actions/workflows/ci.yml)
 
@@ -23,8 +23,9 @@ This lab will help you understand:
 1. **How AWS SecurityHub Works**: Learn how cloud security findings are generated and managed
 2. **Compliance Control Mapping**: See how technical findings map to SOC 2 and NIST 800-53 compliance requirements
 3. **Multi-Framework Analysis**: Understand how security findings impact different compliance frameworks
-3. **Compliance Reporting**: Create professional reports suitable for auditors and executives
-4. **Basic Cloud Automation**: Experience how compliance monitoring can be automated
+4. **Compliance Reporting**: Create professional reports suitable for auditors and executives
+5. **cATO Monitoring**: Track continuous Authorization to Operate with NIST 800-53 control status reporting
+6. **Basic Cloud Automation**: Experience how compliance monitoring can be automated
 
 ## Project Overview (Non-Technical)
 
@@ -42,10 +43,39 @@ Think of it as an automated compliance assistant that helps you monitor security
 **Important**: When using the tool, you must specify which compliance framework to analyze:
 
 - **SOC 2**: For analyzing against SOC 2 controls only
-- **NIST 800-53**: For analyzing against NIST 800-53 controls only
+- **NIST 800-53**: For analyzing against NIST 800-53 controls only (includes enhanced cATO status reporting)
 - **All Frameworks**: To analyze against all configured frameworks
 
 If no framework is specified, the system defaults to SOC 2.
+
+### NIST 800-53 cATO Monitoring
+
+The system now provides enhanced continuous Authorization to Operate (cATO) monitoring for NIST 800-53:
+
+- **Direct Control Status**: Retrieves actual control status from Security Hub instead of just findings
+- **Control Family Breakdown**: Organizes compliance by control family (AC, CM, IA, etc.)
+- **Compliance Percentages**: Calculates actual compliance percentages by family and overall
+- **cATO Readiness**: Provides visual indicators of cATO implementation progress
+- **Tailored Recommendations**: Suggests actions based on control status
+
+#### Running NIST 800-53 cATO Reports
+
+To generate a cATO-focused NIST 800-53 report:
+
+```bash
+# Set your email address
+export RECIPIENT_EMAIL="your-verified-email@example.com"
+
+# Option 1: Use the Lambda function (deployed version)
+./test_nist_direct_controls.sh
+
+# Option 2: Test locally
+source nist_venv/bin/activate  # Activate the Python virtual environment
+./debug_email_output.py        # Generate HTML report
+./send_debug_email.py --sender your-verified@email.com --recipient your-verified@email.com
+```
+
+For more details, see the [NIST Control Status Guide](docs/NIST_CONTROL_STATUS.md).
 
 ## ⚠️ Important Requirements
 
@@ -111,21 +141,21 @@ Example events for triggering the Lambda function can be found in the `examples/
 After completing this lab, you'll have several artifacts to add to your professional portfolio:
 
 1. **SOC 2 Compliance Reports**: Professional-looking reports mapping AWS findings to SOC 2 controls
-2. **Compliance Dashboard**: Screenshots of your compliance monitoring setup
-3. **Project Implementation**: Documentation of your deployment process
-4. **Risk Analysis**: Sample analysis of security findings and their compliance impact
+2. **Project Implementation**: Documentation of your deployment process
+3. **Risk Analysis**: Sample analysis of security findings and their compliance impact
 
 ## Understanding the Components (Simplified)
 
 This solution consists of several parts, explained in non-technical terms:
 
-1. **The Collector** (Lambda Function): Automatically gathers security findings on a schedule
+1. **The Collector** (Lambda Function): Automatically gathers security findings and control status on a schedule
 2. **The Framework Mappers**: Translate technical security findings into compliance control language for different frameworks
    - SOC2Mapper: Maps findings to SOC 2 controls
    - NIST800-53Mapper: Maps findings to NIST 800-53 controls
-3. **The Analyzer** (AI Component): Reviews findings and generates compliance insights for each framework
-4. **The Cross-Framework Analyzer**: Identifies common issues and priorities across multiple frameworks
-5. **The Reporter** (Email Component): Creates and delivers professional reports with framework-specific sections
+3. **The Control Status Manager**: Directly retrieves NIST 800-53 control status for enhanced cATO reporting
+4. **The Analyzer** (AI Component): Reviews findings and generates compliance insights for each framework
+5. **The Cross-Framework Analyzer**: Identifies common issues and priorities across multiple frameworks
+6. **The Reporter** (Email Component): Creates and delivers professional reports with framework-specific sections
 
 ## Repository Structure
 
@@ -172,15 +202,19 @@ A: The most common issue is not properly verifying both sender and recipient ema
 After you've completed this lab, consider these next steps for your GRC portfolio:
 
 1. **Add More Frameworks**: Extend the project to map findings to additional frameworks like ISO 27001, CIS Controls, or HIPAA
-2. **Create Executive Dashboards**: Design visual summaries of compliance status
-3. **Develop Remediation Workflows**: Outline processes for addressing compliance gaps
+2. **Develop Remediation Workflows**: Outline processes for addressing compliance gaps
+3. **Set Up Executive Reporting**: Configure scheduled email reports for executive stakeholders
 4. **Document Your Journey**: Write a blog post or LinkedIn article about what you learned
 
 ## Resources for GRC Professionals
 
 - [SOC 2 Control Mapping Guide](docs/SOC2_MAPPING_GUIDE.md)
+- [NIST 800-53 Control Status Guide](docs/NIST_CONTROL_STATUS.md)
+- [NIST 800-53 cATO Control Mapping](docs/CATO_CONTROL_MAPPING.md)
 - [Sample Portfolio Write-up Template](docs/PORTFOLIO_TEMPLATE.md)
 - [Example SOC 2 Compliance Report](examples/example-report-email.md)
+- [Email Setup and Delivery Guide](docs/EMAIL_README.md)
+- [Email Troubleshooting Guide](docs/EMAIL_TROUBLESHOOTING.md)
 
 ## Community Support
 

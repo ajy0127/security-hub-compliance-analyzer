@@ -1,0 +1,8 @@
+{
+    "email": "your-verified-email@example.com",
+    "framework": "NIST800-53",
+    "hours": 24,
+    "generate_csv": true,
+    "combined_analysis": false,
+    "comment": "This event will trigger a NIST 800-53 compliance analysis report email"
+}

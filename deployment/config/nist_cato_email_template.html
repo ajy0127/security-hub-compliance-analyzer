@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Test Agency Weekly cATO Update</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            color: #333333;
+            line-height: 1.5;
+        }
+        h1, h2, h3 { 
+            color: #232f3e; 
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        .header {
+            background-color: #232f3e;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: white;
+            margin: 0;
+        }
+        .header p {
+            color: #cccccc;
+            margin: 5px 0 0 0;
+        }
+        .summary { 
+            background-color: #f8f8f8; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            margin-top: 10px;
+        }
+        .summary-grid div {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .passed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .failed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .na {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .critical { 
+            color: #d13212; 
+            font-weight: bold;
+        }
+        .high { 
+            color: #ff9900; 
+            font-weight: bold;
+        }
+        .medium { 
+            color: #d9b43c; 
+        }
+        .low { 
+            color: #6b6b6b; 
+        }
+        .cato-section {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #0073bb;
+        }
+        .critical-action {
+            color: #d13212;
+            font-weight: bold;
+        }
+        .high-action {
+            color: #ff9900;
+            font-weight: bold;
+        }
+        .meter { 
+            height: 20px;
+            position: relative;
+            background: #f3f3f3;
+            border-radius: 25px;
+            padding: 5px;
+            box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+            margin: 15px 0;
+        }
+        .meter > span {
+            display: block;
+            height: 100%;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            background-color: #2bc253;
+            background-image: linear-gradient(
+                center bottom,
+                rgb(43,194,83) 37%,
+                rgb(84,240,84) 69%
+            );
+            box-shadow: 
+                inset 0 2px 9px  rgba(255,255,255,0.3),
+                inset 0 -2px 6px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+            line-height: 20px;
+        }
+        .meter-label {
+            font-size: 0.8em;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
+        }
+        .control-family {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .control-family h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .control-family-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 10px;
+            margin-bottom: 10px;
+        }
+        .control-list {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .control-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid #ddd;
+        }
+        .status-warning {
+            border-left-color: #ff9900;
+        }
+        .status-failed {
+            border-left-color: #d13212;
+        }
+        .recommendations {
+            background-color: #e6f7ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+        .recommendations h2 {
+            color: #0073bb;
+            margin-top: 0;
+        }
+        .recommendations ol {
+            margin-bottom: 0;
+        }
+        .finding-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .finding-summary > div {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        .finding-summary > div:first-child {
+            margin-left: 0;
+        }
+        .finding-summary > div:last-child {
+            margin-right: 0;
+        }
+        .finding-summary h4 {
+            margin: 0 0 5px 0;
+        }
+        .finding-summary .count {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Test Agency Weekly cATO Update</h1>
+        <p>NIST 800-53 Compliance Status Report - {{report_date}}</p>
+    </div>
+    
+    <div class="summary">
+        <h2>cATO Implementation Status</h2>
+        <p>This report provides a status update on the Test Agency's continuous Authorization to Operate (cATO) implementation based on NIST 800-53 controls from AWS Security Hub.</p>
+        
+        <div class="meter">
+            <span style="width: {{cato_readiness_percentage}}%">cATO Readiness: {{cato_readiness_percentage}}%</span>
+        </div>
+        <p class="meter-label">Current cATO implementation progress based on control statuses</p>
+        
+        <div class="summary-grid">
+            <div class="passed">
+                <h4>PASSED</h4>
+                <div class="count">{{passed_count}}</div>
+                controls
+            </div>
+            <div class="warning">
+                <h4>WARNING</h4>
+                <div class="count">{{warning_count}}</div>
+                controls
+            </div>
+            <div class="failed">
+                <h4>FAILED</h4>
+                <div class="count">{{failed_count}}</div>
+                controls
+            </div>
+            <div class="na">
+                <h4>NOT ASSESSED</h4>
+                <div class="count">{{na_count}}</div>
+                controls
+            </div>
+        </div>
+    </div>
+    
+    <div class="finding-summary">
+        <div class="critical">
+            <h4>Critical</h4>
+            <div class="count">{{critical_count}}</div>
+            findings
+        </div>
+        <div class="high">
+            <h4>High</h4>
+            <div class="count">{{high_count}}</div>
+            findings
+        </div>
+        <div class="medium">
+            <h4>Medium</h4>
+            <div class="count">{{medium_count}}</div>
+            findings
+        </div>
+        <div class="low">
+            <h4>Low</h4>
+            <div class="count">{{low_count}}</div>
+            findings
+        </div>
+    </div>
+
+    <div class="cato-section">
+        <h2>Current Implementation Status</h2>
+        <p>The NIST 800-53 control analysis reveals the current status of the Test Agency's continuous Authorization to Operate (cATO) implementation.</p>
+        
+        <h3>Key Metrics</h3>
+        <ul>
+            <li><strong>Total Controls Assessed:</strong> {{total_controls}}</li>
+            <li><strong>Controls Passing:</strong> {{passed_count}} ({{passed_percentage}}%)</li>
+            <li><strong>Controls Requiring Attention:</strong> {{attention_count}} ({{attention_percentage}}%)</li>
+            <li><strong>Critical cATO Controls with Issues:</strong> {{critical_cato_issues}}</li>
+        </ul>
+        
+        <h3>Top Control Families Requiring Attention</h3>
+        <ul>
+            {{#each problematic_families}}
+            <li><strong>{{this.id}} - {{this.name}}:</strong> {{this.count}} issues</li>
+            {{/each}}
+        </ul>
+    </div>
+    
+    <h2>Control Family Status</h2>
+    
+    {{#each key_families}}
+    <div class="control-family">
+        <h3>{{this.id}} - {{this.name}}</h3>
+        
+        <div class="control-family-stats">
+            <div>
+                <strong>Total Controls:</strong> {{this.total}}<br>
+                <strong>cATO-Critical Controls:</strong> {{this.cato_critical}}
+            </div>
+            <div>
+                <strong>PASSED:</strong> {{this.passed}}<br>
+                <strong>FAILED:</strong> {{this.failed}}<br>
+                <strong>WARNING:</strong> {{this.warning}}<br>
+                <strong>NOT ASSESSED:</strong> {{this.na}}
+            </div>
+        </div>
+        
+        {{#if this.has_issues}}
+        <div class="control-list">
+            <strong>Controls Requiring Attention:</strong>
+            {{#each this.issues}}
+            <div class="control-item status-{{this.status_class}}">
+                <strong>{{this.id}} ({{this.status}})</strong>: {{this.criticality}} - {{this.description}}
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+    {{/each}}
+    
+    <div class="recommendations">
+        <h2>Recommended Next Steps for cATO Maturity</h2>
+        <ol>
+            {{#if critical_cato_issues}}
+            <li class="critical-action">Address {{critical_cato_issues}} cATO-critical controls with FAILED or WARNING status</li>
+            {{/if}}
+            {{#if failed_count}}
+            <li class="high-action">Remediate all {{failed_count}} FAILED controls within 7 days to improve cATO posture</li>
+            {{/if}}
+            <li>Focus remediation efforts on top problematic control families</li>
+            <li>Implement continuous monitoring for AC and CM control families</li>
+            <li>Update POA&M documentation with the findings in this report</li>
+            <li>Schedule cATO implementation review meeting with the security team</li>
+        </ol>
+    </div>
+    
+    <div class="cato-section">
+        <h2>Immediate Actions Required</h2>
+        <p>To support ongoing cATO compliance, please prioritize the following actions:</p>
+        <ol>
+            {{#if critical_count}}
+            <li>Resolve all <strong class="critical">{{critical_count}}</strong> critical findings within 48 hours</li>
+            {{/if}}
+            {{#if high_count}}
+            <li>Address all <strong class="high">{{high_count}}</strong> high severity findings this week</li>
+            {{/if}}
+            <li>Review and update the Plan of Action & Milestones (POA&M) document</li>
+            <li>Ensure findings are assigned to responsible teams</li>
+            <li>Strengthen failed or warning cATO-critical controls to maintain authorization</li>
+        </ol>
+    </div>
+    
+    <div class="footer">
+        <p>This report was automatically generated based on AWS Security Hub NIST 800-53 control assessments.</p>
+        <p>A CSV attachment is included with detailed control findings and status information.</p>
+        <p>For more information, contact the security team.</p>
+    </div>
+</body>
+</html>

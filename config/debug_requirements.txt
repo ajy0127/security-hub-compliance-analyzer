@@ -1,0 +1,13 @@
+# Requirements for local testing and debugging of NIST 800-53 cATO reporting
+
+# AWS SDK
+boto3>=1.28.0
+
+# Email formatting
+html-email-validator
+
+# Development tools
+pytest
+black
+isort
+flake8

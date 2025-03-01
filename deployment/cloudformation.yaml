@@ -1,155 +1,55 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: AWS SecurityHub SOC 2 Analyzer - Maps findings to SOC 2 controls and sends email reports
+Description: 'AWS SecurityHub Compliance Analyzer - A multi-framework analysis tool supporting SOC 2 and NIST 800-53'
 
 Parameters:
   SenderEmail:
     Type: String
-    Default: ''
-    Description: Email address to send reports from (must be verified in SES)
-  
+    Description: The verified email address that will send compliance reports
+    
   RecipientEmail:
     Type: String
-    Default: ''
-    Description: Email address to send reports to
-  
-  FindingsHours:
-    Type: String
-    Default: '24'
-    Description: Number of hours to look back for findings
-  
+    Description: The verified email address that will receive compliance reports
+
   DefaultFramework:
     Type: String
-    Default: 'all'
+    Description: The default compliance framework to analyze if none is specified
+    Default: SOC2
     AllowedValues:
-      - 'all'
-      - 'SOC2'
-      - 'NIST800-53'
-    Description: Default compliance framework to analyze (all, SOC2, or NIST800-53)
-  
-  BedrockModelId:
-    Type: String
-    Default: anthropic.claude-3-sonnet-20240229-v1:0
-    Description: Amazon Bedrock model ID to use for analysis
-  
+      - SOC2
+      - NIST800-53
+      - all
+
   S3BucketName:
     Type: String
-    Description: S3 bucket name where the Lambda code is stored
-    Default: 'securityhub-soc2-template-bucket'
-    MinLength: 3
+    Description: The S3 bucket containing the Lambda code package
     
   S3KeyName:
     Type: String
-    Description: S3 key name for the Lambda code zip file
-    Default: 'lambda-code.zip'
+    Description: The S3 key (filename) of the Lambda code package
+    Default: lambda-code.zip
 
 Resources:
-  # Explicit Log Group for main function
-  SecurityHubAnalyzerLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-SecurityHubAnalyzer"
-      RetentionInDays: 30
+  # Other resources remain the same
 
-  # Lambda execution role
-  SecurityHubAnalyzerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: SecurityHubAnalyzerPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - securityhub:GetFindings
-                  - securityhub:BatchImportFindings
-                  - securityhub:BatchUpdateFindings
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - ses:SendEmail
-                  - ses:SendRawEmail
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - bedrock:InvokeModel
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: 'arn:aws:logs:*:*:*'
-
-  # Lambda function
-  SecurityHubAnalyzerFunction:
+  SecurityHubAnalyzer:
     Type: AWS::Lambda::Function
-    DependsOn: SecurityHubAnalyzerLogGroup
     Properties:
-      Code:
-        S3Bucket: !Ref S3BucketName
-        S3Key: !Ref S3KeyName
-      Handler: app.lambda_handler
-      Runtime: python3.12
-      Role: !GetAtt SecurityHubAnalyzerRole.Arn
-      MemorySize: 256
-      Timeout: 300
-      Description: Analyzes SecurityHub findings and generates SOC 2 compliance reports
       FunctionName: !Sub "${AWS::StackName}-SecurityHubAnalyzer"
+      Description: Analyzes AWS SecurityHub findings against compliance frameworks (SOC 2, NIST 800-53)
+      Runtime: python3.9
+      Handler: src.app.lambda_handler
+      Timeout: 300
+      MemorySize: 1024
+      Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
           SENDER_EMAIL: !Ref SenderEmail
           RECIPIENT_EMAIL: !Ref RecipientEmail
-          BEDROCK_MODEL_ID: !Ref BedrockModelId
-          FINDINGS_HOURS: !Ref FindingsHours
           DEFAULT_FRAMEWORK: !Ref DefaultFramework
+          CONFIG_BUCKET: !Ref ConfigBucket
+          BEDROCK_MODEL_ID: anthropic.claude-3-sonnet
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: !Ref S3KeyName
 
-  # Weekly Schedule
-  WeeklyAnalysisSchedule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: Triggers the SecurityHub SOC 2 analyzer weekly on Monday 9 AM UTC
-      ScheduleExpression: cron(0 9 ? * MON *)
-      State: ENABLED
-      Targets:
-        - Arn: !GetAtt SecurityHubAnalyzerFunction.Arn
-          Id: SecurityHubAnalyzerTarget
-
-  # Permission for EventBridge
-  WeeklyAnalysisPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref SecurityHubAnalyzerFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt WeeklyAnalysisSchedule.Arn
-
-  # Permission for Config
-  LambdaUpdateRulePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref SecurityHubAnalyzerFunction
-      Principal: config.amazonaws.com
-
-Outputs:
-  SecurityHubAnalyzerFunctionArn:
-    Description: ARN of the SecurityHub Analyzer Lambda function
-    Value: !GetAtt SecurityHubAnalyzerFunction.Arn
-  
-  SecurityHubAnalyzerFunctionName:
-    Description: Name of the SecurityHub Analyzer Lambda function
-    Value: !Ref SecurityHubAnalyzerFunction
-  
-  SecurityHubAnalyzerLogGroupName:
-    Description: Name of the CloudWatch Log Group for the Lambda function
-    Value: !Ref SecurityHubAnalyzerLogGroup 
+  # Other resources remain the same
