@@ -8,7 +8,7 @@ This script:
 2. Sends it as an email using Amazon SES
 3. Provides a direct way to test email delivery of complex HTML
 
-Usage: 
+Usage:
 ./send_debug_email.py --sender your-verified@email.com --recipient recipient@example.com
 
 Requirements:
