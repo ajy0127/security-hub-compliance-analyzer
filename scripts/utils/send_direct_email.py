@@ -3,13 +3,14 @@
 Send a direct email using AWS SES without going through the Lambda function.
 """
 
-import boto3
-import os
-import json
 import argparse
+import json
+import os
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime
+
+import boto3
 
 
 def send_direct_email(profile_name, sender_email, recipient_email):

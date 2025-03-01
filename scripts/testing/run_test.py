@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Simple test script for running the analyzer directly."""
 
+import json
 import os
 import sys
-import json
 from datetime import datetime
 
 # Set path to include project root

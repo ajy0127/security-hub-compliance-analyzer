@@ -3,10 +3,11 @@
 Script to invoke the SecurityHub Compliance Analyzer Lambda with a specific AWS profile.
 """
 
-import json
-import boto3
 import argparse
+import json
 import os
+
+import boto3
 
 
 def invoke_lambda(profile_name, email, hours=24, framework="NIST800-53"):

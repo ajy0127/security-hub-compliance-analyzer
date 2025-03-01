@@ -18,9 +18,10 @@ Requirements:
 """
 
 import argparse
-import boto3
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import boto3
 
 
 def send_html_email(profile_name, sender_email, recipient_email):

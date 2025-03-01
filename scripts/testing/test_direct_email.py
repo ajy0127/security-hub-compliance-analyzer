@@ -3,9 +3,10 @@
 Directly invoke the Lambda function to send a NIST 800-53 report.
 """
 
-import boto3
-import json
 import argparse
+import json
+
+import boto3
 
 
 def invoke_lambda(profile_name, email, framework="NIST800-53"):

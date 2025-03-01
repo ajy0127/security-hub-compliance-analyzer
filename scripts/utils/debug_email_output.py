@@ -16,7 +16,8 @@ Output: Creates debug_email.html for manual inspection
 
 import json
 import os
-from src.app import get_nist_control_status, generate_nist_cato_report
+
+from src.app import generate_nist_cato_report, get_nist_control_status
 
 
 def debug_email_html():

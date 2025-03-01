@@ -6,7 +6,7 @@ Script to generate a cATO-focused NIST 800-53 control status report.
 import json
 import os
 import random
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 
 

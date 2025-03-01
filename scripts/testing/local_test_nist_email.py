@@ -3,10 +3,12 @@
 Local test script for NIST 800-53 email generation.
 """
 
-import boto3
 import json
 import os
-from src.app import get_nist_control_status, generate_nist_cato_report, send_email
+
+import boto3
+
+from src.app import generate_nist_cato_report, get_nist_control_status, send_email
 
 
 def test_email_generation(recipient_email):

@@ -3,14 +3,15 @@
 Send a direct NIST 800-53 report email using AWS SES.
 """
 
-import boto3
-import os
-import json
 import argparse
+import json
+import os
+from datetime import datetime
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from datetime import datetime
+
+import boto3
 
 
 def send_nist_email(profile_name, sender_email, recipient_email):

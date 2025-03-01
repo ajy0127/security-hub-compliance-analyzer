@@ -4,9 +4,11 @@ Test script to run the NIST 800-53 email functionality locally with mock data.
 
 import json
 import os
+from unittest.mock import MagicMock, patch
+
 import boto3
-from unittest.mock import patch, MagicMock
-from src.app import lambda_handler, send_email, analyze_findings, generate_csv
+
+from src.app import analyze_findings, generate_csv, lambda_handler, send_email
 from src.mapper_factory import MapperFactory
 
 # Set environment variables needed for the function

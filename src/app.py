@@ -1,12 +1,12 @@
 import argparse
+import email.mime.application
+import email.mime.multipart
+import email.mime.text
 import json
 import logging
 import os
 import sys
 from datetime import datetime, timedelta, timezone
-import email.mime.application
-import email.mime.multipart
-import email.mime.text
 
 import boto3
 import botocore.session

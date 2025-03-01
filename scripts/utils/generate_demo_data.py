@@ -1,9 +1,10 @@
-import boto3
-import json
 import csv
-import io
 import datetime
+import io
+import json
 import random
+
+import boto3
 
 
 def lambda_handler(event, context):

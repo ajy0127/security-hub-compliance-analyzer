@@ -4,6 +4,7 @@ Test script to run the NIST 800-53 email functionality locally.
 
 import json
 import os
+
 from src.app import lambda_handler
 
 # Set environment variables needed for the function

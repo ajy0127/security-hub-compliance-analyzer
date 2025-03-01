@@ -15,9 +15,10 @@ Usage:
 =============================================================================
 """
 
-import json
 import argparse
-from src.app import get_nist_control_status, generate_nist_cato_report
+import json
+
+from src.app import generate_nist_cato_report, get_nist_control_status
 
 
 def test_get_control_status():
