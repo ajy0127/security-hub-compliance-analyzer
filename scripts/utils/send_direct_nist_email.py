@@ -63,24 +63,28 @@ In my experience, organizations typically require 4-6 weeks to remediate these t
 For your NIST 800-53 assessment readiness, I would prioritize addressing the encryption findings first, as these align with multiple controls and represent the most straightforward path to improving your compliance posture."""
     
     # Create HTML content
-    html_content = f"""<html>
-<head>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; }}
-        h1, h2, h3 {{ color: #232f3e; }}
-        .summary {{ background-color: #f8f8f8; padding: 15px; border-radius: 5px; margin-bottom: 20px; }}
-        .critical {{ color: #d13212; }}
-        .high {{ color: #ff9900; }}
-        .medium {{ color: #d9b43c; }}
-        .low {{ color: #6b6b6b; }}
-        .auditor-perspective {{ 
+    css_style = """
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2, h3 { color: #232f3e; }
+        .summary { background-color: #f8f8f8; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .critical { color: #d13212; }
+        .high { color: #ff9900; }
+        .medium { color: #d9b43c; }
+        .low { color: #6b6b6b; }
+        .auditor-perspective { 
             background-color: #f0f7ff; 
             padding: 20px; 
             border-left: 5px solid #0073bb; 
             margin: 20px 0; 
             border-radius: 5px;
             font-style: italic;
-        }}
+        }
+    """
+    
+    html_content = f"""<html>
+<head>
+    <style>
+{css_style}
     </style>
 </head>
 <body>

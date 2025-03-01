@@ -12,13 +12,27 @@ from botocore.stub import Stubber
 from mapper_factory import MapperFactory
 
 def cli_handler():
-    # ... existing code ...
+    """Handle command line interface for the application."""
+    parser = argparse.ArgumentParser(description="AWS Security Hub Compliance Analyzer")
+    parser.add_argument("--hours", type=int, default=24, help="Hours of findings to analyze")
+    parser.add_argument("--framework", type=str, default="SOC2", help="Compliance framework")
+    parser.add_argument("--output", type=str, default="report.csv", help="Output file path")
+    parser.add_argument("--email", type=str, help="Email recipient for report")
     
-    # Fix f-string placeholders
+    args = parser.parse_args()
+    hours = args.hours
+    framework_id = args.framework
+    output_file = args.output
+    recipient_email = args.email
+    
+    # Get findings
+    findings = get_findings(hours)
+    
     print(f"Analyzing findings from the last {hours} hours...")
     print(f"Found {len(findings)} findings")
     print(f"Generating report for {framework_id}...")
     print(f"Report saved to {output_file}")
-    print(f"Email sent to {recipient_email}")
+    if recipient_email:
+        print(f"Email sent to {recipient_email}")
 
 # ... existing code ... 

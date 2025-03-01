@@ -20,7 +20,31 @@ def analyze_control_families():
         print("Failed to load NIST 800-53 mappings.")
         return
 
-    # ... existing code ...
+    # Analyze control families
+    control_families = {}
+    for control_id, control_info in mappings.get("control_descriptions", {}).items():
+        family = control_id.split("-")[0]
+        if family not in control_families:
+            control_families[family] = []
+        control_families[family].append(control_id)
+    
+    # Calculate statistics
+    total_controls = len(mappings.get("control_descriptions", {}))
+    avg_controls_per_family = total_controls / len(control_families) if control_families else 0
+    
+    # Find largest and smallest families
+    largest_family = ""
+    max_controls = 0
+    smallest_family = ""
+    min_controls = float('inf')
+    
+    for family, controls in control_families.items():
+        if len(controls) > max_controls:
+            max_controls = len(controls)
+            largest_family = family
+        if len(controls) < min_controls:
+            min_controls = len(controls)
+            smallest_family = family
 
     # Fix f-string placeholders
     print(f"Total Controls: {total_controls}")
