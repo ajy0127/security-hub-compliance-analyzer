@@ -46,54 +46,278 @@ def load_frameworks():
             },
         ]
 
-def get_findings(hours):
+def get_findings(hours, framework_id=None):
     """Get findings from AWS Security Hub for the specified time period.
     
     Args:
         hours (int): Number of hours to look back for findings
+        framework_id (str, optional): Compliance framework ID to filter findings
         
     Returns:
-        list: List of findings
+        dict: Dictionary of findings by framework
     """
-    # This is a stub implementation
-    return []
+    try:
+        # Load frameworks configuration
+        frameworks = load_frameworks()
+        
+        # Create a dictionary to store findings by framework
+        findings_by_framework = {}
+        for framework in frameworks:
+            findings_by_framework[framework["id"]] = []
+        
+        # Create Security Hub client
+        securityhub = boto3.client("securityhub")
+        
+        # Calculate time filter
+        now = datetime.now(timezone.utc)
+        start_time = now - timedelta(hours=hours)
+        
+        # Prepare filters
+        filters = {
+            "UpdatedAt": [
+                {
+                    "Start": start_time.isoformat(),
+                    "End": now.isoformat(),
+                }
+            ],
+            "RecordState": [{"Value": "ACTIVE", "Comparison": "EQUALS"}],
+        }
+        
+        # Add framework filter if specified
+        if framework_id:
+            # Check if framework is valid
+            if framework_id not in findings_by_framework:
+                logger.warning(f"Invalid framework ID: {framework_id}")
+                return {}
+                
+            # Get framework ARN
+            framework_arn = next((f["arn"] for f in frameworks if f["id"] == framework_id), None)
+            if framework_arn:
+                filters["ProductFields.StandardsArn"] = [
+                    {"Value": framework_arn, "Comparison": "EQUALS"}
+                ]
+        
+        # Get findings from Security Hub
+        response = securityhub.get_findings(Filters=filters, MaxResults=100)
+        findings = response.get("Findings", [])
+        
+        # Process findings
+        for finding in findings:
+            # Determine which framework this finding belongs to
+            for framework in frameworks:
+                # Check if finding is related to this framework
+                if "ProductFields" in finding and "StandardsArn" in finding["ProductFields"]:
+                    if framework["arn"] in finding["ProductFields"]["StandardsArn"]:
+                        findings_by_framework[framework["id"]].append(finding)
+                        break
+                # If no specific framework is identified, add to all frameworks
+                else:
+                    findings_by_framework[framework["id"]].append(finding)
+        
+        # If a specific framework was requested, return only those findings
+        if framework_id:
+            return findings_by_framework[framework_id]
+            
+        return findings_by_framework
+        
+    except Exception as e:
+        logger.error(f"Error getting findings: {e}")
+        # Return empty dictionary if there was an error
+        if framework_id:
+            return []
+        return {k: [] for k in load_frameworks()}
 
-def analyze_findings(findings, framework_id):
+def analyze_findings(findings, mappers):
     """
-    Analyze findings for a specific compliance framework.
+    Analyze findings for compliance frameworks.
+    
+    Args:
+        findings (dict or list): Dictionary of findings by framework or list of findings
+        mappers (dict): Dictionary of framework mappers
+        
+    Returns:
+        tuple: (analyses, stats) where analyses is a dictionary of analysis results by framework
+               and stats is a dictionary of statistics by framework
+    """
+    # Initialize results
+    analyses = {}
+    stats = {}
+    
+    # Convert findings to dictionary if it's a list
+    if isinstance(findings, list):
+        findings_dict = {"combined": findings}
+    else:
+        findings_dict = findings
+    
+    # Process each framework
+    for framework_id, mapper in mappers.items():
+        if framework_id not in findings_dict:
+            continue
+            
+        framework_findings = findings_dict[framework_id]
+        
+        # Skip if no findings
+        if not framework_findings:
+            analyses[framework_id] = "No findings for this framework."
+            stats[framework_id] = {
+                "total": 0,
+                "by_severity": {
+                    "critical": 0,
+                    "high": 0,
+                    "medium": 0,
+                    "low": 0,
+                    "informational": 0,
+                },
+                "by_control": {},
+            }
+            continue
+        
+        # Map findings to framework controls
+        mapped_findings = []
+        for finding in framework_findings:
+            mapped_finding = mapper.map_finding(finding)
+            mapped_findings.append(mapped_finding)
+        
+        # Calculate statistics
+        framework_stats = {
+            "total": len(mapped_findings),
+            "by_severity": {
+                "critical": 0,
+                "high": 0,
+                "medium": 0,
+                "low": 0,
+                "informational": 0,
+            },
+            "by_control": {},
+        }
+        
+        # Process mapped findings
+        control_id_attr = mapper.get_control_id_attribute()
+        for finding in mapped_findings:
+            # Count by severity
+            severity = finding.get("Severity", "INFORMATIONAL").lower()
+            if severity in framework_stats["by_severity"]:
+                framework_stats["by_severity"][severity] += 1
+            
+            # Count by control
+            controls = finding.get(control_id_attr, [])
+            for control in controls:
+                if control not in framework_stats["by_control"]:
+                    framework_stats["by_control"][control] = {
+                        "count": 0,
+                        "findings": [],
+                    }
+                framework_stats["by_control"][control]["count"] += 1
+                framework_stats["by_control"][control]["findings"].append(finding)
+        
+        # Generate analysis text
+        analysis_text = f"Analysis for {framework_id} Framework:\n\n"
+        analysis_text += f"Total findings: {framework_stats['total']}\n"
+        analysis_text += "Findings by severity:\n"
+        for severity, count in framework_stats["by_severity"].items():
+            analysis_text += f"  {severity.upper()}: {count}\n"
+        
+        analysis_text += "\nFindings by control:\n"
+        for control, data in sorted(framework_stats["by_control"].items()):
+            analysis_text += f"  {control}: {data['count']} finding(s)\n"
+        
+        # Try to use AWS Bedrock for enhanced analysis if available
+        try:
+            bedrock_client = boto3.client("bedrock-runtime")
+            
+            # Prepare prompt for Bedrock
+            prompt = {
+                "prompt": f"Analyze the following security findings for {framework_id} compliance framework:\n\n"
+                + json.dumps(mapped_findings, indent=2)
+                + "\n\nProvide a concise analysis of the security posture, key risks, and recommendations.",
+                "max_tokens": 1000,
+                "temperature": 0.7,
+                "top_p": 0.9,
+            }
+            
+            # Call Bedrock
+            response = bedrock_client.invoke_model(
+                modelId="anthropic.claude-v2",
+                contentType="application/json",
+                accept="application/json",
+                body=json.dumps(prompt),
+            )
+            
+            # Parse response
+            response_body = json.loads(response["body"].read())
+            ai_analysis = response_body.get("content", [{"text": ""}])[0]["text"]
+            
+            # Add AI analysis to the text
+            analysis_text += "\nAI-Enhanced Analysis:\n" + ai_analysis
+            
+        except Exception as e:
+            logger.warning(f"Error generating AI analysis: {e}")
+            # Continue without AI analysis
+        
+        # Store results
+        analyses[framework_id] = analysis_text
+        stats[framework_id] = framework_stats
+    
+    # Generate combined analysis if multiple frameworks
+    if len(findings_dict) > 1:
+        combined_text = "Combined Analysis Across Frameworks:\n\n"
+        total_findings = sum(s["total"] for s in stats.values())
+        combined_text += f"Total findings across all frameworks: {total_findings}\n\n"
+        
+        for framework_id, framework_stats in stats.items():
+            combined_text += f"{framework_id}: {framework_stats['total']} findings\n"
+        
+        analyses["combined"] = combined_text
+    
+    return analyses, stats
+
+def generate_csv(findings, mappers):
+    """
+    Generate a CSV report from findings.
     
     Args:
         findings (list): List of Security Hub findings
-        framework_id (str): Compliance framework ID
+        mappers (dict): Dictionary of framework mappers
         
     Returns:
-        dict: Analysis results
+        str: CSV content as a string
     """
-    # This is a stub implementation
-    return {
-        "total": len(findings),
-        "by_severity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0
-        },
-        "by_control": {}
-    }
-
-def generate_csv(analysis_results, output_file):
-    """
-    Generate a CSV report from analysis results.
+    if not findings:
+        return ""
+        
+    csv_content = ""
     
-    Args:
-        analysis_results (dict): Analysis results
-        output_file (str): Output file path
+    # Process each framework
+    for framework_id, mapper in mappers.items():
+        # Map findings to framework controls
+        mapped_findings = []
+        for finding in findings:
+            mapped_finding = mapper.map_finding(finding)
+            mapped_findings.append(mapped_finding)
         
-    Returns:
-        str: Path to the generated CSV file
-    """
-    # This is a stub implementation
-    return output_file
+        if not mapped_findings:
+            continue
+            
+        # Get control ID attribute
+        control_id_attr = mapper.get_control_id_attribute()
+        
+        # Generate CSV header
+        csv_content += f"AWS SecurityHub {framework_id} Compliance Report\n"
+        csv_content += f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        csv_content += f"Title,Severity,Finding Type,{framework_id} Controls\n"
+        
+        # Generate CSV rows
+        for finding in mapped_findings:
+            title = finding.get("Title", "").replace(",", " ")
+            severity = finding.get("Severity", "")
+            finding_type = finding.get("Type", "").replace(",", " ")
+            controls = ",".join(finding.get(control_id_attr, []))
+            
+            csv_content += f"{title},{severity},{finding_type},{controls}\n"
+        
+        csv_content += "\n\n"
+    
+    return csv_content
 
 def generate_nist_cato_report(findings=None, output_file=None):
     """
@@ -430,7 +654,7 @@ def cli_handler():
     recipient_email = args.email
     
     # Get findings
-    findings = get_findings(hours)
+    findings = get_findings(hours, framework_id)
     
     print(f"Analyzing findings from the last {hours} hours...")
     print(f"Found {len(findings)} findings")
@@ -438,5 +662,72 @@ def cli_handler():
     print(f"Report saved to {output_file}")
     if recipient_email:
         print(f"Email sent to {recipient_email}")
+
+def lambda_handler(event, context):
+    """
+    AWS Lambda handler function.
+    
+    Args:
+        event (dict): Lambda event
+        context (object): Lambda context
+        
+    Returns:
+        dict: Response
+    """
+    try:
+        # Parse event parameters
+        hours = int(event.get("hours", 24))
+        framework_id = event.get("framework_id")
+        output_format = event.get("output_format", "text")
+        email = event.get("email")
+        
+        # Get findings
+        findings = get_findings(hours, framework_id)
+        
+        # Create mappers
+        mappers = MapperFactory.create_all_mappers()
+        
+        # Analyze findings
+        analyses, stats = analyze_findings(findings, mappers)
+        
+        # Generate output
+        if output_format == "csv":
+            # For CSV, we need to flatten the findings
+            all_findings = []
+            if isinstance(findings, dict):
+                for framework_findings in findings.values():
+                    all_findings.extend(framework_findings)
+            else:
+                all_findings = findings
+                
+            output = generate_csv(all_findings, mappers)
+        elif output_format == "json":
+            output = json.dumps(stats, default=str, indent=2)
+        else:
+            # Default to text format
+            output = "\n\n".join(analyses.values())
+        
+        # Send email if requested
+        if email:
+            send_email(email, "AWS Security Hub Compliance Report", output)
+            
+        # Return response
+        return {
+            "statusCode": 200,
+            "body": {
+                "message": "Analysis completed successfully",
+                "output": output,
+                "stats": stats
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in lambda handler: {e}")
+        return {
+            "statusCode": 500,
+            "body": {
+                "message": f"Error: {str(e)}"
+            }
+        }
 
 # ... existing code ... 
