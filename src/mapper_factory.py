@@ -222,8 +222,12 @@ class MapperFactory:
             mappings_file = os.path.join(mappings_dir, "nist800_53_mappings.json")
             return NIST80053Mapper(mappings_file=mappings_file)
         else:
-            logger.error(f"Unsupported framework: {framework_id}. Supported frameworks: SOC2, NIST800-53")
-            raise ValueError(f"Unsupported framework: {framework_id}. Please use one of the supported frameworks: SOC2, NIST800-53")
+            logger.error(
+                f"Unsupported framework: {framework_id}. Supported frameworks: SOC2, NIST800-53"
+            )
+            raise ValueError(
+                f"Unsupported framework: {framework_id}. Please use one of the supported frameworks: SOC2, NIST800-53"
+            )
 
     @staticmethod
     def create_all_mappers(frameworks=None, mappings_dir=None):
@@ -253,8 +257,12 @@ class MapperFactory:
                     framework_id, mappings_dir
                 )
             except ValueError as e:
-                logger.error(f"Error creating mapper for framework {framework_id}: {str(e)}")
-                logger.error(f"Skipping framework {framework_id} - this may affect analysis results")
+                logger.error(
+                    f"Error creating mapper for framework {framework_id}: {str(e)}"
+                )
+                logger.error(
+                    f"Skipping framework {framework_id} - this may affect analysis results"
+                )
                 continue
 
         return mappers

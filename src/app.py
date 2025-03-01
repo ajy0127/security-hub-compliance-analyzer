@@ -105,22 +105,22 @@ def get_findings(hours, framework_id=None):
         # Get findings from Security Hub with pagination
         findings = []
         next_token = None
-        
+
         while True:
             # Prepare parameters for API call
             params = {"Filters": filters, "MaxResults": 100}
             if next_token:
                 params["NextToken"] = next_token
-                
+
             # Call the API
             response = securityhub.get_findings(**params)
             findings.extend(response.get("Findings", []))
-            
+
             # Check if there are more pages
             next_token = response.get("NextToken")
             if not next_token:
                 break
-                
+
         logger.info(f"Retrieved {len(findings)} findings from Security Hub")
 
         # Process findings
@@ -429,10 +429,10 @@ def generate_nist_cato_report(findings=None, output_file=None):
     report_text += f"Passing Controls: {statistics['passing_controls']} ({percentage(statistics['passing_controls'], statistics['total_controls'])}%)\n"
     report_text += f"Failing Controls: {statistics['failing_controls']} ({percentage(statistics['failing_controls'], statistics['total_controls'])}%)\n"
     report_text += f"Not Applicable Controls: {statistics['not_applicable_controls']} ({percentage(statistics['not_applicable_controls'], statistics['total_controls'])}%)\n\n"
-    
+
     # Add note if we don't have all 288 controls
     expected_controls = 288
-    if statistics['total_controls'] < expected_controls:
+    if statistics["total_controls"] < expected_controls:
         report_text += f"**Note**: Only {statistics['total_controls']} of {expected_controls} controls were retrieved from Security Hub. Others are marked as UNKNOWN.\n\n"
 
     # Control Family Status
@@ -591,10 +591,12 @@ def get_nist_control_status(findings=None):
         # Check if we have all expected controls (288 for NIST 800-53)
         fetched_controls = len(control_status)
         expected_controls = 288
-        
+
         if fetched_controls < expected_controls:
-            logger.warning(f"Only {fetched_controls}/{expected_controls} NIST controls returned by Security Hub")
-            
+            logger.warning(
+                f"Only {fetched_controls}/{expected_controls} NIST controls returned by Security Hub"
+            )
+
         logger.info(f"Returning {fetched_controls} NIST 800-53 controls")
         return control_status
 
@@ -800,7 +802,7 @@ def cli_handler():
     print(f"Found {len(findings)} findings")
     print(f"Generating report for {framework_id}...")
     print(f"Report saved to {output_file}")
-    
+
     if recipient_email and not skip_email:
         print(f"Email sent to {recipient_email}")
     elif recipient_email and skip_email:
@@ -854,7 +856,9 @@ def lambda_handler(event, context):
             output = "\n\n".join(analyses.values())
 
         # Send email if requested and email sending is enabled
-        send_email_flag = event.get("send_email", True)  # Default to True for backward compatibility
+        send_email_flag = event.get(
+            "send_email", True
+        )  # Default to True for backward compatibility
         if email and send_email_flag:
             send_email(email, "AWS Security Hub Compliance Report", output)
             logger.info(f"Email sent to {email}")
