@@ -82,6 +82,14 @@ For your NIST 800-53 assessment readiness, I would prioritize addressing the enc
     """
     
     # Use raw string for CSS to avoid escape sequence issues
+    
+    # Preprocess the analysis text to avoid f-string backslash issues
+    formatted_analysis = analysis.replace('##', '<h2>')
+    formatted_analysis = formatted_analysis.replace('\n\n', '</h2><p>')
+    formatted_analysis = formatted_analysis.replace('\n', '<br>')
+    formatted_analysis = formatted_analysis.replace('</h2><p>', '</h2><p>')
+    formatted_analysis = formatted_analysis + '</p>'
+    
     html_content = f"""<html>
 <head>
     <style>
@@ -102,7 +110,7 @@ For your NIST 800-53 assessment readiness, I would prioritize addressing the enc
     </div>
     
     <div class="analysis-content">
-        {analysis.replace('##', '<h2>').replace('\n\n', '</h2><p>').replace('\n', '<br>').replace('</h2><p>', '</h2><p>') + '</p>'}
+        {formatted_analysis}
     </div>
     
     <p>Note: This is a direct test email to verify delivery of NIST 800-53 reports. A CSV report would normally be attached.</p>
