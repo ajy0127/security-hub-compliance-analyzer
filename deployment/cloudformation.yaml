@@ -29,7 +29,61 @@ Parameters:
     Default: lambda-code.zip
 
 Resources:
-  # Other resources remain the same
+  # IAM Role for Lambda Execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonSESFullAccess
+      Policies:
+        - PolicyName: SecurityHubComplianceAnalyzerPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub "arn:aws:s3:::${ConfigBucket}"
+                  - !Sub "arn:aws:s3:::${ConfigBucket}/*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Action:
+                  - securityhub:GetFindings
+                  - securityhub:GetInsights
+                  - securityhub:GetInsightResults
+                  - securityhub:DescribeProducts
+                  - securityhub:DescribeStandards
+                  - securityhub:DescribeStandardsControls
+                Resource: "*"
+
+  # S3 Bucket for Configuration Files
+  ConfigBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-configbucket-${AWS::AccountId}"
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
 
   SecurityHubAnalyzer:
     Type: AWS::Lambda::Function
@@ -52,4 +106,42 @@ Resources:
         S3Bucket: !Ref S3BucketName
         S3Key: !Ref S3KeyName
 
-  # Other resources remain the same
+  # EventBridge Rule for Weekly Analysis
+  WeeklyAnalysisSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${AWS::StackName}-WeeklyAnalysisSchedule"
+      Description: "Triggers weekly compliance analysis every Monday at 9 AM UTC"
+      ScheduleExpression: "cron(0 9 ? * MON *)"
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt SecurityHubAnalyzer.Arn
+          Id: "WeeklyAnalysisTarget"
+          Input: !Sub |
+            {
+              "email": "${RecipientEmail}",
+              "framework": "${DefaultFramework}",
+              "hours": 168
+            }
+
+  # Permission for EventBridge to Invoke Lambda
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SecurityHubAnalyzer
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt WeeklyAnalysisSchedule.Arn
+
+Outputs:
+  SecurityHubAnalyzerFunction:
+    Description: "Lambda function for SecurityHub compliance analysis"
+    Value: !Ref SecurityHubAnalyzer
+  
+  ConfigBucketName:
+    Description: "S3 bucket for configuration files"
+    Value: !Ref ConfigBucket
+  
+  WeeklySchedule:
+    Description: "EventBridge rule for weekly analysis"
+    Value: !Ref WeeklyAnalysisSchedule

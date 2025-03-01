@@ -92,7 +92,7 @@ Resources:
       FunctionName: !Sub "${AWS::StackName}-SecurityHubAnalyzer"
       Description: Analyzes AWS SecurityHub findings against compliance frameworks (SOC 2, NIST 800-53)
       Runtime: python3.9
-      Handler: app.lambda_handler
+      Handler: src.app.lambda_handler
       Timeout: 300
       MemorySize: 1024
       Role: !GetAtt LambdaExecutionRole.Arn
