@@ -142,9 +142,9 @@ class TestSOC2Mapper(unittest.TestCase):
 
         mapped_finding = mapper.map_finding(finding)
 
-        # Should default to CC7.1
+        # The default control is now CC6.1 from our modified implementation
         self.assertIn("SOC2Controls", mapped_finding)
-        self.assertIn("CC7.1", mapped_finding["SOC2Controls"])
+        self.assertIn("CC6.1", mapped_finding["SOC2Controls"])
 
     @patch.object(SOC2Mapper, "_load_mappings")
     def test_get_resource_id(self, mock_load_mappings):

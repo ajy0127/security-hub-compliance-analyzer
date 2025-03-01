@@ -1,18 +1,1 @@
-{
-  "frameworks": [
-    {
-      "id": "SOC2",
-      "name": "SOC 2",
-      "arn": "arn:aws:securityhub:::standards/aws-soc2",
-      "mappings_file": "config/mappings/soc2_mappings.json",
-      "description": "SOC 2 is a voluntary compliance standard for service organizations, developed by the American Institute of CPAs (AICPA), which specifies how organizations should manage customer data."
-    },
-    {
-      "id": "NIST800-53",
-      "name": "NIST 800-53 Rev 5",
-      "arn": "arn:aws:securityhub:::standards/nist-800-53-r5",
-      "mappings_file": "config/mappings/nist800_53_mappings.json",
-      "description": "NIST 800-53 is a publication that recommends security controls for federal information systems and organizations and documents security controls for all U.S. federal information systems, except those designed for national security."
-    }
-  ]
-}
+{"frameworks": [{"id": "SOC2", "name": "SOC 2", "description": "SOC 2", "arn": "arn:aws:securityhub:::ruleset/cis-aws-foundations-benchmark/v/1.2.0"}, {"id": "NIST800-53", "name": "NIST 800-53", "description": "NIST 800-53", "arn": "arn:aws:securityhub:us-east-1::standards/nist-800-53/v/5.0.0"}]}

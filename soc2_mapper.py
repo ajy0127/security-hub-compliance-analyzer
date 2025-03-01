@@ -21,13 +21,13 @@ class SOC2Mapper(FrameworkMapper):
         """
         # Set default mappings file if not provided
         if mappings_file is None:
-            mappings_file = os.path.join("mappings", "soc2_mapping.json")
+            mappings_file = os.path.join("config", "mappings", "soc2_mappings.json")
             
         # Initialize parent class with framework_id
         super().__init__(framework_id="SOC2", mappings_file=mappings_file)
         
-        # Load mappings from file or use defaults
-        self.mappings = self._load_mappings(mappings_file)
+        # The parent class already loads the mappings in its __init__ method
+        # We don't need to reload them here
 
     def _get_default_mappings(self):
         """
