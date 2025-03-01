@@ -256,20 +256,25 @@ def generate_nist_cato_report():
         return "No NIST 800-53 controls found or enabled.", {}, {}
     
     # Initialize statistics
-    stats = {
-        "total": len(controls),
-        "passed": 0,
-        "failed": 0,
-        "unknown": 0,
-        "not_applicable": 0,
-        "warning": 0,
-        "disabled": 0,
-        # Severity counts
-        "critical": 0, 
-        "high": 0,
-        "medium": 0,
-        "low": 0
+    statistics = {
+        "total_controls": len(controls),
+        "passed": len([c for c in controls.values() if c["status"] == "PASSED"]),
+        "failed": len([c for c in controls.values() if c["status"] == "FAILED"]),
+        "disabled": len([c for c in controls.values() if c["disabled"]]),
+        "critical": len([c for c in controls.values() if c["severity"] == "CRITICAL"]),
+        "high": len([c for c in controls.values() if c["severity"] == "HIGH"]),
+        "medium": len([c for c in controls.values() if c["severity"] == "MEDIUM"]),
+        "low": len([c for c in controls.values() if c["severity"] == "LOW"]),
+        "passing_controls": len([c for c in controls.values() if c["status"] == "PASSED"]),
+        "failing_controls": len([c for c in controls.values() if c["status"] == "FAILED"]),
+        "not_applicable_controls": len([c for c in controls.values() if c["status"] == "NOT_APPLICABLE"])
     }
+
+    # Calculate compliance percentage
+    total_enabled = statistics["passed"] + statistics["failed"]
+    statistics["compliance_percentage"] = (
+        (statistics["passed"] / total_enabled * 100) if total_enabled > 0 else 0
+    )
     
     # Initialize control families dictionary
     control_families = {}
@@ -279,27 +284,13 @@ def generate_nist_cato_report():
         # Update status counts
         status = control.get("status", "UNKNOWN").upper()
         if status == "PASSED":
-            stats["passed"] += 1
+            statistics["passed"] += 1
         elif status == "FAILED":
-            stats["failed"] += 1
-        elif status == "WARNING":
-            stats["warning"] += 1
+            statistics["failed"] += 1
         elif status == "NOT_APPLICABLE":
-            stats["not_applicable"] += 1
-        else:
-            stats["unknown"] += 1
-            
-        # Count disabled controls
-        if control.get("disabled", False):
-            stats["disabled"] += 1
-            
-        # Update severity counts
-        severity = control.get("severity", "MEDIUM").upper()
-        if severity in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
-            stats[severity.lower()] += 1
-            
-        # Group by control family (e.g., AC-1 belongs to AC family)
-        # Try to extract the control family from the ID
+            statistics["disabled"] += 1
+
+        # Extract control family from ID (e.g., "AC" from "AC-1")
         if '-' in control_id:
             family = control_id.split('-')[0]
         elif '.' in control_id:
@@ -311,36 +302,43 @@ def generate_nist_cato_report():
         # If the family is numeric or doesn't look like a control family, put it in OTHER
         if family.isdigit() or len(family) < 2:
             family = "OTHER"
-        
+
+        # Initialize family if not exists
         if family not in control_families:
             control_families[family] = {
                 "name": family,
                 "controls": [],
+                "total": 0,
                 "passed": 0,
                 "failed": 0,
-                "total": 0,
+                "disabled": 0,
                 "compliance_percentage": 0
             }
-            
+
         # Add control to its family
         control_families[family]["controls"].append(control)
         control_families[family]["total"] += 1
-        
+
+        # Update family statistics
         if status == "PASSED":
             control_families[family]["passed"] += 1
         elif status == "FAILED":
             control_families[family]["failed"] += 1
-            
-    # Calculate compliance percentage for each family
-    for family in control_families.values():
-        if family["total"] > 0:
-            family["compliance_percentage"] = (family["passed"] / family["total"]) * 100
-            
+        elif status == "NOT_APPLICABLE":
+            control_families[family]["disabled"] += 1
+
+        # Calculate family compliance percentage
+        total_family_controls = control_families[family]["passed"] + control_families[family]["failed"]
+        if total_family_controls > 0:
+            control_families[family]["compliance_percentage"] = (
+                control_families[family]["passed"] / total_family_controls * 100
+            )
+
     # Calculate overall compliance percentage
-    if stats["total"] > 0:
-        stats["compliance_percentage"] = ((stats["passed"] + stats["not_applicable"]) / stats["total"]) * 100
+    if statistics["total_controls"] > 0:
+        statistics["compliance_percentage"] = ((statistics["passed"] + statistics["disabled"]) / statistics["total_controls"]) * 100
     else:
-        stats["compliance_percentage"] = 0
+        statistics["compliance_percentage"] = 0
         
     # Sort families by compliance percentage (ascending, so less compliant families are first)
     sorted_families = dict(sorted(
@@ -355,11 +353,10 @@ def generate_nist_cato_report():
 
 This report provides the current implementation status of NIST 800-53 controls for Continuous Authorization to Operate (cATO).
 
-* **Total Controls**: {stats['total']}
-* **Passed**: {stats['passed']} ({stats['compliance_percentage']:.1f}%)
-* **Failed**: {stats['failed']}
-* **Unknown/Not Checked**: {stats['unknown']}
-* **Not Applicable**: {stats['not_applicable']}
+* **Total Controls**: {statistics['total_controls']}
+* **Passed**: {statistics['passed']} ({statistics['compliance_percentage']:.1f}%)
+* **Failed**: {statistics['failed']}
+* **Not Applicable**: {statistics['disabled']}
 
 ## Control Family Status
 
@@ -376,7 +373,7 @@ This report provides the current implementation status of NIST 800-53 controls f
     # Add cATO specific recommendations based on compliance state
     report += "## cATO Recommendations\n\n"
     
-    if stats["compliance_percentage"] < 50:
+    if statistics["compliance_percentage"] < 50:
         report += """**Initial cATO Implementation Phase**
 
 Your environment is in the early stages of cATO readiness. Focus on:
@@ -385,7 +382,7 @@ Your environment is in the early stages of cATO readiness. Focus on:
 2. Establish a System Security Plan (SSP) with detailed POA&M
 3. Implement monitoring for critical controls first
 """
-    elif stats["compliance_percentage"] < 80:
+    elif statistics["compliance_percentage"] < 80:
         report += """**Intermediate cATO Implementation Phase**
 
 Your environment is making good progress toward cATO. Focus on:
@@ -406,7 +403,7 @@ Your environment is well positioned for cATO. Focus on:
 4. Verify integration with agency risk management systems
 """
     
-    return report, stats, control_families
+    return report, statistics, control_families
 
 
 def analyze_findings(findings, mappers, framework_id=None, combined=False):
@@ -514,6 +511,12 @@ def analyze_findings(findings, mappers, framework_id=None, combined=False):
         # Get control attribute name (e.g., "SOC2Controls", "NIST800-53Controls")
         control_attr = mapper.get_control_id_attribute()
 
+        # Get framework name from configuration
+        frameworks = load_frameworks()
+        framework_name = next(
+            (f["name"] for f in frameworks if f["id"] == framework_id), framework_id
+        )
+
         # Group findings by control for better analysis
         control_findings = {}
         for finding in mapped_findings:
@@ -531,12 +534,6 @@ def analyze_findings(findings, mappers, framework_id=None, combined=False):
         try:
             # Use Amazon Bedrock's Claude model to generate expert analysis
             bedrock = boto3.client("bedrock-runtime")
-
-            # Get framework name from configuration
-            frameworks = load_frameworks()
-            framework_name = next(
-                (f["name"] for f in frameworks if f["id"] == framework_id), framework_id
-            )
 
             # Construct prompt for AI to generate professional compliance analysis
             prompt = f"""You are a {framework_name} compliance expert analyzing AWS SecurityHub findings.
